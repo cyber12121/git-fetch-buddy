@@ -1,15 +1,18 @@
-import React, { useState, useEffect, useCallback, useRef, lazy, Suspense, type ReactNode } from "react";
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
 
 import { motion, AnimatePresence } from "motion/react";
 import { Task, CalendarEvent, Habit, HabitLog, HabitDayStatus } from "./types";
 import GubbyCompanion from "./components/GubbyCompanion";
 import AppNav from "./components/AppNav";
+import ErrorBoundary from "./components/ErrorBoundary";
+import AppStatusBar from "./components/AppStatusBar";
 import { useToast } from "./components/Toast";
 import { useCloudSync } from "./hooks/useCloudSync";
 import { useGoogleCalendar } from "./hooks/useGoogleCalendar";
 import CompilerModule from "./components/CompilerModule";
 import { createGoogleCalendarEvent, deleteGoogleCalendarEvent } from "./lib/googleCalendar";
 import { estimateTaskDuration, toLocalDateKey } from "./lib/constants";
+import { DEFAULT_TASKS } from "./lib/defaultTasks";
 import confetti from "canvas-confetti";
 
 // Code-split the heavier modules so they load only when their tab opens.
@@ -19,88 +22,6 @@ const CalendarModule = lazy(() => import("./components/CalendarModule").then(m =
 const WeeklyPlannerModule = lazy(() => import("./components/WeeklyPlannerModule").then(m => ({ default: m.default })));
 const HabitTrackerModule = lazy(() => import("./components/HabitTrackerModule").then(m => ({ default: m.default })));
 
-// Graceful fallback so an unexpected throw doesn't white-screen the whole app.
-interface ErrorBoundaryProps { children: ReactNode; }
-interface ErrorBoundaryState { error: Error | null; }
-
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  state: ErrorBoundaryState = { error: null };
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { error };
-  }
-  componentDidCatch(error: Error) {
-    console.error("Goblin Flow crashed:", error);
-  }
-  render(): ReactNode {
-    if (this.state.error) {
-      return (
-        <div className="min-h-dvh flex items-center justify-center p-8 text-center">
-          <div className="bg-surface-sunken/90 rounded-2xl p-6 shadow-md max-w-md">
-            <div className="text-3xl mb-2" aria-hidden="true">🍄</div>
-            <h2 className="font-bold text-ink mb-1">Something wobbled!</h2>
-            <p className="text-sm text-ink-muted mb-3">Gubby hit a snag. Try refreshing — your tasks are safe in local storage.</p>
-            <button
-              type="button"
-              onClick={() => (this as any).setState({ error: null })}
-              className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-bold text-sm min-h-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              Try again
-            </button>
-          </div>
-        </div>
-
-      );
-    }
-    return (this as any).props.children;
-  }
-}
-
-
-// Graceful fallback so an unexpected throw doesn't white-screen the whole app.
-
-
-// High-value default tasks for standard ADHD-friendly initial onboarding
-const DEFAULT_TASKS: Task[] = [
-  {
-    id: "default-task-1",
-    title: "Gather cozy moss from the forest brook",
-    priority: "medium",
-    notes: "Requires rubber boots and a tiny container. Damp soil smells amazing!",
-    completed: false,
-    createdAt: new Date().toISOString(),
-    estimatedMinutes: 30,
-    subtasks: [
-      { id: "def-sub-1", title: "Put on waterproof boots 🥾", completed: true },
-      { id: "def-sub-2", title: "Locate damp, shaded log near riverbank", completed: false },
-      { id: "def-sub-3", title: "Gently scoop a handful of moss", completed: false }
-    ],
-    scheduledDate: toLocalDateKey() // today
-  },
-  {
-    id: "default-task-2",
-    title: "Clean the terrifying messy room heap",
-    priority: "high",
-    notes: "It has been staring at me for 3 weeks. High threat level!",
-    completed: false,
-    createdAt: new Date().toISOString(),
-    estimatedMinutes: 45,
-    subtasks: [
-      { id: "def-sub-4", title: "Pick up exactly 3 pieces of paper from floor", completed: false },
-      { id: "def-sub-5", title: "Put exactly 1 dirty shirt in the basket", completed: false },
-      { id: "def-sub-6", title: "Open a window to let fresh air in 💨", completed: false }
-    ]
-  },
-  {
-    id: "default-task-3",
-    title: "Polish the shiny goblin crown 👑",
-    priority: "low",
-    notes: "A quick, satisfying win to boost dopamine!",
-    completed: true,
-    createdAt: new Date().toISOString(),
-    estimatedMinutes: 10,
-    subtasks: []
-  }
-];
 
 export default function App() {
   const { pushToast } = useToast();
