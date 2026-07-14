@@ -70,36 +70,36 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
               </div>
             </div>
 
-            {/* Desktop tab row — shown only on full-width tabs (calendar/weekly/habits)
-                where the left SideNav is hidden, so users can still switch tabs. */}
-            {(activeTab === "calendar" || activeTab === "weekly" || activeTab === "habits") && (
-              <nav
-                aria-label="Primary"
-                className="hidden lg:flex items-center gap-1"
-              >
-                {TABS.map((tab) => {
-                  const isActive = activeTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => select(tab)}
-                      onMouseEnter={() => prefetch(tab)}
-                      onFocus={() => prefetch(tab)}
-                      aria-current={isActive ? "page" : undefined}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors min-h-9 ${
-                        isActive
-                          ? "bg-[#556B55] text-white shadow-sm"
-                          : "text-ink-muted hover:text-ink hover:bg-surface-sunken"
-                      }`}
-                    >
-                      <tab.Icon size={14} aria-hidden="true" />
-                      <span>{tab.label}</span>
-                    </button>
-                  );
-                })}
-              </nav>
-            )}
+            {/* Desktop tab row — always visible on lg+ for consistent tab switching
+                across every tab (planning tabs hide the SideNav, so this is the
+                primary switcher there; on do-tabs it complements the SideNav). */}
+            <nav
+              aria-label="Primary"
+              className="hidden lg:flex items-center gap-1 order-3 lg:order-none w-full lg:w-auto justify-center lg:justify-start mt-2 lg:mt-0"
+            >
+              {TABS.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => select(tab)}
+                    onMouseEnter={() => prefetch(tab)}
+                    onFocus={() => prefetch(tab)}
+                    aria-current={isActive ? "page" : undefined}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors min-h-9 ${
+                      isActive
+                        ? "bg-[#556B55] text-white shadow-sm"
+                        : "text-ink-muted hover:text-ink hover:bg-surface-sunken"
+                    }`}
+                  >
+                    <tab.Icon size={14} aria-hidden="true" />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+
 
 
             {/* Right side: XP + status */}
