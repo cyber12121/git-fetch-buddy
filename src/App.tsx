@@ -9,19 +9,33 @@ import AppStatusBar from "./components/AppStatusBar";
 import { useToast } from "./components/Toast";
 import { useCloudSync } from "./hooks/useCloudSync";
 import { useGoogleCalendar } from "./hooks/useGoogleCalendar";
-import CompilerModule from "./components/CompilerModule";
 import { createGoogleCalendarEvent, deleteGoogleCalendarEvent } from "./lib/googleCalendar";
 import { estimateTaskDuration, toLocalDateKey } from "./lib/constants";
 import { DEFAULT_TASKS } from "./lib/defaultTasks";
 import { readJSON, writeJSON } from "./lib/safeStorage";
 import confetti from "canvas-confetti";
 
-// Code-split the heavier modules so they load only when their tab opens.
-const MagicTodoModule = lazy(() => import("./components/MagicTodoModule").then(m => ({ default: m.default })));
-const TaskmasterModule = lazy(() => import("./components/TaskmasterModule").then(m => ({ default: m.default })));
-const CalendarModule = lazy(() => import("./components/CalendarModule").then(m => ({ default: m.default })));
-const WeeklyPlannerModule = lazy(() => import("./components/WeeklyPlannerModule").then(m => ({ default: m.default })));
-const HabitTrackerModule = lazy(() => import("./components/HabitTrackerModule").then(m => ({ default: m.default })));
+// Code-split every workspace module so the initial bundle only carries the
+// shell (nav, companion, status bar). Each module's chunk is fetched the
+// first time its tab is opened (or when the nav pre-warms it on hover).
+const CompilerModule = lazy(() => import("./components/CompilerModule"));
+const MagicTodoModule = lazy(() => import("./components/MagicTodoModule"));
+const TaskmasterModule = lazy(() => import("./components/TaskmasterModule"));
+const CalendarModule = lazy(() => import("./components/CalendarModule"));
+const WeeklyPlannerModule = lazy(() => import("./components/WeeklyPlannerModule"));
+const HabitTrackerModule = lazy(() => import("./components/HabitTrackerModule"));
+
+// Map of tab id → dynamic import, used by AppNav to prefetch a module's
+// chunk on hover/focus so the first click feels instant.
+const MODULE_PREFETCH: Record<string, () => Promise<unknown>> = {
+  compiler: () => import("./components/CompilerModule"),
+  todo: () => import("./components/MagicTodoModule"),
+  taskmaster: () => import("./components/TaskmasterModule"),
+  calendar: () => import("./components/CalendarModule"),
+  weekly: () => import("./components/WeeklyPlannerModule"),
+  habits: () => import("./components/HabitTrackerModule"),
+};
+
 
 
 export default function App() {
@@ -464,8 +478,10 @@ export default function App() {
         activeTab={activeTab}
         onTabChange={(tab) => setActiveTab(tab as "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits")}
         onGubbyMessage={triggerGubbySpeak}
+        onPrefetchTab={(tab) => { MODULE_PREFETCH[tab]?.().catch(() => {}); }}
         xp={xp}
       />
+
 
       {/* 3. Global Gubby Companion Layer — inline on every breakpoint. */}
       {activeTab !== "weekly" && activeTab !== "calendar" && activeTab !== "habits" && (

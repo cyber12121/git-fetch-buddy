@@ -25,17 +25,21 @@ interface AppNavProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   onGubbyMessage: (msg: string, mood: GubbyMood) => void;
+  onPrefetchTab?: (tab: string) => void;
   xp: number;
 }
 
-export default function AppNav({ activeTab, onTabChange, onGubbyMessage, xp }: AppNavProps) {
+export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefetchTab, xp }: AppNavProps) {
   const level = Math.floor(xp / 100) + 1;
   const xpInLevel = xp % 100;
+
+  const prefetch = (tab: TabDef) => onPrefetchTab?.(tab.id);
 
   const select = (tab: TabDef) => {
     onTabChange(tab.id);
     onGubbyMessage(tab.msg, tab.mood);
   };
+
 
   return (
     <>
@@ -82,7 +86,10 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, xp }: A
                     <motion.button
                       id={`nav-tab-${tab.id}`}
                       onClick={() => select(tab)}
+                      onMouseEnter={() => prefetch(tab)}
+                      onFocus={() => prefetch(tab)}
                       whileHover={{ y: -1 }}
+
                       whileTap={{ scale: 0.97 }}
                       aria-current={isActive ? "page" : undefined}
                       className={`flex items-center gap-1.5 px-3 lg:px-4 py-2 rounded-xl font-bold text-xs transition-colors cursor-pointer select-none min-h-11 ${
@@ -148,7 +155,10 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, xp }: A
                 <button
                   type="button"
                   onClick={() => select(tab)}
+                  onTouchStart={() => prefetch(tab)}
+                  onFocus={() => prefetch(tab)}
                   aria-current={isActive ? "page" : undefined}
+
                   aria-label={tab.label}
                   className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-14 text-[10px] font-bold transition-colors ${
                     isActive
