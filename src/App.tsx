@@ -749,15 +749,11 @@ export default function App() {
                 </button>
               )}
               <TodaysQuests tasks={tasks} onToggleTask={handleToggleTask} />
-            </aside>
-          )}
-        </div>
-
-              <TodaysQuests tasks={tasks} onToggleTask={handleToggleTask} />
               <RewardHistory />
             </aside>
           )}
         </div>
+
 
         {/* Mobile/tablet: inline Sprig + reward log below the module. */}
         <section aria-label="Extras" className="lg:hidden mt-6 space-y-4">
