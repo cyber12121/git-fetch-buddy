@@ -456,8 +456,8 @@ export default function CalendarModule({
           }`}
         >
           {/* Day number header */}
-          <div className="flex justify-between items-center px-1">
-            <span className={`text-xs font-bold font-fredoka ${isToday ? "text-white bg-brand rounded-full w-5 h-5 flex items-center justify-center" : "text-ink-muted "}`}>
+          <div className="flex justify-between items-center md:px-1">
+            <span className={`text-[11px] md:text-xs font-bold font-fredoka ${isToday ? "text-white bg-brand rounded-full w-5 h-5 flex items-center justify-center" : "text-ink-muted "}`}>
               {day}
             </span>
             <button
@@ -466,11 +466,31 @@ export default function CalendarModule({
                 e.stopPropagation();
                 handleCellSelect(day);
               }}
-              className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-[9px] md:text-[10px] font-extrabold text-white bg-brand hover:bg-brand-hover px-2.5 py-1 rounded-lg transition-all cursor-pointer shadow-xs"
+              className="hidden md:inline-block opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-[9px] md:text-[10px] font-extrabold text-white bg-brand hover:bg-brand-hover px-2.5 py-1 rounded-lg transition-all cursor-pointer shadow-xs"
             >
               {filterType === "task" ? "+ Task 🎯" : filterType === "event" ? "+ Event 📌" : "+ Add 🌟"}
             </button>
           </div>
+
+          {/* Mobile-only event dot indicators */}
+          {dayEvents.length > 0 && (
+            <div className="flex md:hidden items-end justify-center gap-0.5 flex-1 pb-1">
+              {dayEvents.slice(0, 3).map((evt) => (
+                <span
+                  key={`dot-${evt.id}`}
+                  className={`w-1.5 h-1.5 rounded-full border ${evt.color}`}
+                  aria-hidden="true"
+                />
+              ))}
+              {dayEvents.length > 3 && (
+                <span className="text-[8px] font-bold text-ink-muted leading-none ml-0.5">+{dayEvents.length - 3}</span>
+              )}
+            </div>
+          )}
+
+          {/* Desktop event stack */}
+          <div className="hidden md:flex flex-col flex-1 min-h-0">
+
 
           {/* Events Stack */}
           {(() => {
