@@ -14,7 +14,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-dvh items-center justify-center bg-background px-4">
+
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
@@ -42,7 +43,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-dvh items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           This page didn't load
@@ -77,14 +78,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Goblin Flow Tools" },
-      { name: "description", content: "A cozy focus OS for ADHD brains — tasks, calendar, focus timer, and habits." },
+      { title: "Goblin Flow — Cozy focus OS for ADHD brains" },
+      { name: "description", content: "A cozy focus OS for ADHD brains: brain-dump compiler, magic to-do, sensory-friendly focus timer, calendar, weekly planner, and habit chains." },
       { name: "theme-color", content: "#E6F0E6" },
-      { property: "og:title", content: "Goblin Flow Tools" },
-      { property: "og:description", content: "A cozy focus OS for ADHD brains — tasks, calendar, focus timer, and habits." },
+      { property: "og:title", content: "Goblin Flow — Cozy focus OS for ADHD brains" },
+      { property: "og:description", content: "Brain-dump compiler, magic to-do, sensory-friendly focus timer, calendar, and habit chains — designed for ADHD brains." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+
     ],
     links: [
       {
