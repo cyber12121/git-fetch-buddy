@@ -291,6 +291,7 @@ export default function App() {
     const lvl = Math.floor(xp / 100) + 1;
     if (prevLevelRef.current !== null && lvl > prevLevelRef.current) {
       triggerGubbySpeak(`Sprig grew to Level ${lvl}! 🎉 You're a mightier goblin with every quest.`, "excited");
+      recordReward("levelup", "🌿", `Level ${lvl} reached!`);
       confetti({
         particleCount: 120,
         spread: 70,
