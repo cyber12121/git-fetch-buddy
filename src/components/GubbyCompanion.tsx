@@ -283,6 +283,6 @@ export default function GubbyCompanion({ mood = "cozy", customMessage, xp = 0, o
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
