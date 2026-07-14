@@ -617,7 +617,13 @@ export default function App() {
           )}
 
           {/* CENTER: active module */}
-          <main className={`min-w-0 ${isWide ? "w-full" : ""}`}>
+          <main
+            ref={mainRef}
+            id="tabpanel-main"
+            tabIndex={-1}
+            aria-live="polite"
+            className={`min-w-0 outline-none scroll-mt-24 ${isWide ? "w-full" : ""}`}
+          >
 
             <ErrorBoundary>
               <Suspense fallback={
