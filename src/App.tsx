@@ -486,17 +486,21 @@ export default function App() {
       />
 
 
-      {/* 3. Three-column dashboard layout on desktop; stacked on mobile/tablet */}
+      {/* 3. Layout: full-width horizontal for planning tabs (calendar, weekly, habits);
+          three-column dashboard for do-tabs on desktop. */}
+      {(() => {
+        const isWide = activeTab === "weekly" || activeTab === "calendar" || activeTab === "habits";
+        return (
       <div className={`flex-1 w-full ${
-        activeTab === "weekly" ? "p-0" : "max-w-[1400px] mx-auto px-4 mt-6"
+        isWide ? (activeTab === "weekly" ? "p-0" : "max-w-[1400px] mx-auto px-4 mt-6") : "max-w-[1400px] mx-auto px-4 mt-6"
       }`}>
         <div className={`${
-          activeTab === "weekly"
+          isWide
             ? "block"
             : "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)_20rem] lg:gap-6 lg:items-start"
         }`}>
-          {/* LEFT: sidebar nav + tip (desktop only) */}
-          {activeTab !== "weekly" && (
+          {/* LEFT: sidebar nav + tip (desktop only, do-tabs only) */}
+          {!isWide && (
             <SideNav
               activeTab={activeTab}
               onTabChange={(tab) => setActiveTab(tab as "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits")}
@@ -507,7 +511,8 @@ export default function App() {
           )}
 
           {/* CENTER: active module */}
-          <main className={`min-w-0 ${activeTab === "weekly" ? "w-full" : ""}`}>
+          <main className={`min-w-0 ${isWide ? "w-full" : ""}`}>
+
             <ErrorBoundary>
               <Suspense fallback={
                 <div className="flex items-center justify-center py-16 text-ink-muted text-sm">Gubby is warming up… 🍄</div>
@@ -612,8 +617,8 @@ export default function App() {
             </ErrorBoundary>
           </main>
 
-          {/* RIGHT: Gubby companion + Today's Quests (desktop only) */}
-          {activeTab !== "weekly" && (
+          {/* RIGHT: Gubby companion + Today's Quests (desktop only, do-tabs only) */}
+          {!isWide && (
             <aside className="hidden lg:flex flex-col gap-4 w-80 shrink-0">
               {!gubbyHidden ? (
                 <GubbyCompanion
@@ -643,6 +648,8 @@ export default function App() {
           </section>
         )}
       </div>
+        );
+      })()}
 
       {/* 4. Footer Status Bar */}
       {activeTab !== "weekly" && <AppStatusBar user={user} cloudStatus={cloudStatus} />}
@@ -651,3 +658,4 @@ export default function App() {
     </div>
   );
 }
+
