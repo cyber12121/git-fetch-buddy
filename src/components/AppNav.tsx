@@ -25,17 +25,21 @@ interface AppNavProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   onGubbyMessage: (msg: string, mood: GubbyMood) => void;
+  onPrefetchTab?: (tab: string) => void;
   xp: number;
 }
 
-export default function AppNav({ activeTab, onTabChange, onGubbyMessage, xp }: AppNavProps) {
+export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefetchTab, xp }: AppNavProps) {
   const level = Math.floor(xp / 100) + 1;
   const xpInLevel = xp % 100;
+
+  const prefetch = (tab: TabDef) => onPrefetchTab?.(tab.id);
 
   const select = (tab: TabDef) => {
     onTabChange(tab.id);
     onGubbyMessage(tab.msg, tab.mood);
   };
+
 
   return (
     <>
