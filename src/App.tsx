@@ -34,20 +34,21 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   render(): ReactNode {
     if (this.state.error) {
       return (
-        <div className="min-h-screen flex items-center justify-center p-8 text-center">
-          <div className="bg-surface/80 rounded-2xl p-6 shadow-md max-w-md">
-            <div className="text-3xl mb-2">🍄</div>
+        <div className="min-h-dvh flex items-center justify-center p-8 text-center">
+          <div className="bg-surface-sunken/90 rounded-2xl p-6 shadow-md max-w-md">
+            <div className="text-3xl mb-2" aria-hidden="true">🍄</div>
             <h2 className="font-bold text-ink mb-1">Something wobbled!</h2>
-            <p className="text-sm text-stone-600 mb-3">Gubby hit a snag. Try refreshing — your tasks are safe in local storage.</p>
+            <p className="text-sm text-ink-muted mb-3">Gubby hit a snag. Try refreshing — your tasks are safe in local storage.</p>
             <button
               type="button"
               onClick={() => (this as any).setState({ error: null })}
-              className="px-4 py-2 rounded-xl bg-brand text-white font-bold text-sm"
+              className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-bold text-sm min-h-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Try again
             </button>
           </div>
         </div>
+
       );
     }
     return (this as any).props.children;
@@ -525,11 +526,12 @@ export default function App() {
   };
 
   return (
-    <div id="goblin-flow-root" className={`min-h-screen flex flex-col font-sans antialiased transition-colors duration-150 ${
+    <div id="goblin-flow-root" className={`min-h-dvh flex flex-col font-sans antialiased transition-colors duration-150 ${
       activeTab === "weekly" || activeTab === "calendar"
-        ? "bg-canvas text-ink pb-0"
-        : "bg-canvas text-ink-2 pb-16"
+        ? "bg-canvas text-ink pb-20 md:pb-0"
+        : "bg-canvas text-ink-2 pb-24 md:pb-16"
     }`}>
+
       
       {/* 2. Top Navigation Bar — Single Line Premium Layout */}
       <AppNav
@@ -672,7 +674,7 @@ export default function App() {
 
       {/* 5. Footer Status Bar (Simplified layout for less visual noise) */}
       {activeTab !== "weekly" && (
-        <footer className="fixed bottom-0 left-0 right-0 h-9 bg-surface/95 backdrop-blur-md border-t border-edge px-6 flex items-center justify-between text-[11px] font-bold text-ink-muted z-50" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+        <footer className="hidden md:flex fixed bottom-0 left-0 right-0 h-9 bg-surface-sunken/95 backdrop-blur-md border-t border-edge px-6 items-center justify-between text-[11px] font-bold text-ink-muted z-50" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
           <div className="flex gap-4 items-center">
             <span className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-brand rounded-full"></div> Goblin Flow Active</span>
             {user && (
