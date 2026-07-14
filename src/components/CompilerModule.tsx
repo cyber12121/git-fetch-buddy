@@ -169,9 +169,10 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
               setRawText(e.target.value);
               if (error) setError(null);
             }}
-            placeholder="Laundry is piling up, email boss about the draft, car is squeaking, buy milk, renewal deadline tomorrow, I'm feeling so anxious about doing it all..."
-            className="w-full h-44 p-4 rounded-2xl bg-surface-sunken border-2 border-edge-soft focus:border-brand focus:bg-surface outline-none font-nunito text-ink-2 placeholder-stone-400 transition-all text-base resize-none"
+            placeholder="Laundry piling up, email boss, car squeaking, buy milk, renewal deadline tomorrow..."
+            className="w-full h-36 sm:h-44 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-sunken border-2 border-edge-soft focus:border-brand focus:bg-surface outline-none font-nunito text-ink-2 placeholder-stone-400 transition-all text-base resize-none"
           />
+
           {speech.supported && (
             <button
               type="button"
