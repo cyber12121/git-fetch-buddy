@@ -125,9 +125,10 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
       {/* ============ MOBILE BOTTOM TAB BAR ============ */}
       <nav
         aria-label="Primary"
-        className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-edge/70 bg-secondary/95 backdrop-blur-md shadow-[0_-4px_16px_-8px_rgba(45,58,45,0.15)]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-edge/70 bg-secondary/95 backdrop-blur-md shadow-[0_-4px_16px_-8px_rgba(45,58,45,0.15)]"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
+
         <ul className="grid grid-cols-6">
           {TABS.map((tab) => {
             const isActive = activeTab === tab.id;
