@@ -545,7 +545,9 @@ export default function CalendarModule({
               </div>
             );
           })()}
+          </div>
         </div>
+
       );
     }
 
