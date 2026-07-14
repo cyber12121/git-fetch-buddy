@@ -674,8 +674,13 @@ export default function TaskmasterModule({
             const ringColor = remaining <= 0.1 ? "#ef4444" : remaining <= 0.2 ? "#f59e0b" : "#4ade80";
             const ringGlowColor = remaining <= 0.1 ? "rgba(239,68,68,0.3)" : remaining <= 0.2 ? "rgba(245,158,11,0.25)" : "rgba(74,222,128,0.2)";
             return (
-              <div className="relative" style={{ width: size, height: size }}>
-                <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+              <motion.div
+                className="relative"
+                style={{ width: size, height: size }}
+                animate={isRunning ? { scale: [1, 1.03, 1] } : { scale: 1 }}
+                transition={isRunning ? { duration: 4, repeat: Infinity, ease: "easeInOut" } : { duration: 0.3 }}
+              >
+                <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
                   {/* Background ring */}
                   <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#E6EEE6" strokeWidth={stroke} />
                   {/* Progress ring */}
@@ -689,7 +694,12 @@ export default function TaskmasterModule({
                   />
                 </svg>
                 {/* Center content */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
+                <div
+                  className="absolute inset-0 flex flex-col items-center justify-center gap-0.5"
+                  role="timer"
+                  aria-live="polite"
+                  aria-label={`${formatTime(timeLeft)} remaining, ${isRunning ? "focusing" : timeLeft === duration ? "ready" : "paused"}`}
+                >
                   <div className={`text-4xl font-extrabold font-fredoka tabular-nums select-none transition-colors duration-1000 ${remaining <= 0.1 ? "text-red-500" : remaining <= 0.2 ? "text-amber-500" : "text-ink "}`}>
                     {formatTime(timeLeft)}
                   </div>
@@ -702,7 +712,8 @@ export default function TaskmasterModule({
                     </div>
                   )}
                 </div>
-              </div>
+              </motion.div>
+
             );
           })()}
         </div>
