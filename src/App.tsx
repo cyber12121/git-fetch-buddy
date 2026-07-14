@@ -16,6 +16,8 @@ import { createGoogleCalendarEvent, deleteGoogleCalendarEvent } from "./lib/goog
 import { estimateTaskDuration, toLocalDateKey } from "./lib/constants";
 import { DEFAULT_TASKS } from "./lib/defaultTasks";
 import { readJSON, writeJSON } from "./lib/safeStorage";
+import { recordReward } from "./lib/rewardHistory";
+import RewardHistory from "./components/RewardHistory";
 import confetti from "canvas-confetti";
 
 // Code-split every workspace module so the initial bundle only carries the
@@ -54,6 +56,21 @@ function readTabFromHash(): TabId | null {
 export default function App() {
   const { pushToast } = useToast();
   const [activeTab, setActiveTabState] = useState<TabId>("todo");
+  const mainRef = useRef<HTMLElement | null>(null);
+
+  // Move focus to the main region and scroll it into view. Used after
+  // deep-link / back-forward navigation so the user's attention (and
+  // screen-reader focus) lands on the correct tab content instead of
+  // staying pinned to the top nav.
+  const focusMainForTab = useCallback((_tab: TabId) => {
+    // Wait one frame so the newly mounted module is in the DOM.
+    requestAnimationFrame(() => {
+      const el = mainRef.current;
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      el.focus({ preventScroll: true });
+    });
+  }, []);
 
   // ─── URL hash routing ─────────────────────────────────────────────────────
   // Sync `activeTab` with `window.location.hash` so browser back/forward and
@@ -62,7 +79,10 @@ export default function App() {
   useEffect(() => {
     const apply = () => {
       const t = readTabFromHash();
-      if (t) setActiveTabState(t);
+      if (t) {
+        setActiveTabState(t);
+        focusMainForTab(t);
+      }
     };
     apply();
     window.addEventListener("popstate", apply);
@@ -71,7 +91,7 @@ export default function App() {
       window.removeEventListener("popstate", apply);
       window.removeEventListener("hashchange", apply);
     };
-  }, []);
+  }, [focusMainForTab]);
   const setActiveTab = useCallback((tab: TabId) => {
     setActiveTabState(tab);
     if (typeof window !== "undefined") {
@@ -80,7 +100,8 @@ export default function App() {
         window.history.pushState(null, "", target);
       }
     }
-  }, []);
+    focusMainForTab(tab);
+  }, [focusMainForTab]);
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [manualEvents, setManualEvents] = useState<CalendarEvent[]>([]);
@@ -156,7 +177,9 @@ export default function App() {
       if (amount > 0) {
         for (const m of XP_MILESTONES) {
           if (prev < m && next >= m) {
-            pushToast({ icon: "🎉", tone: "success", message: MILESTONE_LABELS[m] });
+            const label = MILESTONE_LABELS[m];
+            pushToast({ icon: "🎉", tone: "success", message: label });
+            recordReward("milestone", "🎉", label);
             confetti({ particleCount: 60, spread: 55, origin: { y: 0.7 }, colors: ["#F27D26", "#FBBF24", "#556B55"] });
             break;
           }
@@ -178,11 +201,9 @@ export default function App() {
     if (nextCount >= 2) {
       const bonus = Math.min(nextCount - 1, 5) * 5;
       addXp(bonus);
-      pushToast({
-        icon: "⚡",
-        tone: "success",
-        message: `${nextCount}× combo! +${bonus} bonus XP`,
-      });
+      const msg = `${nextCount}× combo! +${bonus} bonus XP`;
+      pushToast({ icon: "⚡", tone: "success", message: msg });
+      recordReward("combo", "⚡", msg);
     }
     return nextCount;
   }, [addXp, pushToast]);
@@ -270,6 +291,7 @@ export default function App() {
     const lvl = Math.floor(xp / 100) + 1;
     if (prevLevelRef.current !== null && lvl > prevLevelRef.current) {
       triggerGubbySpeak(`Sprig grew to Level ${lvl}! 🎉 You're a mightier goblin with every quest.`, "excited");
+      recordReward("levelup", "🌿", `Level ${lvl} reached!`);
       confetti({
         particleCount: 120,
         spread: 70,
@@ -379,6 +401,7 @@ export default function App() {
           setGubbyMood("happy");
           setGubbyMessage(`Hurray! Quest "${t.title}" is finished! Gold leaf for you! 🍃✨`);
           pushToast({ icon: "✅", message: "Quest done! +15 XP", tone: "success" });
+          recordReward("achievement", "✅", `Quest done: ${t.title}`);
 
           // Trigger confetti burst celebration
           confetti({
@@ -594,7 +617,13 @@ export default function App() {
           )}
 
           {/* CENTER: active module */}
-          <main className={`min-w-0 ${isWide ? "w-full" : ""}`}>
+          <main
+            ref={mainRef}
+            id="tabpanel-main"
+            tabIndex={-1}
+            aria-live="polite"
+            className={`min-w-0 outline-none scroll-mt-24 ${isWide ? "w-full" : ""}`}
+          >
 
             <ErrorBoundary>
               <Suspense fallback={
@@ -720,16 +749,19 @@ export default function App() {
                 </button>
               )}
               <TodaysQuests tasks={tasks} onToggleTask={handleToggleTask} />
+              <RewardHistory />
             </aside>
           )}
         </div>
 
-        {/* Mobile/tablet: inline Sprig below the module (unchanged behavior) */}
-        {activeTab !== "weekly" && activeTab !== "calendar" && activeTab !== "habits" && !gubbyHidden && (
-          <section aria-label="Sprig companion" className="lg:hidden mt-6">
+
+        {/* Mobile/tablet: inline Sprig + reward log below the module. */}
+        <section aria-label="Extras" className="lg:hidden mt-6 space-y-4">
+          {activeTab !== "weekly" && activeTab !== "calendar" && activeTab !== "habits" && !gubbyHidden && (
             <GubbyCompanion mood={gubbyMood} customMessage={gubbyMessage} xp={xp} onHide={() => updateGubbyHidden(true)} />
-          </section>
-        )}
+          )}
+          <RewardHistory />
+        </section>
       </div>
         );
       })()}
