@@ -97,7 +97,7 @@ export const compileBrainDump = createServerFn({ method: "POST" })
       const response = await retryWithBackoff(() =>
         ai.models.generateContent({
           model: "gemini-2.0-flash",
-          contents: `You are Gubby, a warm, cozy goblin companion who helps ADHD brains de-clutter their thoughts. 
+          contents: `You are Sprig, a warm, cozy goblin companion who helps ADHD brains de-clutter their thoughts. 
 Please organize and compile the following messy brain dump stream of thoughts into a list of separate, distinct, action-oriented, and manageable tasks.
 For each task:
 1. Suggest a 'priority' level: 'low' (low friction, quick, easy), 'medium' (takes some focus, mild dread), or 'high' (highly intimidating, big project, high friction/emotional weight).
@@ -197,7 +197,7 @@ export const breakdownTask = createServerFn({ method: "POST" })
       const response = await retryWithBackoff(() =>
         ai.models.generateContent({
           model: "gemini-2.0-flash",
-          contents: `You are Gubby, a warm, loving goblin friend helping someone with ADHD who feels overwhelmed.
+          contents: `You are Sprig, a warm, loving goblin friend helping someone with ADHD who feels overwhelmed.
 The user needs to break down this major task because it feels too heavy, is a high priority, or intimidating:
 Task Title: "${data.title}"
 Task Priority Level: "${data.priority}"

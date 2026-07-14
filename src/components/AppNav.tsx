@@ -13,7 +13,7 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-  { id: "compiler", label: "Compiler", Icon: Brain, msg: "Dump all those messy thoughts here! Gubby will sweep and filter them.", mood: "thoughtful", group: "do" },
+  { id: "compiler", label: "Compiler", Icon: Brain, msg: "Dump all those messy thoughts here! Sprig will sweep and filter them.", mood: "thoughtful", group: "do" },
   { id: "todo", label: "To-Do", Icon: CheckSquare, msg: "Here are your active quests! Let's conquer them one micro-step at a time.", mood: "cozy", group: "do" },
   { id: "taskmaster", label: "Focus", Icon: Play, msg: "Welcome to the sensory-friendly Focus Timer! One thing at a time. No clutter.", mood: "focused", group: "do" },
   { id: "calendar", label: "Calendar", Icon: Calendar, msg: "Take a high-level look at your days! Plot tasks easily.", mood: "cozy", group: "plan" },
@@ -130,7 +130,7 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
 
               <div className="hidden lg:flex items-center gap-1.5 bg-surface-sunken/80 border border-edge rounded-full px-3 py-1.5 shadow-sm">
                 <span aria-hidden="true" className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                <span className="text-[11px] font-bold text-ink-muted">Gubby online</span>
+                <span className="text-[11px] font-bold text-ink-muted">Sprig online</span>
               </div>
             </div>
           </div>

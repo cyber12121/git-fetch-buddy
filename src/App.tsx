@@ -48,13 +48,13 @@ export default function App() {
   const [manualEvents, setManualEvents] = useState<CalendarEvent[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(toLocalDateKey());
 
-  // Gubby companion custom reactive state
+  // Sprig companion custom reactive state
   const [gubbyMessage, setGubbyMessage] = useState<string>(
-    "Welcome to Goblin Flow! Gubby is here to help you defeat task paralysis. Where should we start?"
+    "Welcome to Goblin Flow! Sprig is here to help you defeat task paralysis. Where should we start?"
   );
   const [gubbyMood, setGubbyMood] = useState<"happy" | "thoughtful" | "focused" | "cozy" | "excited">("cozy");
 
-  // Gubby can be hidden to reduce on-screen clutter; the choice persists so it
+  // Sprig can be hidden to reduce on-screen clutter; the choice persists so it
   // isn't re-shown on every reload. Reading localStorage in a useState
   // initializer would hydration-mismatch (SSR sees no storage), so hydrate
   // the stored value in an effect after mount.
@@ -88,7 +88,7 @@ export default function App() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [habitLog, setHabitLog] = useState<HabitLog>({});
 
-  // Gubby growth pet: XP awarded for completions. Persisted locally + synced to
+  // Sprig growth pet: XP awarded for completions. Persisted locally + synced to
   // cloud. Hydrate from localStorage after mount to avoid SSR hydration
   // mismatches.
   const [xp, setXp] = useState<number>(0);
@@ -179,7 +179,7 @@ export default function App() {
     if (savedHabitLog && typeof savedHabitLog === "object") setHabitLog(savedHabitLog);
   }, []);
 
-  // Celebrate when Gubby levels up. Use a sentinel so the first observation of
+  // Celebrate when Sprig levels up. Use a sentinel so the first observation of
   // `xp` (either the initial 0, the hydrated localStorage value, or the merged
   // cloud value on sign-in) seeds the baseline instead of firing a bogus
   // "level up!" burst on every reload.
@@ -187,7 +187,7 @@ export default function App() {
   useEffect(() => {
     const lvl = Math.floor(xp / 100) + 1;
     if (prevLevelRef.current !== null && lvl > prevLevelRef.current) {
-      triggerGubbySpeak(`Gubby grew to Level ${lvl}! 🎉 You're a mightier goblin with every quest.`, "excited");
+      triggerGubbySpeak(`Sprig grew to Level ${lvl}! 🎉 You're a mightier goblin with every quest.`, "excited");
       confetti({
         particleCount: 120,
         spread: 70,
@@ -515,7 +515,7 @@ export default function App() {
 
             <ErrorBoundary>
               <Suspense fallback={
-                <div className="flex items-center justify-center py-16 text-ink-muted text-sm">Gubby is warming up… 🍄</div>
+                <div className="flex items-center justify-center py-16 text-ink-muted text-sm">Sprig is warming up… 🍄</div>
               }>
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -617,7 +617,7 @@ export default function App() {
             </ErrorBoundary>
           </main>
 
-          {/* RIGHT: Gubby companion + Today's Quests (desktop only, do-tabs only) */}
+          {/* RIGHT: Sprig companion + Today's Quests (desktop only, do-tabs only) */}
           {!isWide && (
             <aside className="hidden lg:flex flex-col gap-4 w-80 shrink-0">
               {!gubbyHidden ? (
@@ -633,7 +633,7 @@ export default function App() {
                   onClick={() => updateGubbyHidden(false)}
                   className="text-xs font-bold text-ink-muted hover:text-brand bg-surface border border-edge rounded-full px-3 py-2 shadow-sm self-end"
                 >
-                  🦦 Bring Gubby back
+                  🦦 Bring Sprig back
                 </button>
               )}
               <TodaysQuests tasks={tasks} onToggleTask={handleToggleTask} />
@@ -641,9 +641,9 @@ export default function App() {
           )}
         </div>
 
-        {/* Mobile/tablet: inline Gubby below the module (unchanged behavior) */}
+        {/* Mobile/tablet: inline Sprig below the module (unchanged behavior) */}
         {activeTab !== "weekly" && activeTab !== "calendar" && activeTab !== "habits" && !gubbyHidden && (
-          <section aria-label="Gubby companion" className="lg:hidden mt-6">
+          <section aria-label="Sprig companion" className="lg:hidden mt-6">
             <GubbyCompanion mood={gubbyMood} customMessage={gubbyMessage} xp={xp} onHide={() => updateGubbyHidden(true)} />
           </section>
         )}

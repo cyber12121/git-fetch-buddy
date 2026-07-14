@@ -79,7 +79,7 @@ export default function MagicTodoModule({
       if (title) {
         const pr = priorityVal === 1 ? "low" : priorityVal === 3 ? "high" : "medium";
         onAddTask(title, pr, undefined, activeDate, estimateTaskDuration(title));
-        onGubbyMessage(`Gubby heard "${title}" — added by voice! 🎤`, "happy");
+        onGubbyMessage(`Sprig heard "${title}" — added by voice! 🎤`, "happy");
       }
     } else {
       setNewTitle((prev) => (prev ? `${prev} ${text}` : text));
@@ -167,7 +167,7 @@ export default function MagicTodoModule({
       onGubbyMessage(`Boom! Sliced into ${generatedSteps.length} micro-steps. Take a look!`, "excited");
     } catch (err: any) {
       console.error(err);
-      onGubbyMessage("Gubby couldn't slice this task automatically. Let's write subtasks manually!", "cozy");
+      onGubbyMessage("Sprig couldn't slice this task automatically. Let's write subtasks manually!", "cozy");
     } finally {
       setBreakingDownTaskIds(prev => ({ ...prev, [task.id]: false }));
     }
@@ -416,7 +416,7 @@ export default function MagicTodoModule({
             ) : (
               <div className="flex flex-col gap-1.5 min-w-0">
                 <div className="text-[11px] sm:text-xs text-ink-muted font-semibold italic">
-                  ✨ Gubby will help you slice this quest down!
+                  ✨ Sprig will help you slice this quest down!
                 </div>
                 {newTitle.trim() && (
                   <div className="text-[11px] sm:text-xs font-bold text-brand flex items-center gap-1.5 flex-wrap">
@@ -732,7 +732,7 @@ export default function MagicTodoModule({
                                 e.stopPropagation();
                                 const est = estimateTaskDuration(task.title);
                                 onUpdateTask(task.id, { estimatedMinutes: est });
-                                onGubbyMessage(`Gubby magic-estimated "${task.title}" at ${est}m! 🪄🦉`, "excited");
+                                onGubbyMessage(`Sprig magic-estimated "${task.title}" at ${est}m! 🪄🦉`, "excited");
                               }}
                               className="p-1 text-brand hover:bg-surface rounded-lg border border-transparent hover:border-edge-soft transition-all cursor-pointer flex items-center justify-center"
                               title="Recalculate Magic Estimate"
