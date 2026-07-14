@@ -131,7 +131,7 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
   return (
     <div id="compiler-module" className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
       <div className="bg-surface p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-edge card-shadow">
-        <div className="flex items-start gap-2.5 sm:gap-3 mb-4">
+        <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-2.5 sm:gap-3 mb-4">
           <div className="p-2 sm:p-3 bg-brand-soft/30 text-brand rounded-xl sm:rounded-2xl shrink-0">
             <Brain className="w-5 h-5 sm:w-7 sm:h-7" />
           </div>
@@ -170,7 +170,7 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
               if (error) setError(null);
             }}
             placeholder="Laundry piling up, email boss, car squeaking, buy milk, renewal deadline tomorrow..."
-            className="w-full h-36 sm:h-44 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-sunken border-2 border-edge-soft focus:border-brand focus:bg-surface outline-none font-nunito text-ink-2 placeholder-stone-400 transition-all text-base resize-none"
+            className={`w-full h-36 sm:h-44 p-3 sm:p-4 ${speech.supported ? "pr-12 sm:pr-14" : ""} rounded-xl sm:rounded-2xl bg-surface-sunken border-2 border-edge-soft focus:border-brand focus:bg-surface outline-none font-nunito text-ink-2 placeholder-stone-400 transition-all text-base resize-none`}
           />
 
           {speech.supported && (
@@ -179,26 +179,34 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
               id="compiler-mic-btn"
               onClick={() => (speech.listening ? speech.stop() : speech.start())}
               title={speech.listening ? "Stop dictation" : "Dictate your brain dump"}
-              className={`absolute top-3 right-3 z-10 p-2 rounded-xl border-2 transition-all cursor-pointer select-none ${
+              className={`absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 p-2 rounded-xl border-2 transition-all cursor-pointer select-none ${
                 speech.listening
                   ? "bg-brand text-white border-brand animate-pulse shadow"
-                  : "bg-surface  border-edge-soft  text-ink-muted  hover:text-brand"
+                  : "bg-surface border-edge-soft text-ink-muted hover:text-brand"
               }`}
             >
               {speech.listening ? <Square size={16} /> : <Mic size={16} />}
             </button>
           )}
+        </div>
+
+        {/* Char count + Clear (moved out of textarea to avoid overlap) */}
+        <div className="mt-1.5 flex items-center justify-between gap-2 px-1 min-h-[20px]">
+          <span className="text-[11px] text-ink-muted tabular-nums">
+            {rawText.length > 0 ? `${rawText.length} chars` : ""}
+          </span>
           {rawText && (
             <button
               id="clear-dump-btn"
               type="button"
               onClick={() => setRawText("")}
-              className="absolute right-3 bottom-3 text-xs text-ink-muted hover:text-red-500 font-semibold bg-surface border border-edge-soft px-2 py-1 rounded-lg transition-colors shadow-sm"
+              className="text-[11px] sm:text-xs text-ink-muted hover:text-red-500 font-semibold underline underline-offset-2 decoration-dotted"
             >
               Clear
             </button>
           )}
         </div>
+
 
         {/* Compile Button and Error Display */}
         <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
