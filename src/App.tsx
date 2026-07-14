@@ -145,40 +145,21 @@ export default function App() {
     setXp,
   });
 
-  // Load from local storage
+  // Load from local storage. safeStorage.readJSON handles missing / disabled
+  // storage, parse failures, and clears corrupted values so a single bad key
+  // can't wedge the whole app on startup.
   useEffect(() => {
-    const savedTasks = localStorage.getItem("goblin_tasks");
-    const savedEvents = localStorage.getItem("goblin_events");
+    const savedTasks = readJSON<Task[] | null>("goblin_tasks", null);
+    setTasks(Array.isArray(savedTasks) ? savedTasks : DEFAULT_TASKS);
 
-    if (savedTasks) {
-      try {
-        setTasks(JSON.parse(savedTasks));
-      } catch (e) {
-        console.error("Failed to parse saved tasks", e);
-        setTasks(DEFAULT_TASKS);
-      }
-    } else {
-      setTasks(DEFAULT_TASKS);
-    }
+    const savedEvents = readJSON<CalendarEvent[] | null>("goblin_events", null);
+    setManualEvents(Array.isArray(savedEvents) ? savedEvents : []);
 
-    if (savedEvents) {
-      try {
-        setManualEvents(JSON.parse(savedEvents));
-      } catch (e) {
-        console.error("Failed to parse saved events", e);
-        setManualEvents([]);
-      }
-    }
+    const savedHabits = readJSON<Habit[] | null>("goblin_habits", null);
+    if (Array.isArray(savedHabits)) setHabits(savedHabits);
 
-    // Load habits
-    const savedHabits = localStorage.getItem("goblin_habits");
-    if (savedHabits) {
-      try { setHabits(JSON.parse(savedHabits)); } catch (e) { console.error("Failed to parse saved habits", e); }
-    }
-    const savedHabitLog = localStorage.getItem("goblin_habit_log");
-    if (savedHabitLog) {
-      try { setHabitLog(JSON.parse(savedHabitLog)); } catch (e) { console.error("Failed to parse saved habit log", e); }
-    }
+    const savedHabitLog = readJSON<HabitLog | null>("goblin_habit_log", null);
+    if (savedHabitLog && typeof savedHabitLog === "object") setHabitLog(savedHabitLog);
   }, []);
 
   // Celebrate when Gubby levels up. Use a sentinel so the first observation of
