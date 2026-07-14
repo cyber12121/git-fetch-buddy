@@ -297,7 +297,8 @@ export default function MagicTodoModule({
     .slice(0, 3);
 
   return (
-    <div id="magic-todo-module" className="max-w-4xl mx-auto space-y-6">
+    <div id="magic-todo-module" className="max-w-4xl mx-auto space-y-4 sm:space-y-6 px-1 sm:px-0">
+
 
       {/* 0. Today's Top 3 — "What should I do right now?" */}
       <AnimatePresence>
@@ -307,18 +308,18 @@ export default function MagicTodoModule({
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="bg-gradient-to-br from-[#FFF5EB] to-[#FFECD8] border-2 border-brand/20 rounded-2xl p-4 card-shadow"
+            className="bg-gradient-to-br from-[#FFF5EB] to-[#FFECD8] border-2 border-brand/20 rounded-2xl p-3 sm:p-4 card-shadow"
           >
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-2.5 sm:mb-3">
               <span className="text-base">🎯</span>
               <h3 className="font-bold text-ink font-fredoka text-sm">What to do right now?</h3>
-              <span className="text-xs text-ink-muted ml-auto">Today's top {top3Today.length}</span>
+              <span className="text-[11px] sm:text-xs text-ink-muted ml-auto">Top {top3Today.length}</span>
             </div>
             <div className="flex flex-col gap-2">
               {top3Today.map((task, i) => (
-                <div key={task.id} className="flex items-center gap-3 bg-surface/70 rounded-xl px-3 py-2.5 border border-brand/10">
-                  <span className="text-sm font-bold text-brand/60 w-4 shrink-0">#{i + 1}</span>
-                  <span className="text-sm font-semibold text-ink flex-1 truncate">
+                <div key={task.id} className="flex items-center gap-2 sm:gap-3 bg-surface/70 rounded-xl px-2.5 sm:px-3 py-2 sm:py-2.5 border border-brand/10 min-w-0">
+                  <span className="text-xs sm:text-sm font-bold text-brand/60 w-4 shrink-0">#{i + 1}</span>
+                  <span className="text-[13px] sm:text-sm font-semibold text-ink flex-1 truncate min-w-0">
                     {task.priority === "high" ? "🔴" : task.priority === "medium" ? "🟡" : "🟢"} {task.title}
                   </span>
                   <button
@@ -327,9 +328,9 @@ export default function MagicTodoModule({
                       if (onFocusAndSwitch) onFocusAndSwitch(task.title, task.id);
                       onGubbyMessage(`Starting "${task.title}"! You've got this 🎯`, "focused");
                     }}
-                    className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-brand text-white text-xs font-bold rounded-xl hover:bg-brand-hover transition-colors cursor-pointer"
+                    className="shrink-0 flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 min-h-9 bg-brand text-white text-[11px] sm:text-xs font-bold rounded-xl hover:bg-brand-hover transition-colors cursor-pointer"
                   >
-                    <Play size={11} className="fill-white" /> Start Now
+                    <Play size={11} className="fill-white" /> <span className="hidden xs:inline sm:inline">Start</span>
                   </button>
                 </div>
               ))}
@@ -344,15 +345,15 @@ export default function MagicTodoModule({
       </AnimatePresence>
 
       {/* 1. Add Task Form */}
-      <div className="bg-surface p-6 rounded-3xl border-2 border-edge card-shadow">
-        <h3 className="text-lg font-bold text-ink mb-4 font-fredoka flex items-center gap-2">
+      <div className="bg-surface p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-edge card-shadow">
+        <h3 className="text-base sm:text-lg font-bold text-ink mb-3 sm:mb-4 font-fredoka flex items-center gap-2">
           What feels too big right now?
         </h3>
 
-        <form onSubmit={handleAddTaskSubmit} className="space-y-4">
-          <div className="flex flex-col md:flex-row gap-4 items-stretch">
+        <form onSubmit={handleAddTaskSubmit} className="space-y-3 sm:space-y-4">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4 items-stretch">
             {/* Title field */}
-            <div className="flex-1 relative">
+            <div className="flex-1 relative min-w-0">
               <input
                 id="todo-title-input"
                 type="text"
@@ -361,8 +362,8 @@ export default function MagicTodoModule({
                   setNewTitle(e.target.value);
                   if (formError) setFormError(null);
                 }}
-                placeholder="E.g., clean the cluttered study, write the dreaded report..."
-                className="w-full p-4 pr-12 rounded-2xl bg-surface-sunken border-2 border-edge-soft focus:border-brand focus:bg-surface outline-none font-nunito text-ink-2 placeholder-stone-400 font-bold transition-all text-base"
+                placeholder="E.g., clean the study, write the report..."
+                className="w-full p-3 sm:p-4 pr-11 sm:pr-12 rounded-2xl bg-surface-sunken border-2 border-edge-soft focus:border-brand focus:bg-surface outline-none font-nunito text-ink-2 placeholder-stone-400 font-bold transition-all text-base"
               />
               {speech.supported && (
                 <button
@@ -370,7 +371,7 @@ export default function MagicTodoModule({
                   id="todo-mic-btn"
                   onClick={() => (speech.listening ? speech.stop() : speech.start())}
                   title={speech.listening ? "Stop dictation" : "Dictate, or say 'add <task>'"}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-xl border-2 transition-all cursor-pointer select-none ${
+                  className={`absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-xl border-2 transition-all cursor-pointer select-none ${
                     speech.listening
                       ? "bg-brand text-white border-brand animate-pulse"
                       : "bg-surface  border-edge-soft  text-ink-muted  hover:text-brand"
@@ -382,8 +383,8 @@ export default function MagicTodoModule({
             </div>
 
             {/* Priority Interactive Slider */}
-            <div className="bg-surface-sunken border-2 border-edge-soft p-3 rounded-2xl flex flex-col justify-center min-w-[200px] gap-1">
-              <label htmlFor="priority-slider" className="text-xs font-bold text-ink-muted uppercase tracking-wider flex items-center gap-1">
+            <div className="bg-surface-sunken border-2 border-edge-soft p-2.5 sm:p-3 rounded-2xl flex flex-col justify-center md:min-w-[200px] gap-1">
+              <label htmlFor="priority-slider" className="text-[11px] sm:text-xs font-bold text-ink-muted uppercase tracking-wider flex items-center gap-1">
                 <Plus size={12} className="text-brand" /> Priority: {priorityVal === 1 ? "🟢" : priorityVal === 2 ? "🟡" : "🔴"}
               </label>
               
@@ -407,20 +408,20 @@ export default function MagicTodoModule({
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 justify-between">
             {formError ? (
               <div id="todo-form-error" className="flex items-center gap-1.5 text-xs text-red-600 font-semibold">
                 <AlertCircle size={14} /> {formError}
               </div>
             ) : (
-              <div className="flex flex-col gap-1.5">
-                <div className="text-xs text-ink-muted font-semibold italic">
-                  ✨ Ready to slice this quest down? Gubby will help you break it down!
+              <div className="flex flex-col gap-1.5 min-w-0">
+                <div className="text-[11px] sm:text-xs text-ink-muted font-semibold italic">
+                  ✨ Gubby will help you slice this quest down!
                 </div>
                 {newTitle.trim() && (
-                  <div className="text-xs font-bold text-brand flex items-center gap-1.5">
-                    <Sparkles size={12} className="animate-pulse text-brand" />
-                    <span>Auto-Estimated Duration: <strong className="font-mono bg-orange-50 text-orange-900 border border-orange-100 px-1.5 py-0.5 rounded-md">{estimateTaskDuration(newTitle)}m</strong></span>
+                  <div className="text-[11px] sm:text-xs font-bold text-brand flex items-center gap-1.5 flex-wrap">
+                    <Sparkles size={12} className="animate-pulse text-brand shrink-0" />
+                    <span>Auto Estimate: <strong className="font-mono bg-orange-50 text-orange-900 border border-orange-100 px-1.5 py-0.5 rounded-md">{estimateTaskDuration(newTitle)}m</strong></span>
                   </div>
                 )}
               </div>
@@ -429,7 +430,7 @@ export default function MagicTodoModule({
             <button
               id="add-todo-btn"
               type="submit"
-              className="px-6 py-3.5 bg-brand hover:bg-brand-hover text-white font-bold rounded-xl shadow hover:shadow-lg transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer select-none"
+              className="w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 min-h-11 bg-brand hover:bg-brand-hover text-white font-bold rounded-xl shadow hover:shadow-lg transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer select-none"
             >
               <Plus size={18} /> Add Mission
             </button>
@@ -441,20 +442,20 @@ export default function MagicTodoModule({
 
       {/* 2. Tasks Master List */}
       <div className="space-y-4">
-        <div className="flex flex-col gap-3 border-b-2 border-edge pb-4">
+        <div className="flex flex-col gap-3 border-b-2 border-edge pb-3 sm:pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex flex-col">
-              <h2 className="text-lg font-bold text-ink font-fredoka flex items-center gap-2">
+            <div className="flex flex-col min-w-0">
+              <h2 className="text-base sm:text-lg font-bold text-ink font-fredoka flex items-center gap-2 truncate">
                 My Goblin Quests ({filteredTasks.length})
               </h2>
-              <p className="text-xs text-ink-muted font-semibold">
+              <p className="text-[11px] sm:text-xs text-ink-muted font-semibold truncate">
                 {listFilter === "date" && `Viewing date: ${activeDate}`}
                 {listFilter === "all" && "Viewing all active quests"}
-                {listFilter === "someday" && "Viewing unscheduled / someday backlog"}
+                {listFilter === "someday" && "Viewing unscheduled backlog"}
               </p>
             </div>
             
-            <div className="flex items-center gap-1.5 bg-[#F5FAF5] p-1 rounded-xl border border-edge">
+            <div className="grid grid-cols-3 sm:flex sm:items-center gap-1 sm:gap-1.5 bg-[#F5FAF5] p-1 rounded-xl border border-edge w-full sm:w-auto">
               <button
                 id="filter-date-btn"
                 type="button"
@@ -462,13 +463,13 @@ export default function MagicTodoModule({
                   setListFilter("date");
                   onGubbyMessage(`Focusing on quests for ${activeDate}! 📅`, "cozy");
                 }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                   listFilter === "date"
                     ? "bg-brand text-white shadow-sm"
                     : "text-ink-muted  hover:text-ink "
                 }`}
               >
-                Selected Date
+                Date
               </button>
               <button
                 id="filter-all-btn"
@@ -477,13 +478,13 @@ export default function MagicTodoModule({
                   setListFilter("all");
                   onGubbyMessage("Viewing your entire quest board! 🌟", "happy");
                 }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                   listFilter === "all"
                     ? "bg-brand text-white shadow-sm"
                     : "text-ink-muted  hover:text-ink "
                 }`}
               >
-                All Quests
+                All
               </button>
               <button
                 id="filter-someday-btn"
@@ -492,7 +493,7 @@ export default function MagicTodoModule({
                   setListFilter("someday");
                   onGubbyMessage("Viewing unscheduled background ideas! 🍂", "cozy");
                 }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                   listFilter === "someday"
                     ? "bg-brand text-white shadow-sm"
                     : "text-ink-muted  hover:text-ink "
@@ -600,10 +601,10 @@ export default function MagicTodoModule({
                   }`}
                 >
                   {/* Task Card Header Area */}
-                  <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="p-3 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
                     
                     {/* Left: Checkbox + Title */}
-                    <div className="flex items-start gap-4 flex-1">
+                    <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
                       <button
                         id={`todo-checkbox-${task.id}`}
                         role="checkbox"
@@ -619,8 +620,8 @@ export default function MagicTodoModule({
                         {task.completed && <Check size={16} strokeWidth={3} />}
                       </button>
 
-                      <div className="space-y-1">
-                        <span className={`text-base font-bold text-ink  block leading-snug font-fredoka ${task.completed ? "line-through text-ink-muted" : ""}`}>
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <span className={`text-sm sm:text-base font-bold text-ink block leading-snug font-fredoka break-words ${task.completed ? "line-through text-ink-muted" : ""}`}>
                           {task.title}
                         </span>
 
@@ -853,7 +854,7 @@ export default function MagicTodoModule({
                     </div>
 
                     {/* Right: Action buttons — minimal by default, expanded on toggle */}
-                    <div className="flex flex-wrap items-center gap-2 self-start md:self-center pl-11 md:pl-0">
+                    <div className="flex flex-wrap items-center gap-2 self-start md:self-center pl-10 sm:pl-11 md:pl-0">
 
                       {/* Always-visible: Focus button */}
                       {!task.completed && !controlsExpanded && (
@@ -1069,7 +1070,7 @@ export default function MagicTodoModule({
                         exit={{ height: 0, opacity: 0 }}
                         className="overflow-hidden border-t-2 border-edge bg-surface rounded-b-2xl"
                       >
-                        <div className="p-4 pl-12 space-y-4">
+                        <div className="p-3 sm:p-4 pl-3 sm:pl-12 space-y-3 sm:space-y-4">
                           
                           {/* Subtask Progress bar */}
                           {totalSubs > 0 && (
@@ -1183,7 +1184,7 @@ export default function MagicTodoModule({
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-surface p-6 rounded-3xl border-2 border-edge max-w-md w-full shadow-2xl space-y-4"
+              className="bg-surface p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-edge max-w-md w-full shadow-2xl space-y-4"
             >
               <h3 className="text-xl font-bold text-ink font-fredoka flex items-center gap-2">
                 <Calendar size={22} className="text-brand" /> Schedule Your Quest

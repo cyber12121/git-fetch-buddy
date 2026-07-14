@@ -428,27 +428,29 @@ export default function TaskmasterModule({
 
   if (showSummary) {
     return (
-      <div id="taskmaster-summary-module" className="max-w-2xl mx-auto space-y-6">
+      <div id="taskmaster-summary-module" className="max-w-2xl mx-auto space-y-4 sm:space-y-6 px-1 sm:px-0">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-surface p-8 rounded-3xl border-2 border-[#FFD4A3] card-shadow text-center space-y-6 relative overflow-hidden"
+          className="bg-surface p-5 sm:p-8 rounded-2xl sm:rounded-3xl border-2 border-[#FFD4A3] card-shadow text-center space-y-5 sm:space-y-6 relative overflow-hidden"
         >
           {/* Sparkles / Confetti Background elements */}
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-amber-400 via-[#F27D26] to-orange-600"></div>
           
           <div className="space-y-2">
             <div className="inline-flex p-3 bg-amber-50 rounded-2xl text-brand border border-amber-200">
-              <Award size={36} className="animate-pulse" />
+              <Award size={32} className="animate-pulse sm:hidden" />
+              <Award size={36} className="animate-pulse hidden sm:block" />
             </div>
-            <h1 className="text-3xl font-extrabold text-ink font-fredoka tracking-tight">
+            <h1 className="text-xl sm:text-3xl font-extrabold text-ink font-fredoka tracking-tight">
               Focus Session Accomplished!
             </h1>
-            <p className="text-sm text-ink-muted font-semibold">
-              You did a magnificent job. Here's a look at your brain-power stats! ⚡
+            <p className="text-xs sm:text-sm text-ink-muted font-semibold">
+              You did a magnificent job. Here's your brain-power stats! ⚡
             </p>
           </div>
+
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto pt-2">
@@ -530,10 +532,10 @@ export default function TaskmasterModule({
   }
 
   return (
-    <div id="taskmaster-module" className="max-w-2xl mx-auto space-y-6">
+    <div id="taskmaster-module" className="max-w-2xl mx-auto space-y-4 sm:space-y-6 px-1 sm:px-0">
       
       {/* Distraction-Free Focus Arena */}
-      <div className="bg-surface p-8 rounded-3xl border-2 border-edge card-shadow text-center space-y-6 relative overflow-hidden">
+      <div className="bg-surface p-4 sm:p-8 rounded-2xl sm:rounded-3xl border-2 border-edge card-shadow text-center space-y-5 sm:space-y-6 relative overflow-hidden">
         
         {/* Elegant Overlap Confirmation for Active Session Protection */}
         <AnimatePresence>
@@ -591,7 +593,7 @@ export default function TaskmasterModule({
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
-                className="text-3xl md:text-4xl font-extrabold text-ink font-fredoka leading-snug tracking-tight max-w-xl mx-auto"
+                className="text-xl sm:text-3xl md:text-4xl font-extrabold text-ink font-fredoka leading-snug tracking-tight max-w-xl mx-auto break-words px-2"
               >
                 {currentMission}
               </motion.h1>
@@ -602,7 +604,7 @@ export default function TaskmasterModule({
                 animate={{ opacity: 1 }}
                 className="py-4 space-y-4"
               >
-                <p className="text-ink-muted font-bold text-lg font-fredoka">No focus mission loaded yet!</p>
+                <p className="text-ink-muted font-bold text-base sm:text-lg font-fredoka">No focus mission loaded yet!</p>
                 
                 {/* Pick existing tasks or type a quick one */}
                 <form onSubmit={handleCreateTempMission} className="max-w-md mx-auto flex items-center gap-2">
@@ -663,8 +665,8 @@ export default function TaskmasterModule({
         {/* SVG Radial Ring Timer — visual time representation for ADHD time blindness */}
         <div className="flex flex-col items-center gap-3">
           {(() => {
-            const size = 220;
-            const stroke = 14;
+            const size = typeof window !== "undefined" && window.innerWidth < 400 ? 180 : 220;
+            const stroke = size < 200 ? 12 : 14;
             const r = (size - stroke) / 2;
             const circ = 2 * Math.PI * r;
             const remaining = duration > 0 ? timeLeft / duration : 1;
@@ -700,7 +702,7 @@ export default function TaskmasterModule({
                   aria-live="polite"
                   aria-label={`${formatTime(timeLeft)} remaining, ${isRunning ? "focusing" : timeLeft === duration ? "ready" : "paused"}`}
                 >
-                  <div className={`text-4xl font-extrabold font-fredoka tabular-nums select-none transition-colors duration-1000 ${remaining <= 0.1 ? "text-red-500" : remaining <= 0.2 ? "text-amber-500" : "text-ink "}`}>
+                  <div className={`text-3xl sm:text-4xl font-extrabold font-fredoka tabular-nums select-none transition-colors duration-1000 ${remaining <= 0.1 ? "text-red-500" : remaining <= 0.2 ? "text-amber-500" : "text-ink "}`}>
                     {formatTime(timeLeft)}
                   </div>
                   <div className="text-[10px] font-bold text-ink-muted uppercase tracking-wider">
@@ -719,26 +721,28 @@ export default function TaskmasterModule({
         </div>
 
         {/* Primary Controls */}
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
           {/* Pause / Play */}
           <button
             id="timer-play-pause-btn"
             onClick={handleStartPause}
             aria-label={isRunning ? "Pause focus timer" : "Start focus timer"}
-            className={`w-16 h-16 rounded-full flex items-center justify-center text-white shadow-md hover:shadow-lg transition-all active:scale-[0.95] cursor-pointer ${
+            className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white shadow-md hover:shadow-lg transition-all active:scale-[0.95] cursor-pointer ${
               isRunning
                 ? "bg-green-600 hover:bg-green-700"
                 : "bg-brand hover:bg-brand-hover"
             }`}
           >
-            {isRunning ? <Pause size={28} className="fill-white" /> : <Play size={28} className="fill-white ml-1" />}
+            {isRunning ? <Pause size={24} className="fill-white sm:hidden" /> : <Play size={24} className="fill-white ml-0.5 sm:hidden" />}
+            {isRunning ? <Pause size={28} className="fill-white hidden sm:block" /> : <Play size={28} className="fill-white ml-1 hidden sm:block" />}
           </button>
 
           {/* Reset */}
           <button
             id="timer-reset-btn"
             onClick={handleReset}
-            className="w-12 h-12 bg-surface-raised hover:bg-surface-raised2 text-stone-600 rounded-full flex items-center justify-center shadow-sm transition-all"
+            aria-label="Reset timer"
+            className="w-11 h-11 sm:w-12 sm:h-12 bg-surface-raised hover:bg-surface-raised2 text-stone-600 rounded-full flex items-center justify-center shadow-sm transition-all"
             title="Reset Timer"
           >
             <RotateCcw size={18} />
@@ -749,7 +753,8 @@ export default function TaskmasterModule({
             <button
               id="timer-complete-btn"
               onClick={handleCompleteMission}
-              className="w-12 h-12 bg-green-50 hover:bg-green-100 text-green-700 rounded-full flex items-center justify-center shadow-sm transition-all cursor-pointer"
+              aria-label="Finish mission"
+              className="w-11 h-11 sm:w-12 sm:h-12 bg-green-50 hover:bg-green-100 text-green-700 rounded-full flex items-center justify-center shadow-sm transition-all cursor-pointer"
               title="Finish Mission!"
             >
               <CheckCircle size={18} />
@@ -764,7 +769,8 @@ export default function TaskmasterModule({
               setShowSummary(true);
               onGubbyMessage("Let's review your focus milestones! Celebrate every second of effort! 🏆", "happy");
             }}
-            className="w-12 h-12 bg-amber-50 hover:bg-amber-100 text-brand rounded-full flex items-center justify-center shadow-sm transition-all cursor-pointer"
+            aria-label="View daily milestones"
+            className="w-11 h-11 sm:w-12 sm:h-12 bg-amber-50 hover:bg-amber-100 text-brand rounded-full flex items-center justify-center shadow-sm transition-all cursor-pointer"
             title="View Daily Milestones"
           >
             <Award size={18} className="text-brand" />
