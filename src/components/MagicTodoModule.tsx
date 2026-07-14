@@ -269,32 +269,32 @@ export default function MagicTodoModule({
     }
   };
 
-  const filteredTasks = tasks.filter(t => {
-    if (listFilter === "date") {
-      return t.scheduledDate === activeDate;
-    } else if (listFilter === "someday") {
-      return !t.scheduledDate;
-    } else {
-      return true; // "all"
-    }
-  }).sort((a, b) => {
-    // 1. Show uncompleted tasks first, completed tasks last
-    if (a.completed !== b.completed) {
-      return a.completed ? 1 : -1;
-    }
-    // 2. Sort by priority: high -> medium -> low
-    const weight = { high: 1, medium: 2, low: 3 };
-    const valA = weight[a.priority] || 2;
-    const valB = weight[b.priority] || 2;
-    return valA - valB;
-  });
+  // Memoized so keystrokes in unrelated inputs don't re-run an O(N log N)
+  // filter+sort over the full task list on every render.
+  const filteredTasks = useMemo(() => {
+    const priorityWeight: Record<Task["priority"], number> = { high: 1, medium: 2, low: 3 };
+    return tasks
+      .filter(t => {
+        if (listFilter === "date") return t.scheduledDate === activeDate;
+        if (listFilter === "someday") return !t.scheduledDate;
+        return true;
+      })
+      .sort((a, b) => {
+        // Uncompleted first, then priority high → low.
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        return (priorityWeight[a.priority] ?? 2) - (priorityWeight[b.priority] ?? 2);
+      });
+  }, [tasks, listFilter, activeDate]);
 
-  // Today's top 3: uncompleted, today-scheduled, sorted by priority
+  // Today's top 3: uncompleted, today-scheduled, sorted by priority.
   const todayStr2 = toLocalDateKey();
-  const top3Today = tasks
-    .filter(t => !t.completed && t.scheduledDate === todayStr2)
-    .sort((a, b) => { const w = { high: 0, medium: 1, low: 2 }; return w[a.priority] - w[b.priority]; })
-    .slice(0, 3);
+  const top3Today = useMemo(() => {
+    const w: Record<Task["priority"], number> = { high: 0, medium: 1, low: 2 };
+    return tasks
+      .filter(t => !t.completed && t.scheduledDate === todayStr2)
+      .sort((a, b) => w[a.priority] - w[b.priority])
+      .slice(0, 3);
+  }, [tasks, todayStr2]);
 
   return (
     <div id="magic-todo-module" className="max-w-4xl mx-auto space-y-4 sm:space-y-6 px-1 sm:px-0">
