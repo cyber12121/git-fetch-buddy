@@ -375,6 +375,7 @@ export default function App() {
         const nextCompleted = !t.completed;
         if (nextCompleted) {
           addXp(15);
+          registerCombo();
           setGubbyMood("happy");
           setGubbyMessage(`Hurray! Quest "${t.title}" is finished! Gold leaf for you! 🍃✨`);
           pushToast({ icon: "✅", message: "Quest done! +15 XP", tone: "success" });
