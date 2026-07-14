@@ -478,8 +478,10 @@ export default function App() {
         activeTab={activeTab}
         onTabChange={(tab) => setActiveTab(tab as "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits")}
         onGubbyMessage={triggerGubbySpeak}
+        onPrefetchTab={(tab) => { MODULE_PREFETCH[tab]?.().catch(() => {}); }}
         xp={xp}
       />
+
 
       {/* 3. Global Gubby Companion Layer — inline on every breakpoint. */}
       {activeTab !== "weekly" && activeTab !== "calendar" && activeTab !== "habits" && (
