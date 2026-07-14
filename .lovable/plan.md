@@ -1,50 +1,77 @@
-Goal: Bring the code from https://github.com/cyber12121/adhd-planner.git into this Lovable project, since Lovable cannot directly import/clone an existing GitHub repository.
+# UI Modernization Plan — Goblin Flow
 
-```text
-Current state:  Fresh Lovable TanStack Start project
-Target state:   Project contains the ADHD planner code from the GitHub repo,
-                adapted to run under TanStack Start / Vite / Tailwind v4
-```
+Frontend-only pass to make the app feel modern, work well on every screen, and meet WCAG AA. No business logic or backend changes.
 
-## What we’ll do
+## 1. Design token cleanup (foundation for everything else)
 
-1. **Inspect the GitHub repo**
-   - List top-level files and folder structure via the GitHub API connector.
-   - Identify the framework (e.g. React, Vite, Next.js, plain HTML) and dependencies.
-   - Locate entry points, routes, components, styles, and any backend code.
+- Remove hardcoded hex values (`#DCE8DC`, `#F27D26`, `#FF9D4E`, `#E6EEE6`, …) from `AppNav.tsx` and modules; use existing tokens (`--color-brand`, `--color-surface`, `--color-edge`, `--color-ink`, …).
+- Map shadcn tokens (`--background`, `--foreground`, `--primary`, `--border`, `--muted-foreground`, …) onto the goblin palette in `src/styles.css` so shadcn Buttons/Inputs/Dialogs match the cozy aesthetic instead of default slate.
+- Fix Tailwind v4 defaults already used in the code: bare `border` (now `currentColor`) → `border border-edge`; bare `shadow`/`rounded` remapped explicitly.
+- Verify `text-ink-muted` on `bg-surface` passes AA; darken the token slightly if not.
 
-2. **Decide migration strategy**
-   - If the repo is already a Vite/React app close to the Lovable stack: overlay files carefully.
-   - If it uses a different framework (Next.js, plain HTML, etc.): rewrite routes into `src/routes/` and move components into `src/components/`.
-   - Preserve only reusable code; do not overwrite Lovable bootstrap files (`src/router.tsx`, `src/routes/__root.tsx`, `src/routes/index.tsx`, `src/start.ts`, `vite.config.ts`) unless the repo is intentionally replacing the whole shell.
+## 2. Responsive navigation
 
-3. **Copy files into the project**
-   - Fetch key files from GitHub using the connector and write them into the correct Lovable paths.
-   - Create route files under `src/routes/` for each page/screen.
-   - Move reusable UI into `src/components/`.
-   - Move styles/assets into `src/` and `public/` as appropriate.
+Current top nav overflows on 591px width and hides the XP/status row on mobile.
 
-4. **Resolve dependencies**
-   - Read the repo’s `package.json`.
-   - Add any missing npm packages with `bun add`.
-   - Flag any packages that are incompatible with the Cloudflare Worker server runtime.
+- Convert the tab row into a **fixed bottom tab bar on mobile** (thumb-reachable, 6 tabs with icon + label, 44×44 min tap target, safe-area-inset-bottom padding).
+- Keep the top bar on mobile for brand + compact level chip + Gubby toggle only.
+- On `md+` keep the current horizontal tab row; on `xl+` optionally promote to a shadcn `Sidebar` with `SidebarTrigger` in the header.
+- Use the grid + `min-w-0` + `shrink-0` header pattern so brand/level never clip.
 
-5. **Fix build/runtime issues**
-   - Update imports to match the new file layout.
-   - Convert any framework-specific APIs (e.g. Next.js `useRouter`, `getServerSideProps`) to TanStack Router/Start equivalents.
-   - Ensure the root route still renders `<Outlet />`.
-   - Replace the placeholder `src/routes/index.tsx` content.
+## 3. Module shell + layout consistency
 
-6. **Verify**
-   - Run the build/typecheck.
-   - Check the preview for errors and correct rendering.
+- Introduce a shared `<ModuleShell title actions gubbyHint>` wrapper used by Compiler, To-Do, Focus Timer, Calendar, Weekly, Habits — consistent padding, header row, `rounded-2xl`, `card-shadow`, `bg-surface-sunken`.
+- Add empty-states (illustration + one-line copy + primary CTA) for To-Do, Calendar, Habits.
+- Use `h-dvh` instead of `h-screen` for full-height sections so mobile browser chrome doesn't cut them off.
 
-## Important constraints
+## 4. Typography scale
 
-- Lovable cannot clone or sync **from** GitHub into a project. The GitHub connector only lets the app read GitHub data via API.
-- The final app will use this Lovable project’s existing TanStack Start shell, not the repo’s original framework shell, unless the repo is fully self-contained and we intentionally replace the shell.
-- Some server-side or Node-only dependencies may need to be swapped for Worker-compatible alternatives.
+- Define utility classes for display / h1 / h2 / body / caption with Fredoka for headings, Nunito for body, `tabular-nums` for all counters (XP, timer, level, streaks).
+- Enforce one `<h1>` per route and no skipped heading levels.
 
-## First step if you approve
+## 5. Motion & micro-interactions
 
-I’ll fetch the repo’s root directory listing and `package.json` to see what we’re working with, then propose the exact file mapping before copying anything.
+- Wrap the active-tab content in `AnimatePresence` for a subtle cross-fade between modules.
+- Trigger `canvas-confetti` (already installed, unused) on task completion and habit-streak milestones.
+- Add a breathing pulse on the Focus Timer ring while running.
+- Respect `prefers-reduced-motion` (global rule already exists — verify per-component `motion` usage honors it).
+
+## 6. Focus Timer polish
+
+- Center a single large SVG progress ring as the hero, hide chrome during an active session, mute Gubby chatter automatically.
+
+## 7. Gubby companion
+
+- Anchor Gubby to a fixed bottom-right floating bubble (above the mobile tab bar) so he persists across modules without pushing layout.
+- Add a "mute Gubby" toggle in the header; persist to localStorage (read in `useEffect`, not in `useState` initializer, to avoid SSR mismatch).
+
+## 8. Accessibility (WCAG AA)
+
+- `aria-label` on every icon-only button (nav tabs already have text; audit Toast close, Gubby toggle, timer controls, habit cells).
+- Visible `:focus-visible` ring on all interactive controls using the brand token (currently defined globally — verify tabs, cells, chips).
+- Ensure single `<main>` landmark in `__root.tsx` layout wrapping `<Outlet />`.
+- Add `lang="en"` on `<html>` in `__root.tsx` head.
+- Tap targets ≥ 44×44 on mobile (bottom tabs, habit day cells, calendar day cells).
+- Replace any `div` with `onClick` by `<button>` (audit HabitTrackerModule, CalendarModule).
+- Announce dynamic updates (toast, timer end) via `aria-live="polite"`.
+
+## 9. SEO / PWA meta
+
+- Set app-specific `<title>` and meta description in `__root.tsx` head: "Goblin Flow — Cozy focus OS for ADHD brains".
+- Add `og:title`, `og:description`, `og:type`, `twitter:card` on the home route; wire `<link rel="manifest">` and `theme-color`.
+
+## Suggested execution (two passes)
+
+**Pass 1 — Foundation & responsiveness (biggest visual + a11y win):**
+Sections 1, 2, 3, 4, 8, 9.
+
+**Pass 2 — Delight & polish:**
+Sections 5, 6, 7.
+
+Say "go" for both passes, or name the sections you want.
+
+## Notes for the technical reader
+
+- All edits stay in `src/styles.css`, `src/components/*`, `src/routes/__root.tsx`, `src/routes/index.tsx`, and a new `src/components/ui/ModuleShell.tsx`. No changes to `src/lib/goblin-api.functions.ts`, hooks, or types.
+- No new npm packages required; `motion`, `canvas-confetti`, `lucide-react`, and shadcn are already installed.
+- Storage reads (Gubby mute, theme) go through `useEffect` / `useHydrated` to avoid SSR hydration mismatches.
