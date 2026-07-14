@@ -21,16 +21,16 @@ function levelTitleFor(level: number): string {
 const GOBLIN_QUOTES = [
   "Done is better than perfect! Let's make a giant mess of perfect!",
   "Feeling frozen? Break it down so small it feels silly. If 'Write email' is too hard, try 'Open laptop'.",
-  "Is your brain a buzzing beehive? Dump it in the Compiler! Gubby will help clean it up.",
+  "Is your brain a buzzing beehive? Dump it in the Compiler! Sprig will help clean it up.",
   "You opened the app! That's a huge victory. Seriously, starting is the hardest part.",
-  "Drink a tiny sip of water right now. Gubby is watching and holding a leaf cup! 🍃",
+  "Drink a tiny sip of water right now. Sprig is watching and holding a leaf cup! 🍃",
   "Your worth isn't defined by your checklist. You're a wonderful goblin just for being you.",
   "It's okay to bounce between things! ADHD brains are just super-powered exploration vessels.",
   "If a task feels heavy, it's not because you are lazy—it's just a little scary. Let's make it small!",
-  "Gubby is so proud of you for showing up today. Yes, you!",
+  "Sprig is so proud of you for showing up today. Yes, you!",
   "Take a slow, deep breath... hold it... blow out all the noisy thoughts.",
   "Object permanence is hard! If you forgot what you were doing, check the Magic Todo list.",
-  "Time blindness is real! That's why Gubby added timers. We can beat time together ⏱️",
+  "Time blindness is real! That's why Sprig added timers. We can beat time together ⏱️",
   "Hyperfocus is a superpower, but remember to stretch your goblin legs every now and then!",
   "Did you eat something today? A tiny snack counts! Even a single cracker.",
   "Executive dysfunction is like trying to drive a car with no steering wheel. Be gentle with yourself.",
@@ -114,28 +114,28 @@ export default function GubbyCompanion({ mood = "cozy", customMessage, xp = 0, o
         return {
           ears: "👂",
           accessory: "✨",
-          title: "Happy Gubby",
+          title: "Happy Sprig",
           bgColor: "bg-emerald-100 border-emerald-300"
         };
       case "excited":
         return {
           ears: "⚡",
           accessory: "👑",
-          title: "Fired Up Gubby!",
+          title: "Fired Up Sprig!",
           bgColor: "bg-amber-100 border-amber-300"
         };
       case "focused":
         return {
           ears: "🍃",
           accessory: "🎒",
-          title: "Focus Gubby",
+          title: "Focus Sprig",
           bgColor: "bg-orange-100 border-orange-300"
         };
       case "thoughtful":
         return {
           ears: "🍄",
           accessory: "🔮",
-          title: "Wise Gubby",
+          title: "Wise Sprig",
           bgColor: "bg-yellow-100 border-yellow-300"
         };
       case "cozy":
@@ -143,7 +143,7 @@ export default function GubbyCompanion({ mood = "cozy", customMessage, xp = 0, o
         return {
           ears: "🍂",
           accessory: "🍄",
-          title: "Cozy Gubby",
+          title: "Cozy Sprig",
           bgColor: "bg-surface-raised  border-edge-soft "
         };
     }
@@ -154,7 +154,7 @@ export default function GubbyCompanion({ mood = "cozy", customMessage, xp = 0, o
   return (
     <section
       id="gubby-companion-container"
-      aria-label="Gubby companion"
+      aria-label="Sprig companion"
       className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-brand-soft/10 border-2 border-edge rounded-2xl max-w-3xl mx-auto my-3 card-shadow relative overflow-hidden"
     >
       {/* Growth pet: level + XP progress bar */}
@@ -172,8 +172,8 @@ export default function GubbyCompanion({ mood = "cozy", customMessage, xp = 0, o
         <button
           type="button"
           onClick={onHide}
-          aria-label="Hide Gubby companion"
-          title="Hide Gubby for now"
+          aria-label="Hide Sprig companion"
+          title="Hide Sprig for now"
           className="absolute top-1.5 right-2 z-20 rounded-full p-1 text-ink-muted hover:text-ink hover:bg-black/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F27D26]"
         >
           <X size={14} />
@@ -185,7 +185,7 @@ export default function GubbyCompanion({ mood = "cozy", customMessage, xp = 0, o
         <Leaf size={120} strokeWidth={1} />
       </div>
 
-      {/* Gubby Costume Avatar */}
+      {/* Sprig Costume Avatar */}
       <div className="relative flex flex-col items-center shrink-0">
         <motion.div 
           animate={{ 
@@ -247,7 +247,7 @@ export default function GubbyCompanion({ mood = "cozy", customMessage, xp = 0, o
               id="gubby-poke-btn"
               type="button"
               onClick={getNewQuote}
-              aria-label="Get a new random encouragement from Gubby"
+              aria-label="Get a new random encouragement from Sprig"
               className="min-w-0 min-h-11 text-brand hover:text-orange-800 font-bold inline-flex items-center justify-center gap-1.5 transition-colors px-3 py-2 rounded-lg bg-brand-soft/20 hover:bg-brand-soft/40 border border-[#FFD4A3]/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <Sparkles size={14} aria-hidden="true" />
@@ -267,14 +267,14 @@ export default function GubbyCompanion({ mood = "cozy", customMessage, xp = 0, o
                     playChime(true);
                   }
                 }}
-                aria-label={soundEnabled ? "Mute Gubby chime" : "Unmute Gubby chime"}
+                aria-label={soundEnabled ? "Mute Sprig chime" : "Unmute Sprig chime"}
                 aria-pressed={soundEnabled}
                 className={`inline-flex items-center justify-center min-h-11 min-w-11 rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
                   soundEnabled
                     ? "bg-brand-soft text-orange-900 hover:bg-brand-soft/80"
                     : "bg-surface-raised text-ink-muted hover:bg-surface-raised2"
                 }`}
-                title={soundEnabled ? "Mute Gubby chime" : "Unmute Gubby chime"}
+                title={soundEnabled ? "Mute Sprig chime" : "Unmute Sprig chime"}
               >
                 {soundEnabled ? <Volume2 size={14} aria-hidden="true" /> : <VolumeX size={14} aria-hidden="true" />}
               </button>

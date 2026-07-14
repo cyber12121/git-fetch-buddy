@@ -141,7 +141,7 @@ export default function HabitTrackerModule({
           <div className="text-5xl mb-4">🍄</div>
           <h2 className="text-xl font-bold text-ink mb-2 font-fredoka">No habits yet!</h2>
           <p className="text-ink-muted text-sm mb-6 max-w-sm mx-auto">
-            Start small — even "drink water" or "stretch for 1 minute" counts. Gubby believes in you!
+            Start small — even "drink water" or "stretch for 1 minute" counts. Sprig believes in you!
           </p>
           <button
             onClick={() => setShowAddForm(true)}

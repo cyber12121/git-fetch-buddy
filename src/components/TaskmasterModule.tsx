@@ -282,7 +282,7 @@ export default function TaskmasterModule({
     if (nextState) {
       onGubbyMessage("Focus state active. One single thing at a time. You can do this!", "focused");
     } else {
-      onGubbyMessage("Paused! Take a deep breath, roll your shoulders. Gubby is waiting here.", "cozy");
+      onGubbyMessage("Paused! Take a deep breath, roll your shoulders. Sprig is waiting here.", "cozy");
     }
   };
 
@@ -497,11 +497,11 @@ export default function TaskmasterModule({
             )}
           </div>
 
-          {/* Gubby Feedback Box */}
+          {/* Sprig Feedback Box */}
           <div className="max-w-lg mx-auto bg-amber-50/50 border border-amber-100 rounded-2xl p-4 flex gap-3 text-left items-center">
             <div className="text-3xl select-none shrink-0">🦉</div>
             <p className="text-xs font-semibold text-amber-950 font-nunito leading-relaxed">
-              <strong>Gubby says:</strong> {getGubbyResponse(sessionFocusSeconds, completedMissions.length)}
+              <strong>Sprig says:</strong> {getGubbyResponse(sessionFocusSeconds, completedMissions.length)}
             </p>
           </div>
 

@@ -38,7 +38,7 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
   const speech = useSpeechRecognition((text) => {
     setRawText((prev) => (prev ? `${prev} ${text}` : text));
     setError(null);
-    onGubbyMessage("Gubby is listening! Keep dumping those thoughts out loud 🎤", "thoughtful");
+    onGubbyMessage("Sprig is listening! Keep dumping those thoughts out loud 🎤", "thoughtful");
   });
 
   const handleLoadTemplate = (text: string) => {
@@ -49,13 +49,13 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
 
   const handleCompile = async () => {
     if (!rawText.trim()) {
-      setError("Please write or paste your messy thoughts first! Gubby needs material to work with.");
+      setError("Please write or paste your messy thoughts first! Sprig needs material to work with.");
       return;
     }
 
     setIsLoading(true);
     setError(null);
-    onGubbyMessage("Gubby is sweeping up the clutter and sorting your thoughts with magical AI...", "focused");
+    onGubbyMessage("Sprig is sweeping up the clutter and sorting your thoughts with magical AI...", "focused");
 
     try {
       const data = await compileBrainDump({ data: { rawText } });
@@ -70,7 +70,7 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
       setTempTasks(formatted);
 
       if (formatted.length > 0) {
-        onGubbyMessage(`We did it! Gubby found ${formatted.length} actionable missions. Check them below!`, "excited");
+        onGubbyMessage(`We did it! Sprig found ${formatted.length} actionable missions. Check them below!`, "excited");
       } else {
         onGubbyMessage("Hmm, we parsed it but didn't find clear tasks. Try adding some action words!", "cozy");
       }
@@ -137,7 +137,7 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
           </div>
           <div className="min-w-0">
             <h2 className="text-base sm:text-xl font-bold text-ink font-fredoka leading-tight">The Brain Dump Compiler</h2>
-            <p className="text-xs sm:text-sm text-ink-muted leading-snug mt-0.5">Unload your buzzing thoughts. Gubby sorts them into bite-sized tasks.</p>
+            <p className="text-xs sm:text-sm text-ink-muted leading-snug mt-0.5">Unload your buzzing thoughts. Sprig sorts them into bite-sized tasks.</p>
           </div>
         </div>
 
@@ -260,7 +260,7 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
             </div>
             <p className="text-ink font-bold font-fredoka text-base">Sorting the Goblin's Treasure Pile...</p>
             <p className="text-ink-muted text-sm max-w-md mx-auto">
-              Gubby is dusting off your ideas, wiping away the panic, and formatting them into bite-sized actionable quests! Just a moment...
+              Sprig is dusting off your ideas, wiping away the panic, and formatting them into bite-sized actionable quests! Just a moment...
             </p>
           </motion.div>
         )}

@@ -29,7 +29,7 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
             <div className="text-3xl mb-2" aria-hidden="true">🍄</div>
             <h2 className="font-bold text-ink mb-1">Something wobbled!</h2>
             <p className="text-sm text-ink-muted mb-3">
-              Gubby hit a snag. Try refreshing — your tasks are safe in local storage.
+              Sprig hit a snag. Try refreshing — your tasks are safe in local storage.
             </p>
             <button
               type="button"

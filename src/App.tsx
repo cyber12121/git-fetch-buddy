@@ -41,20 +41,58 @@ const MODULE_PREFETCH: Record<string, () => Promise<unknown>> = {
 
 
 
+type TabId = "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits";
+const VALID_TABS: readonly TabId[] = ["compiler", "todo", "taskmaster", "calendar", "weekly", "habits"];
+const isTabId = (v: string): v is TabId => (VALID_TABS as readonly string[]).includes(v);
+
+function readTabFromHash(): TabId | null {
+  if (typeof window === "undefined") return null;
+  const h = window.location.hash.replace(/^#\/?/, "");
+  return isTabId(h) ? h : null;
+}
+
 export default function App() {
   const { pushToast } = useToast();
-  const [activeTab, setActiveTab] = useState<"compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits">("todo");
+  const [activeTab, setActiveTabState] = useState<TabId>("todo");
+
+  // ─── URL hash routing ─────────────────────────────────────────────────────
+  // Sync `activeTab` with `window.location.hash` so browser back/forward and
+  // shareable deep links (e.g. /#habits) select the right tab. We use hash
+  // (not path routes) to avoid restructuring the file-based route tree.
+  useEffect(() => {
+    const apply = () => {
+      const t = readTabFromHash();
+      if (t) setActiveTabState(t);
+    };
+    apply();
+    window.addEventListener("popstate", apply);
+    window.addEventListener("hashchange", apply);
+    return () => {
+      window.removeEventListener("popstate", apply);
+      window.removeEventListener("hashchange", apply);
+    };
+  }, []);
+  const setActiveTab = useCallback((tab: TabId) => {
+    setActiveTabState(tab);
+    if (typeof window !== "undefined") {
+      const target = `#${tab}`;
+      if (window.location.hash !== target) {
+        window.history.pushState(null, "", target);
+      }
+    }
+  }, []);
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [manualEvents, setManualEvents] = useState<CalendarEvent[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(toLocalDateKey());
 
-  // Gubby companion custom reactive state
+  // Sprig companion custom reactive state
   const [gubbyMessage, setGubbyMessage] = useState<string>(
-    "Welcome to Goblin Flow! Gubby is here to help you defeat task paralysis. Where should we start?"
+    "Welcome to Goblin Flow! Sprig is here to help you defeat task paralysis. Where should we start?"
   );
   const [gubbyMood, setGubbyMood] = useState<"happy" | "thoughtful" | "focused" | "cozy" | "excited">("cozy");
 
-  // Gubby can be hidden to reduce on-screen clutter; the choice persists so it
+  // Sprig can be hidden to reduce on-screen clutter; the choice persists so it
   // isn't re-shown on every reload. Reading localStorage in a useState
   // initializer would hydration-mismatch (SSR sees no storage), so hydrate
   // the stored value in an effect after mount.
@@ -88,7 +126,7 @@ export default function App() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [habitLog, setHabitLog] = useState<HabitLog>({});
 
-  // Gubby growth pet: XP awarded for completions. Persisted locally + synced to
+  // Sprig growth pet: XP awarded for completions. Persisted locally + synced to
   // cloud. Hydrate from localStorage after mount to avoid SSR hydration
   // mismatches.
   const [xp, setXp] = useState<number>(0);
@@ -98,13 +136,57 @@ export default function App() {
       if (Number.isFinite(saved) && saved > 0) setXp(saved);
     } catch { /* ignore */ }
   }, []);
+  // Milestone toasts: fire a celebratory pop every time XP crosses a
+  // dopamine-tuned threshold. Uses the previous value inside the setter so
+  // it's immune to double-fires from React 18 strict mode.
+  const XP_MILESTONES = [50, 100, 250, 500, 1000, 2500, 5000];
+  const MILESTONE_LABELS: Record<number, string> = {
+    50: "🌱 First 50 XP! Sprig is proud.",
+    100: "🍄 100 XP — Level 2 unlocked!",
+    250: "⚡ 250 XP — you're on a roll!",
+    500: "🔥 500 XP — Sprig is beaming!",
+    1000: "👑 1000 XP — legendary goblin!",
+    2500: "🌟 2500 XP — myth-tier hustler.",
+    5000: "🏆 5000 XP — Sprig bows to you.",
+  };
   const addXp = useCallback((amount: number) => {
     setXp((prev) => {
       const next = Math.max(0, prev + amount);
       try { localStorage.setItem("goblin_xp", String(next)); } catch { /* ignore */ }
+      if (amount > 0) {
+        for (const m of XP_MILESTONES) {
+          if (prev < m && next >= m) {
+            pushToast({ icon: "🎉", tone: "success", message: MILESTONE_LABELS[m] });
+            confetti({ particleCount: 60, spread: 55, origin: { y: 0.7 }, colors: ["#F27D26", "#FBBF24", "#556B55"] });
+            break;
+          }
+        }
+      }
       return next;
     });
-  }, []);
+  }, [pushToast]);
+
+  // Combo streak: chain completions within 45s to earn bonus XP. Every
+  // consecutive quest inside the window bumps the multiplier (+5, +10, +15…),
+  // giving fast rapid-fire finishing a satisfying dopamine ramp.
+  const comboRef = useRef<{ count: number; lastAt: number }>({ count: 0, lastAt: 0 });
+  const registerCombo = useCallback(() => {
+    const now = Date.now();
+    const within = now - comboRef.current.lastAt < 45_000;
+    const nextCount = within ? comboRef.current.count + 1 : 1;
+    comboRef.current = { count: nextCount, lastAt: now };
+    if (nextCount >= 2) {
+      const bonus = Math.min(nextCount - 1, 5) * 5;
+      addXp(bonus);
+      pushToast({
+        icon: "⚡",
+        tone: "success",
+        message: `${nextCount}× combo! +${bonus} bonus XP`,
+      });
+    }
+    return nextCount;
+  }, [addXp, pushToast]);
+
 
   // Sync helpers: update React state AND mirror to localStorage. Passed to the
   // cloud-sync hook so pulled data persists locally too. Writes go through
@@ -179,7 +261,7 @@ export default function App() {
     if (savedHabitLog && typeof savedHabitLog === "object") setHabitLog(savedHabitLog);
   }, []);
 
-  // Celebrate when Gubby levels up. Use a sentinel so the first observation of
+  // Celebrate when Sprig levels up. Use a sentinel so the first observation of
   // `xp` (either the initial 0, the hydrated localStorage value, or the merged
   // cloud value on sign-in) seeds the baseline instead of firing a bogus
   // "level up!" burst on every reload.
@@ -187,7 +269,7 @@ export default function App() {
   useEffect(() => {
     const lvl = Math.floor(xp / 100) + 1;
     if (prevLevelRef.current !== null && lvl > prevLevelRef.current) {
-      triggerGubbySpeak(`Gubby grew to Level ${lvl}! 🎉 You're a mightier goblin with every quest.`, "excited");
+      triggerGubbySpeak(`Sprig grew to Level ${lvl}! 🎉 You're a mightier goblin with every quest.`, "excited");
       confetti({
         particleCount: 120,
         spread: 70,
@@ -293,6 +375,7 @@ export default function App() {
         const nextCompleted = !t.completed;
         if (nextCompleted) {
           addXp(15);
+          registerCombo();
           setGubbyMood("happy");
           setGubbyMessage(`Hurray! Quest "${t.title}" is finished! Gold leaf for you! 🍃✨`);
           pushToast({ icon: "✅", message: "Quest done! +15 XP", tone: "success" });
@@ -430,7 +513,7 @@ export default function App() {
           ),
         };
       }
-      if (!t.completed) addXp(15);
+      if (!t.completed) { addXp(15); registerCombo(); }
       return { ...t, completed: true };
     });
     syncTasks(updated);
@@ -479,7 +562,7 @@ export default function App() {
       {/* 2. Top Navigation Bar — Single Line Premium Layout */}
       <AppNav
         activeTab={activeTab}
-        onTabChange={(tab) => setActiveTab(tab as "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits")}
+        onTabChange={(tab) => setActiveTab(tab as TabId)}
         onGubbyMessage={triggerGubbySpeak}
         onPrefetchTab={(tab) => { MODULE_PREFETCH[tab]?.().catch(() => {}); }}
         xp={xp}
@@ -503,7 +586,7 @@ export default function App() {
           {!isWide && (
             <SideNav
               activeTab={activeTab}
-              onTabChange={(tab) => setActiveTab(tab as "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits")}
+              onTabChange={(tab) => setActiveTab(tab as TabId)}
               onGubbyMessage={triggerGubbySpeak}
               onPrefetchTab={(tab) => { MODULE_PREFETCH[tab]?.().catch(() => {}); }}
               taskCount={tasks.filter(t => !t.completed).length}
@@ -515,7 +598,7 @@ export default function App() {
 
             <ErrorBoundary>
               <Suspense fallback={
-                <div className="flex items-center justify-center py-16 text-ink-muted text-sm">Gubby is warming up… 🍄</div>
+                <div className="flex items-center justify-center py-16 text-ink-muted text-sm">Sprig is warming up… 🍄</div>
               }>
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -617,7 +700,7 @@ export default function App() {
             </ErrorBoundary>
           </main>
 
-          {/* RIGHT: Gubby companion + Today's Quests (desktop only, do-tabs only) */}
+          {/* RIGHT: Sprig companion + Today's Quests (desktop only, do-tabs only) */}
           {!isWide && (
             <aside className="hidden lg:flex flex-col gap-4 w-80 shrink-0">
               {!gubbyHidden ? (
@@ -633,7 +716,7 @@ export default function App() {
                   onClick={() => updateGubbyHidden(false)}
                   className="text-xs font-bold text-ink-muted hover:text-brand bg-surface border border-edge rounded-full px-3 py-2 shadow-sm self-end"
                 >
-                  🦦 Bring Gubby back
+                  🦦 Bring Sprig back
                 </button>
               )}
               <TodaysQuests tasks={tasks} onToggleTask={handleToggleTask} />
@@ -641,9 +724,9 @@ export default function App() {
           )}
         </div>
 
-        {/* Mobile/tablet: inline Gubby below the module (unchanged behavior) */}
+        {/* Mobile/tablet: inline Sprig below the module (unchanged behavior) */}
         {activeTab !== "weekly" && activeTab !== "calendar" && activeTab !== "habits" && !gubbyHidden && (
-          <section aria-label="Gubby companion" className="lg:hidden mt-6">
+          <section aria-label="Sprig companion" className="lg:hidden mt-6">
             <GubbyCompanion mood={gubbyMood} customMessage={gubbyMessage} xp={xp} onHide={() => updateGubbyHidden(true)} />
           </section>
         )}
