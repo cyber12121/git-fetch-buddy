@@ -541,24 +541,31 @@ export default function App() {
         xp={xp}
       />
 
-      {/* 3. Global Gubby Companion Layer */}
+      {/* 3. Global Gubby Companion Layer
+          Desktop: inline banner above the module.
+          Mobile: floating bubble anchored above the bottom tab bar. */}
       {activeTab !== "weekly" && activeTab !== "calendar" && activeTab !== "habits" && (
         gubbyHidden ? (
-          <div className="px-4 mt-6 max-w-5xl mx-auto w-full flex justify-end">
-            <button
-              type="button"
-              onClick={() => updateGubbyHidden(false)}
-              className="flex items-center gap-1.5 text-xs font-bold text-ink-muted hover:text-brand transition-colors cursor-pointer rounded-lg px-2 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F27D26]"
-            >
+          <button
+            type="button"
+            onClick={() => updateGubbyHidden(false)}
+            aria-label="Bring Gubby companion back"
+            className="fixed md:static bottom-24 right-3 md:mt-6 md:mx-auto md:max-w-5xl md:w-full md:px-4 z-40 flex md:justify-end"
+          >
+            <span className="flex items-center gap-1.5 text-xs font-bold text-ink-muted bg-surface md:bg-transparent border md:border-0 border-edge rounded-full px-3 py-2 shadow-md md:shadow-none hover:text-brand transition-colors focus-visible:ring-2 focus-visible:ring-ring">
               🦦 Bring Gubby back
-            </button>
-          </div>
+            </span>
+          </button>
         ) : (
-          <section className="px-4 mt-6 max-w-5xl mx-auto w-full">
+          <section
+            aria-label="Gubby companion"
+            className="md:px-4 md:mt-6 md:max-w-5xl md:mx-auto md:w-full md:static fixed left-2 right-2 bottom-24 z-40 md:z-auto"
+          >
             <GubbyCompanion mood={gubbyMood} customMessage={gubbyMessage} xp={xp} onHide={() => updateGubbyHidden(true)} />
           </section>
         )
       )}
+
 
       {/* 4. Active Workspace Modules */}
       <main className={`flex-1 ${
