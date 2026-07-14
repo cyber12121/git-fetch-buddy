@@ -41,9 +41,47 @@ const MODULE_PREFETCH: Record<string, () => Promise<unknown>> = {
 
 
 
+type TabId = "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits";
+const VALID_TABS: readonly TabId[] = ["compiler", "todo", "taskmaster", "calendar", "weekly", "habits"];
+const isTabId = (v: string): v is TabId => (VALID_TABS as readonly string[]).includes(v);
+
+function readTabFromHash(): TabId | null {
+  if (typeof window === "undefined") return null;
+  const h = window.location.hash.replace(/^#\/?/, "");
+  return isTabId(h) ? h : null;
+}
+
 export default function App() {
   const { pushToast } = useToast();
-  const [activeTab, setActiveTab] = useState<"compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits">("todo");
+  const [activeTab, setActiveTabState] = useState<TabId>("todo");
+
+  // ─── URL hash routing ─────────────────────────────────────────────────────
+  // Sync `activeTab` with `window.location.hash` so browser back/forward and
+  // shareable deep links (e.g. /#habits) select the right tab. We use hash
+  // (not path routes) to avoid restructuring the file-based route tree.
+  useEffect(() => {
+    const apply = () => {
+      const t = readTabFromHash();
+      if (t) setActiveTabState(t);
+    };
+    apply();
+    window.addEventListener("popstate", apply);
+    window.addEventListener("hashchange", apply);
+    return () => {
+      window.removeEventListener("popstate", apply);
+      window.removeEventListener("hashchange", apply);
+    };
+  }, []);
+  const setActiveTab = useCallback((tab: TabId) => {
+    setActiveTabState(tab);
+    if (typeof window !== "undefined") {
+      const target = `#${tab}`;
+      if (window.location.hash !== target) {
+        window.history.pushState(null, "", target);
+      }
+    }
+  }, []);
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [manualEvents, setManualEvents] = useState<CalendarEvent[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(toLocalDateKey());
