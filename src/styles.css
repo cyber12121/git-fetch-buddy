@@ -174,12 +174,35 @@
     border-color: var(--color-edge-soft);
   }
 
+  /*
+   * Global density: shrink the rem base so every rem-based utility
+   * (text-*, p-*, gap-*, h-*, w-*, space-*) scales down proportionally.
+   * 15px on mobile / 15.5px on tablet / 16px on wide desktop keeps
+   * touch targets legible while cutting ~6-10% of vertical scroll.
+   */
+  html {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  @media (min-width: 640px) {
+    html { font-size: 15.5px; }
+  }
+  @media (min-width: 1280px) {
+    html { font-size: 16px; }
+  }
+
   body {
     background-color: #E6F0E6;
     color: #2D3A2D;
     font-family: 'Fredoka', 'Nunito', sans-serif;
   }
+
+  /* Tighten headings so display type doesn't eat vertical space. */
+  h1, h2, h3, h4 {
+    line-height: 1.15;
+  }
 }
+
 
 /* Custom scrollbar and subtle transitions */
 ::-webkit-scrollbar {
