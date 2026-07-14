@@ -741,90 +741,227 @@ export default function CalendarModule({
           </div>
         </div>
 
-        {/* Days of week header */}
-        <div className="grid grid-cols-7 gap-1.5 mt-4 text-center">
-          {DAYS_OF_WEEK.map((day) => (
-            <div key={day} className="text-xs font-bold text-ink-muted py-1 font-fredoka uppercase tracking-wider">
-              {day}
-            </div>
-          ))}
-        </div>
-
-        {/* Monthly Grid */}
-        <div className="grid grid-cols-7 gap-1 md:gap-1.5 mt-2">
-          {renderCalendarCells()}
-        </div>
-
-        {/* Mobile-only selected day event list */}
-        <div className="md:hidden mt-4 pt-4 border-t border-edge">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-bold font-fredoka text-ink">
-              {(() => {
-                const [y, m, d] = selectedDate.split("-").map(Number);
-                const dt = new Date(y, (m || 1) - 1, d || 1);
-                return dt.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
-              })()}
-            </h3>
-            <button
-              type="button"
-              onClick={() => {
-                const [, , dStr] = selectedDate.split("-");
-                handleCellSelect(parseInt(dStr, 10));
-              }}
-              className="text-[11px] font-extrabold text-white bg-brand hover:bg-brand-hover px-3 py-1.5 rounded-lg shadow-xs min-h-9"
-            >
-              + Add
-            </button>
+        {/* Desktop / tablet: weekday header + month grid + legend */}
+        <div className="hidden md:block">
+          <div className="grid grid-cols-7 gap-1.5 mt-4 text-center">
+            {DAYS_OF_WEEK.map((day) => (
+              <div key={day} className="text-xs font-bold text-ink-muted py-1 font-fredoka uppercase tracking-wider">
+                {day}
+              </div>
+            ))}
           </div>
+
+          <div className="grid grid-cols-7 gap-1.5 mt-2">
+            {renderCalendarCells()}
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-4 pt-4 border-t border-edge text-xs text-ink-muted">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 bg-emerald-100 rounded-full border border-emerald-200"></span>
+              <span>Task Quests</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 bg-amber-100 rounded-full border border-amber-200"></span>
+              <span>Manual Events</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 bg-sky-50 rounded-full border border-sky-200"></span>
+              <span>Google Calendar Events</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 bg-surface-raised rounded-full border border-edge-soft"></span>
+              <span>Completed Quests</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile: week strip + agenda list */}
+        <div className="md:hidden mt-4">
           {(() => {
-            const list = getEventsForDay(selectedDate);
-            if (list.length === 0) {
-              return (
-                <p className="text-xs text-ink-muted italic py-3 text-center">
-                  Nothing scheduled — tap + Add to plan something cozy.
-                </p>
-              );
-            }
+            const parseKey = (k: string) => {
+              const [y, m, d] = k.split("-").map(Number);
+              return new Date(y, (m || 1) - 1, d || 1);
+            };
+            const addDays = (d: Date, n: number) => {
+              const x = new Date(d);
+              x.setDate(x.getDate() + n);
+              return x;
+            };
+            const isSameDay = (a: Date, b: Date) =>
+              a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+
+            const selected = parseKey(selectedDate);
+            const todayD = new Date();
+
+            // Week strip: Sunday..Saturday of the selected week
+            const weekStart = addDays(selected, -selected.getDay());
+            const weekDays: Date[] = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+
+            const shiftWeek = (delta: number) => {
+              const next = addDays(selected, delta * 7);
+              onSelectDate(toLocalDateKey(next));
+              if (next.getMonth() !== currentDate.getMonth() || next.getFullYear() !== currentDate.getFullYear()) {
+                setCurrentDate(new Date(next.getFullYear(), next.getMonth(), 1));
+              }
+            };
+
+            // Agenda list: 14 days starting at selected date
+            const agendaDays: Date[] = Array.from({ length: 14 }, (_, i) => addDays(selected, i));
+
+            const openAddFor = (d: Date) => {
+              const key = toLocalDateKey(d);
+              onSelectDate(key);
+              if (d.getMonth() !== currentDate.getMonth() || d.getFullYear() !== currentDate.getFullYear()) {
+                setCurrentDate(new Date(d.getFullYear(), d.getMonth(), 1));
+              }
+              handleCellSelect(d.getDate());
+            };
+
             return (
-              <ul className="space-y-1.5">
-                {list.map((evt) => (
-                  <li key={`m-${evt.id}`}>
-                    <button
-                      type="button"
-                      onClick={(e) => handleEventClick(e, evt)}
-                      className={`w-full text-left text-xs font-bold py-2 px-3 border rounded-lg truncate focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F27D26] ${evt.color}`}
-                    >
-                      {evt.time && <span className="font-mono text-[10px] mr-1 opacity-80">{evt.time}</span>}
-                      {evt.type === "task" ? "🎯 " : "📌 "}{evt.title}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <>
+                {/* Week strip */}
+                <div className="flex items-center gap-1 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => shiftWeek(-1)}
+                    aria-label="Previous week"
+                    className="shrink-0 p-2 rounded-xl text-ink-muted hover:text-ink hover:bg-brand-soft/20 min-h-11 min-w-11 flex items-center justify-center"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <div className="grid grid-cols-7 gap-1 flex-1">
+                    {weekDays.map((d) => {
+                      const key = toLocalDateKey(d);
+                      const isSel = isSameDay(d, selected);
+                      const isToday = isSameDay(d, todayD);
+                      const hasEvents = (eventsByDay[key] || []).length > 0;
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => {
+                            onSelectDate(key);
+                            if (d.getMonth() !== currentDate.getMonth() || d.getFullYear() !== currentDate.getFullYear()) {
+                              setCurrentDate(new Date(d.getFullYear(), d.getMonth(), 1));
+                            }
+                          }}
+                          aria-pressed={isSel}
+                          aria-label={d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
+                          className={`flex flex-col items-center justify-center gap-0.5 py-2 rounded-2xl border transition-all min-h-14 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F27D26] ${
+                            isSel
+                              ? "bg-brand text-white border-brand shadow-md"
+                              : isToday
+                                ? "bg-brand-soft/30 border-brand/40 text-ink"
+                                : "bg-surface border-edge text-ink-muted hover:bg-brand-soft/10"
+                          }`}
+                        >
+                          <span className={`text-[10px] font-bold uppercase tracking-wide ${isSel ? "text-white/90" : "text-ink-muted"}`}>
+                            {DAYS_OF_WEEK[d.getDay()]}
+                          </span>
+                          <span className="text-base font-extrabold font-fredoka tabular-nums leading-none">
+                            {d.getDate()}
+                          </span>
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${hasEvents ? (isSel ? "bg-white" : "bg-brand") : "bg-transparent"}`}
+                            aria-hidden="true"
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => shiftWeek(1)}
+                    aria-label="Next week"
+                    className="shrink-0 p-2 rounded-xl text-ink-muted hover:text-ink hover:bg-brand-soft/20 min-h-11 min-w-11 flex items-center justify-center"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+
+                {/* Agenda list */}
+                <div className="space-y-4 pb-24">
+                  {agendaDays.map((d) => {
+                    const key = toLocalDateKey(d);
+                    const list = eventsByDay[key] || [];
+                    const isToday = isSameDay(d, todayD);
+                    const isSel = isSameDay(d, selected);
+                    const headerLabel = d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+                    return (
+                      <section key={key} aria-label={headerLabel}>
+                        <header className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <h3 className={`text-sm font-extrabold font-fredoka truncate ${isToday ? "text-brand" : "text-ink"}`}>
+                              {isToday ? "Today · " : ""}{headerLabel}
+                            </h3>
+                            {list.length > 0 && (
+                              <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                                isSel ? "bg-brand-soft text-brand border-brand/30" : "bg-surface-sunken text-ink-muted border-edge"
+                              }`}>
+                                {list.length} {list.length === 1 ? "item" : "items"}
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => openAddFor(d)}
+                            aria-label={`Add to ${headerLabel}`}
+                            className="text-[11px] font-bold text-brand hover:text-brand-hover px-2 py-1 rounded-lg min-h-8"
+                          >
+                            + Add
+                          </button>
+                        </header>
+                        {list.length === 0 ? (
+                          <button
+                            type="button"
+                            onClick={() => openAddFor(d)}
+                            className="w-full text-left text-xs text-ink-muted italic bg-surface-sunken/50 border border-dashed border-edge rounded-xl px-3 py-2.5 hover:bg-surface-sunken transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F27D26]"
+                          >
+                            Nothing scheduled — tap to add
+                          </button>
+                        ) : (
+                          <ul className="space-y-1.5">
+                            {list.map((evt) => (
+                              <li key={`agenda-${evt.id}`}>
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleEventClick(e, evt)}
+                                  className={`w-full flex items-center gap-2 text-left text-xs font-bold py-2.5 px-3 border rounded-xl min-h-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F27D26] ${evt.color}`}
+                                >
+                                  {evt.time && (
+                                    <span className="font-mono text-[10px] tabular-nums opacity-80 shrink-0 w-10">
+                                      {evt.time}
+                                    </span>
+                                  )}
+                                  <span className="shrink-0" aria-hidden="true">
+                                    {evt.type === "task" ? "🎯" : "📌"}
+                                  </span>
+                                  <span className="truncate flex-1">{evt.title}</span>
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </section>
+                    );
+                  })}
+                </div>
+
+                {/* Floating primary add button (above bottom tab bar) */}
+                <button
+                  type="button"
+                  onClick={() => openAddFor(selected)}
+                  aria-label={`Add for ${selected.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}`}
+                  className="md:hidden fixed bottom-24 right-4 z-40 bg-brand hover:bg-brand-hover text-white rounded-full shadow-lg h-14 w-14 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F27D26] focus-visible:ring-offset-2"
+                  style={{ marginBottom: "env(safe-area-inset-bottom)" }}
+                >
+                  <Plus size={26} strokeWidth={2.5} />
+                </button>
+              </>
             );
           })()}
         </div>
 
-
-
-        <div className="flex flex-wrap items-center justify-center gap-4 mt-4 pt-4 border-t border-edge text-xs text-ink-muted">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 bg-emerald-100 rounded-full border border-emerald-200"></span>
-            <span>Task Quests</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 bg-amber-100 rounded-full border border-amber-200"></span>
-            <span>Manual Events</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 bg-sky-50 rounded-full border border-sky-200"></span>
-            <span>Google Calendar Events</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 bg-surface-raised rounded-full border border-edge-soft"></span>
-            <span>Completed Quests</span>
-          </div>
-        </div>
-      </div>
 
       {/* Pop-up Modals: A. Create Event */}
       <AnimatePresence>
