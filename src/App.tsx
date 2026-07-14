@@ -517,7 +517,7 @@ export default function App() {
       {/* 2. Top Navigation Bar — Single Line Premium Layout */}
       <AppNav
         activeTab={activeTab}
-        onTabChange={(tab) => setActiveTab(tab as "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits")}
+        onTabChange={(tab) => setActiveTab(tab as TabId)}
         onGubbyMessage={triggerGubbySpeak}
         onPrefetchTab={(tab) => { MODULE_PREFETCH[tab]?.().catch(() => {}); }}
         xp={xp}
