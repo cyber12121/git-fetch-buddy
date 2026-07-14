@@ -4,8 +4,11 @@ import { motion, AnimatePresence } from "motion/react";
 import { Task, CalendarEvent, Habit, HabitLog, HabitDayStatus } from "./types";
 import GubbyCompanion from "./components/GubbyCompanion";
 import AppNav from "./components/AppNav";
+import SideNav from "./components/SideNav";
+import TodaysQuests from "./components/TodaysQuests";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AppStatusBar from "./components/AppStatusBar";
+
 import { useToast } from "./components/Toast";
 import { useCloudSync } from "./hooks/useCloudSync";
 import { useGoogleCalendar } from "./hooks/useGoogleCalendar";
