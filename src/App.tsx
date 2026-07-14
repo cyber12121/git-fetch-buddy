@@ -13,6 +13,7 @@ import CompilerModule from "./components/CompilerModule";
 import { createGoogleCalendarEvent, deleteGoogleCalendarEvent } from "./lib/googleCalendar";
 import { estimateTaskDuration, toLocalDateKey } from "./lib/constants";
 import { DEFAULT_TASKS } from "./lib/defaultTasks";
+import { readJSON, writeJSON } from "./lib/safeStorage";
 import confetti from "canvas-confetti";
 
 // Code-split the heavier modules so they load only when their tab opens.
