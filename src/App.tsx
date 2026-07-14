@@ -13,6 +13,7 @@ import CompilerModule from "./components/CompilerModule";
 import { createGoogleCalendarEvent, deleteGoogleCalendarEvent } from "./lib/googleCalendar";
 import { estimateTaskDuration, toLocalDateKey } from "./lib/constants";
 import { DEFAULT_TASKS } from "./lib/defaultTasks";
+import { readJSON, writeJSON } from "./lib/safeStorage";
 import confetti from "canvas-confetti";
 
 // Code-split the heavier modules so they load only when their tab opens.
@@ -89,23 +90,39 @@ export default function App() {
   }, []);
 
   // Sync helpers: update React state AND mirror to localStorage. Passed to the
-  // cloud-sync hook so pulled data persists locally too.
-  const syncTasks = (updatedTasks: Task[]) => {
+  // cloud-sync hook so pulled data persists locally too. Writes go through
+  // safeStorage so a full quota / disabled storage does NOT crash the app —
+  // we keep the in-memory update and warn the user once per session.
+  const storageWarnedRef = useRef(false);
+  const handleStorageError = useCallback((err: unknown) => {
+    if (storageWarnedRef.current) return;
+    storageWarnedRef.current = true;
+    const quota = err instanceof DOMException && err.name === "QuotaExceededError";
+    pushToast({
+      icon: "⚠️",
+      tone: "warn",
+      message: quota
+        ? "Local storage is full — changes stay in this tab only."
+        : "Couldn't save to local storage — changes stay in this tab only.",
+    });
+  }, [pushToast]);
+
+  const syncTasks = useCallback((updatedTasks: Task[]) => {
     setTasks(updatedTasks);
-    localStorage.setItem("goblin_tasks", JSON.stringify(updatedTasks));
-  };
-  const syncEvents = (updatedEvents: CalendarEvent[]) => {
+    writeJSON("goblin_tasks", updatedTasks, { onError: handleStorageError });
+  }, [handleStorageError]);
+  const syncEvents = useCallback((updatedEvents: CalendarEvent[]) => {
     setManualEvents(updatedEvents);
-    localStorage.setItem("goblin_events", JSON.stringify(updatedEvents));
-  };
-  const syncHabits = (updated: Habit[]) => {
+    writeJSON("goblin_events", updatedEvents, { onError: handleStorageError });
+  }, [handleStorageError]);
+  const syncHabits = useCallback((updated: Habit[]) => {
     setHabits(updated);
-    localStorage.setItem("goblin_habits", JSON.stringify(updated));
-  };
-  const syncHabitLog = (updated: HabitLog) => {
+    writeJSON("goblin_habits", updated, { onError: handleStorageError });
+  }, [handleStorageError]);
+  const syncHabitLog = useCallback((updated: HabitLog) => {
     setHabitLog(updated);
-    localStorage.setItem("goblin_habit_log", JSON.stringify(updated));
-  };
+    writeJSON("goblin_habit_log", updated, { onError: handleStorageError });
+  }, [handleStorageError]);
 
   // ─── Auth + Google Calendar session (extracted into a hook) ───────────────
   const { user, accessToken, googleEvents, isLoadingGoogle, googleError, setIsLoadingGoogle, loadGoogleEvents, handleConnectGoogle, handleDisconnectGoogle, handleSignOut } = useGoogleCalendar({
@@ -128,40 +145,21 @@ export default function App() {
     setXp,
   });
 
-  // Load from local storage
+  // Load from local storage. safeStorage.readJSON handles missing / disabled
+  // storage, parse failures, and clears corrupted values so a single bad key
+  // can't wedge the whole app on startup.
   useEffect(() => {
-    const savedTasks = localStorage.getItem("goblin_tasks");
-    const savedEvents = localStorage.getItem("goblin_events");
+    const savedTasks = readJSON<Task[] | null>("goblin_tasks", null);
+    setTasks(Array.isArray(savedTasks) ? savedTasks : DEFAULT_TASKS);
 
-    if (savedTasks) {
-      try {
-        setTasks(JSON.parse(savedTasks));
-      } catch (e) {
-        console.error("Failed to parse saved tasks", e);
-        setTasks(DEFAULT_TASKS);
-      }
-    } else {
-      setTasks(DEFAULT_TASKS);
-    }
+    const savedEvents = readJSON<CalendarEvent[] | null>("goblin_events", null);
+    setManualEvents(Array.isArray(savedEvents) ? savedEvents : []);
 
-    if (savedEvents) {
-      try {
-        setManualEvents(JSON.parse(savedEvents));
-      } catch (e) {
-        console.error("Failed to parse saved events", e);
-        setManualEvents([]);
-      }
-    }
+    const savedHabits = readJSON<Habit[] | null>("goblin_habits", null);
+    if (Array.isArray(savedHabits)) setHabits(savedHabits);
 
-    // Load habits
-    const savedHabits = localStorage.getItem("goblin_habits");
-    if (savedHabits) {
-      try { setHabits(JSON.parse(savedHabits)); } catch (e) { console.error("Failed to parse saved habits", e); }
-    }
-    const savedHabitLog = localStorage.getItem("goblin_habit_log");
-    if (savedHabitLog) {
-      try { setHabitLog(JSON.parse(savedHabitLog)); } catch (e) { console.error("Failed to parse saved habit log", e); }
-    }
+    const savedHabitLog = readJSON<HabitLog | null>("goblin_habit_log", null);
+    if (savedHabitLog && typeof savedHabitLog === "object") setHabitLog(savedHabitLog);
   }, []);
 
   // Celebrate when Gubby levels up. Use a sentinel so the first observation of
