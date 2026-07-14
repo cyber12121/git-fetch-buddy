@@ -604,24 +604,7 @@ export default function App() {
       </main>
 
       {/* 5. Footer Status Bar (Simplified layout for less visual noise) */}
-      {activeTab !== "weekly" && (
-        <footer className="hidden md:flex fixed bottom-0 left-0 right-0 h-9 bg-surface-sunken/95 backdrop-blur-md border-t border-edge px-6 items-center justify-between text-[11px] font-bold text-ink-muted z-50" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
-          <div className="flex gap-4 items-center">
-            <span className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-brand rounded-full"></div> Goblin Flow Active</span>
-            {user && (
-              <span className="flex items-center gap-1.5">
-                {cloudStatus === "syncing" && (<><div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></div> Syncing…</>)}
-                {cloudStatus === "synced" && (<><div className="w-1.5 h-1.5 bg-sky-400 rounded-full"></div> Cloud synced</>)}
-                {cloudStatus === "error" && (<><div className="w-1.5 h-1.5 bg-rose-400 rounded-full"></div> Sync off</>)}
-                {cloudStatus === "local" && (<><div className="w-1.5 h-1.5 bg-surface-disabled rounded-full"></div> Local only</>)}
-              </span>
-            )}
-          </div>
-          <div className="flex gap-2 items-center">
-            <span className="flex items-center gap-1.5 text-emerald-600/70"><div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div> Auto-saving</span>
-          </div>
-        </footer>
-      )}
+      {activeTab !== "weekly" && <AppStatusBar user={user} cloudStatus={cloudStatus} />}
 
     </div>
   );
