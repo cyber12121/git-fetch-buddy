@@ -155,7 +155,10 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
                 <button
                   type="button"
                   onClick={() => select(tab)}
+                  onTouchStart={() => prefetch(tab)}
+                  onFocus={() => prefetch(tab)}
                   aria-current={isActive ? "page" : undefined}
+
                   aria-label={tab.label}
                   className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-14 text-[10px] font-bold transition-colors ${
                     isActive
