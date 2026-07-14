@@ -242,18 +242,19 @@ export default function GubbyCompanion({ mood = "cozy", customMessage, xp = 0, o
           </AnimatePresence>
           
           {/* Bubble Actions */}
-          <div className="flex items-center justify-between mt-3 pt-2 border-t border-edge text-xs">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 mt-3 pt-2 border-t border-edge text-xs">
             <button
               id="gubby-poke-btn"
               type="button"
               onClick={getNewQuote}
-              className="text-brand hover:text-orange-800 font-bold flex items-center gap-1.5 transition-colors px-2.5 py-1.5 rounded-lg bg-brand-soft/20 hover:bg-brand-soft/40 border border-[#FFD4A3]/30"
+              aria-label="Get a new random encouragement from Gubby"
+              className="min-w-0 min-h-11 text-brand hover:text-orange-800 font-bold inline-flex items-center justify-center gap-1.5 transition-colors px-3 py-2 rounded-lg bg-brand-soft/20 hover:bg-brand-soft/40 border border-[#FFD4A3]/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <Sparkles size={14} />
-              Random Encouragement! 🎲
+              <Sparkles size={14} aria-hidden="true" />
+              <span className="truncate">Random Encouragement 🎲</span>
             </button>
-            
-            <div className="flex items-center gap-2">
+
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 id="gubby-sound-toggle"
                 type="button"
@@ -266,18 +267,20 @@ export default function GubbyCompanion({ mood = "cozy", customMessage, xp = 0, o
                     playChime(true);
                   }
                 }}
-                className={`flex items-center justify-center p-1 rounded transition-all ${
-                  soundEnabled 
-                    ? "bg-brand-soft  text-orange-900 hover:bg-brand-soft/80" 
-                    : "bg-surface-raised  text-ink-muted hover:bg-surface-raised2 "
+                aria-label={soundEnabled ? "Mute Gubby chime" : "Unmute Gubby chime"}
+                aria-pressed={soundEnabled}
+                className={`inline-flex items-center justify-center min-h-11 min-w-11 rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+                  soundEnabled
+                    ? "bg-brand-soft text-orange-900 hover:bg-brand-soft/80"
+                    : "bg-surface-raised text-ink-muted hover:bg-surface-raised2"
                 }`}
                 title={soundEnabled ? "Mute Gubby chime" : "Unmute Gubby chime"}
               >
-                {soundEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
+                {soundEnabled ? <Volume2 size={14} aria-hidden="true" /> : <VolumeX size={14} aria-hidden="true" />}
               </button>
-              
-              <span className="text-ink-muted select-none flex items-center gap-1">
-                <Heart size={10} className="fill-ink-muted text-ink-muted" /> {levelTitle} · Made with goblin love
+
+              <span className="hidden sm:flex text-ink-muted select-none items-center gap-1">
+                <Heart size={10} className="fill-ink-muted text-ink-muted" aria-hidden="true" /> {levelTitle}
               </span>
             </div>
           </div>
