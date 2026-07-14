@@ -116,23 +116,23 @@ export default function App() {
   const [gubbyMood, setGubbyMood] = useState<"happy" | "thoughtful" | "focused" | "cozy" | "excited">("cozy");
 
   // Gubby can be hidden to reduce on-screen clutter; the choice persists so it
-  // isn't re-shown on every reload.
-  const [gubbyHidden, setGubbyHiddenState] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
+  // isn't re-shown on every reload. Reading localStorage in a useState
+  // initializer would hydration-mismatch (SSR sees no storage), so hydrate
+  // the stored value in an effect after mount.
+  const [gubbyHidden, setGubbyHiddenState] = useState<boolean>(false);
+  useEffect(() => {
     try {
-      return localStorage.getItem("goblin_gubby_hidden") === "1";
-    } catch {
-      return false;
-    }
-  });
-  const updateGubbyHidden = (hidden: boolean) => {
+      if (localStorage.getItem("goblin_gubby_hidden") === "1") setGubbyHiddenState(true);
+    } catch { /* ignore */ }
+  }, []);
+  const updateGubbyHidden = useCallback((hidden: boolean) => {
     setGubbyHiddenState(hidden);
     try {
       localStorage.setItem("goblin_gubby_hidden", hidden ? "1" : "0");
     } catch {
       /* ignore persistence failures (e.g. private mode) */
     }
-  };
+  }, []);
 
   // Stable so it can be passed to the extracted hooks without breaking memoization.
   const triggerGubbySpeak = useCallback((msg: string, mood: "happy" | "thoughtful" | "focused" | "cozy" | "excited") => {
@@ -149,16 +149,20 @@ export default function App() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [habitLog, setHabitLog] = useState<HabitLog>({});
 
-  // Gubby growth pet: XP awarded for completions, persisted locally + synced to cloud.
-  const [xp, setXp] = useState<number>(() => {
-    if (typeof window === "undefined") return 0;
-    const saved = Number(localStorage.getItem("goblin_xp") || "0");
-    return Number.isFinite(saved) && saved >= 0 ? saved : 0;
-  });
+  // Gubby growth pet: XP awarded for completions. Persisted locally + synced to
+  // cloud. Hydrate from localStorage after mount to avoid SSR hydration
+  // mismatches.
+  const [xp, setXp] = useState<number>(0);
+  useEffect(() => {
+    try {
+      const saved = Number(localStorage.getItem("goblin_xp") || "0");
+      if (Number.isFinite(saved) && saved > 0) setXp(saved);
+    } catch { /* ignore */ }
+  }, []);
   const addXp = useCallback((amount: number) => {
     setXp((prev) => {
       const next = Math.max(0, prev + amount);
-      localStorage.setItem("goblin_xp", String(next));
+      try { localStorage.setItem("goblin_xp", String(next)); } catch { /* ignore */ }
       return next;
     });
   }, []);
