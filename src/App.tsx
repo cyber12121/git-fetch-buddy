@@ -164,11 +164,14 @@ export default function App() {
     }
   }, []);
 
-  // Celebrate when Gubby levels up.
-  const prevLevelRef = useRef<number>(Math.floor(xp / 100) + 1);
+  // Celebrate when Gubby levels up. Use a sentinel so the first observation of
+  // `xp` (either the initial 0, the hydrated localStorage value, or the merged
+  // cloud value on sign-in) seeds the baseline instead of firing a bogus
+  // "level up!" burst on every reload.
+  const prevLevelRef = useRef<number | null>(null);
   useEffect(() => {
     const lvl = Math.floor(xp / 100) + 1;
-    if (lvl > prevLevelRef.current) {
+    if (prevLevelRef.current !== null && lvl > prevLevelRef.current) {
       triggerGubbySpeak(`Gubby grew to Level ${lvl}! 🎉 You're a mightier goblin with every quest.`, "excited");
       confetti({
         particleCount: 120,
@@ -178,7 +181,7 @@ export default function App() {
       });
     }
     prevLevelRef.current = lvl;
-  }, [xp]);
+  }, [xp, triggerGubbySpeak]);
 
   const handleAddHabit = (name: string, color: string) => {
     const newHabit: Habit = {
