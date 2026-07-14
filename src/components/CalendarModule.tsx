@@ -447,7 +447,7 @@ export default function CalendarModule({
               handleCellSelect(day);
             }
           }}
-          className={`min-h-[90px] md:min-h-[110px] p-1 border rounded-xl transition-all cursor-pointer flex flex-col items-stretch group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F27D26] ${expanded ? "relative z-10" : ""} ${
+          className={`aspect-square md:aspect-auto md:min-h-[110px] p-0.5 md:p-1 border rounded-lg md:rounded-xl transition-all cursor-pointer flex flex-col items-stretch group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F27D26] ${expanded ? "relative z-10" : ""} ${
             isToday
               ? "ring-2 ring-[#F27D26] ring-offset-2 border-orange-200 bg-orange-50/20 shadow-[0_0_12px_rgba(242,125,38,0.35)]"
               : isSelected
