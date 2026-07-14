@@ -401,6 +401,7 @@ export default function App() {
           setGubbyMood("happy");
           setGubbyMessage(`Hurray! Quest "${t.title}" is finished! Gold leaf for you! 🍃✨`);
           pushToast({ icon: "✅", message: "Quest done! +15 XP", tone: "success" });
+          recordReward("achievement", "✅", `Quest done: ${t.title}`);
 
           // Trigger confetti burst celebration
           confetti({
