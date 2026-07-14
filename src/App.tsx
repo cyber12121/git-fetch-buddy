@@ -136,13 +136,57 @@ export default function App() {
       if (Number.isFinite(saved) && saved > 0) setXp(saved);
     } catch { /* ignore */ }
   }, []);
+  // Milestone toasts: fire a celebratory pop every time XP crosses a
+  // dopamine-tuned threshold. Uses the previous value inside the setter so
+  // it's immune to double-fires from React 18 strict mode.
+  const XP_MILESTONES = [50, 100, 250, 500, 1000, 2500, 5000];
+  const MILESTONE_LABELS: Record<number, string> = {
+    50: "🌱 First 50 XP! Sprig is proud.",
+    100: "🍄 100 XP — Level 2 unlocked!",
+    250: "⚡ 250 XP — you're on a roll!",
+    500: "🔥 500 XP — Sprig is beaming!",
+    1000: "👑 1000 XP — legendary goblin!",
+    2500: "🌟 2500 XP — myth-tier hustler.",
+    5000: "🏆 5000 XP — Sprig bows to you.",
+  };
   const addXp = useCallback((amount: number) => {
     setXp((prev) => {
       const next = Math.max(0, prev + amount);
       try { localStorage.setItem("goblin_xp", String(next)); } catch { /* ignore */ }
+      if (amount > 0) {
+        for (const m of XP_MILESTONES) {
+          if (prev < m && next >= m) {
+            pushToast({ icon: "🎉", tone: "success", message: MILESTONE_LABELS[m] });
+            confetti({ particleCount: 60, spread: 55, origin: { y: 0.7 }, colors: ["#F27D26", "#FBBF24", "#556B55"] });
+            break;
+          }
+        }
+      }
       return next;
     });
-  }, []);
+  }, [pushToast]);
+
+  // Combo streak: chain completions within 45s to earn bonus XP. Every
+  // consecutive quest inside the window bumps the multiplier (+5, +10, +15…),
+  // giving fast rapid-fire finishing a satisfying dopamine ramp.
+  const comboRef = useRef<{ count: number; lastAt: number }>({ count: 0, lastAt: 0 });
+  const registerCombo = useCallback(() => {
+    const now = Date.now();
+    const within = now - comboRef.current.lastAt < 45_000;
+    const nextCount = within ? comboRef.current.count + 1 : 1;
+    comboRef.current = { count: nextCount, lastAt: now };
+    if (nextCount >= 2) {
+      const bonus = Math.min(nextCount - 1, 5) * 5;
+      addXp(bonus);
+      pushToast({
+        icon: "⚡",
+        tone: "success",
+        message: `${nextCount}× combo! +${bonus} bonus XP`,
+      });
+    }
+    return nextCount;
+  }, [addXp, pushToast]);
+
 
   // Sync helpers: update React state AND mirror to localStorage. Passed to the
   // cloud-sync hook so pulled data persists locally too. Writes go through
