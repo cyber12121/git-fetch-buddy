@@ -129,35 +129,36 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
   };
 
   return (
-    <div id="compiler-module" className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-surface p-6 rounded-3xl border-2 border-edge card-shadow">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-3 bg-brand-soft/30 text-brand rounded-2xl">
-            <Brain size={28} />
+    <div id="compiler-module" className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
+      <div className="bg-surface p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-edge card-shadow">
+        <div className="flex items-start gap-2.5 sm:gap-3 mb-4">
+          <div className="p-2 sm:p-3 bg-brand-soft/30 text-brand rounded-xl sm:rounded-2xl shrink-0">
+            <Brain className="w-5 h-5 sm:w-7 sm:h-7" />
           </div>
-          <div>
-            <h2 className="text-xl font-bold text-ink font-fredoka">The Brain Dump Compiler</h2>
-            <p className="text-sm text-ink-muted">Unload your buzzing, messy stream of thoughts. Gubby will organize it into bite-sized tasks using AI.</p>
+          <div className="min-w-0">
+            <h2 className="text-base sm:text-xl font-bold text-ink font-fredoka leading-tight">The Brain Dump Compiler</h2>
+            <p className="text-xs sm:text-sm text-ink-muted leading-snug mt-0.5">Unload your buzzing thoughts. Gubby sorts them into bite-sized tasks.</p>
           </div>
         </div>
 
         {/* Suggestion Templates */}
-        <div className="mb-4">
-          <p className="text-xs font-semibold text-ink-muted mb-2 uppercase tracking-wider">Try an ADHD-friendly dread template:</p>
-          <div className="flex flex-wrap gap-2">
+        <div className="mb-3 sm:mb-4">
+          <p className="text-[10px] sm:text-xs font-semibold text-ink-muted mb-2 uppercase tracking-wider">Try a template:</p>
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {TEMPLATES.map((tpl, i) => (
               <button
                 key={tpl.label}
                 type="button"
                 id={`template-btn-${i}`}
                 onClick={() => handleLoadTemplate(tpl.text)}
-                className="text-xs bg-surface-sunken hover:bg-brand-soft/25 text-ink-muted border-2 border-edge-soft hover:border-brand/45 px-3 py-1.5 rounded-xl font-semibold transition-all"
+                className="text-[11px] sm:text-xs bg-surface-sunken hover:bg-brand-soft/25 text-ink-muted border-2 border-edge-soft hover:border-brand/45 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-semibold transition-all"
               >
                 {tpl.label}
               </button>
             ))}
           </div>
         </div>
+
 
         {/* Main Textarea */}
         <div className="relative">
