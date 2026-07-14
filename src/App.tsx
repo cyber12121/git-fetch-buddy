@@ -541,7 +541,7 @@ export default function App() {
           {!isWide && (
             <SideNav
               activeTab={activeTab}
-              onTabChange={(tab) => setActiveTab(tab as "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits")}
+              onTabChange={(tab) => setActiveTab(tab as TabId)}
               onGubbyMessage={triggerGubbySpeak}
               onPrefetchTab={(tab) => { MODULE_PREFETCH[tab]?.().catch(() => {}); }}
               taskCount={tasks.filter(t => !t.completed).length}
