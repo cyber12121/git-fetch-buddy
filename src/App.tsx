@@ -617,8 +617,8 @@ export default function App() {
             </ErrorBoundary>
           </main>
 
-          {/* RIGHT: Gubby companion + Today's Quests (desktop only) */}
-          {activeTab !== "weekly" && (
+          {/* RIGHT: Gubby companion + Today's Quests (desktop only, do-tabs only) */}
+          {!isWide && (
             <aside className="hidden lg:flex flex-col gap-4 w-80 shrink-0">
               {!gubbyHidden ? (
                 <GubbyCompanion
@@ -648,6 +648,8 @@ export default function App() {
           </section>
         )}
       </div>
+        );
+      })()}
 
       {/* 4. Footer Status Bar */}
       {activeTab !== "weekly" && <AppStatusBar user={user} cloudStatus={cloudStatus} />}
@@ -656,3 +658,4 @@ export default function App() {
     </div>
   );
 }
+
