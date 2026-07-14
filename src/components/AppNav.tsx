@@ -70,41 +70,22 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
               </div>
             </div>
 
-            {/* Desktop tab row */}
+            {/* Desktop tab row — hidden; primary nav is the left sidebar. */}
             <nav
               aria-label="Primary"
-              className="hidden md:flex items-center gap-1.5 lg:gap-2 bg-surface-sunken/70 p-1.5 rounded-2xl shadow-sm border border-edge-soft overflow-x-auto no-scrollbar"
+              className="hidden"
             >
-              {TABS.map((tab, i) => {
+              {TABS.map((tab) => {
                 const isActive = activeTab === tab.id;
-                const showDivider = tab.group === "plan" && TABS[i - 1]?.group === "do";
                 return (
-                  <span key={tab.id} className="flex items-center shrink-0">
-                    {showDivider && (
-                      <span aria-hidden="true" className="mx-1 w-[2px] h-6 bg-edge rounded-full shrink-0" />
-                    )}
-                    <motion.button
-                      id={`nav-tab-${tab.id}`}
-                      onClick={() => select(tab)}
-                      onMouseEnter={() => prefetch(tab)}
-                      onFocus={() => prefetch(tab)}
-                      whileHover={{ y: -1 }}
-
-                      whileTap={{ scale: 0.97 }}
-                      aria-current={isActive ? "page" : undefined}
-                      className={`flex items-center gap-1.5 px-3 lg:px-4 py-2 rounded-xl font-bold text-xs transition-colors cursor-pointer select-none min-h-11 ${
-                        isActive
-                          ? "bg-primary text-primary-foreground shadow-md ring-2 ring-primary/30"
-                          : "bg-surface-sunken text-ink-muted hover:bg-surface hover:text-ink shadow-sm border border-edge-soft"
-                      }`}
-                    >
-                      <tab.Icon size={14} aria-hidden="true" />
-                      <span>{tab.label}</span>
-                    </motion.button>
-                  </span>
+                  <button key={tab.id} onClick={() => select(tab)} aria-current={isActive ? "page" : undefined}>
+                    <tab.Icon size={14} aria-hidden="true" />
+                    <span>{tab.label}</span>
+                  </button>
                 );
               })}
             </nav>
+
 
             {/* Right side: XP + status */}
             <div className="flex items-center gap-2 shrink-0 justify-self-end">
