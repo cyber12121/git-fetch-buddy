@@ -16,6 +16,8 @@ import { createGoogleCalendarEvent, deleteGoogleCalendarEvent } from "./lib/goog
 import { estimateTaskDuration, toLocalDateKey } from "./lib/constants";
 import { DEFAULT_TASKS } from "./lib/defaultTasks";
 import { readJSON, writeJSON } from "./lib/safeStorage";
+import { recordReward } from "./lib/rewardHistory";
+import RewardHistory from "./components/RewardHistory";
 import confetti from "canvas-confetti";
 
 // Code-split every workspace module so the initial bundle only carries the
