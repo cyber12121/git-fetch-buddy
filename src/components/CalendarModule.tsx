@@ -422,7 +422,7 @@ export default function CalendarModule({
     // Empty cells for padding of the first week
     for (let i = 0; i < firstDayIndex; i++) {
       cells.push(
-        <div key={`empty-${i}`} className="min-h-[90px] md:min-h-[110px] bg-surface/40 border border-edge/50 rounded-lg"></div>
+        <div key={`empty-${i}`} className="aspect-square md:aspect-auto md:min-h-[110px] bg-surface/40 border border-edge/50 rounded-lg"></div>
       );
     }
 
