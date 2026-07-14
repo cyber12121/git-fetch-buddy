@@ -86,7 +86,10 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
                     <motion.button
                       id={`nav-tab-${tab.id}`}
                       onClick={() => select(tab)}
+                      onMouseEnter={() => prefetch(tab)}
+                      onFocus={() => prefetch(tab)}
                       whileHover={{ y: -1 }}
+
                       whileTap={{ scale: 0.97 }}
                       aria-current={isActive ? "page" : undefined}
                       className={`flex items-center gap-1.5 px-3 lg:px-4 py-2 rounded-xl font-bold text-xs transition-colors cursor-pointer select-none min-h-11 ${
