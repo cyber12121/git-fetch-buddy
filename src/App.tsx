@@ -753,12 +753,19 @@ export default function App() {
           )}
         </div>
 
-        {/* Mobile/tablet: inline Sprig below the module (unchanged behavior) */}
-        {activeTab !== "weekly" && activeTab !== "calendar" && activeTab !== "habits" && !gubbyHidden && (
-          <section aria-label="Sprig companion" className="lg:hidden mt-6">
+              <TodaysQuests tasks={tasks} onToggleTask={handleToggleTask} />
+              <RewardHistory />
+            </aside>
+          )}
+        </div>
+
+        {/* Mobile/tablet: inline Sprig + reward log below the module. */}
+        <section aria-label="Extras" className="lg:hidden mt-6 space-y-4">
+          {activeTab !== "weekly" && activeTab !== "calendar" && activeTab !== "habits" && !gubbyHidden && (
             <GubbyCompanion mood={gubbyMood} customMessage={gubbyMessage} xp={xp} onHide={() => updateGubbyHidden(true)} />
-          </section>
-        )}
+          )}
+          <RewardHistory />
+        </section>
       </div>
         );
       })()}
