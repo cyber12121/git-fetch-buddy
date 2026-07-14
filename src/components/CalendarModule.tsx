@@ -751,9 +751,60 @@ export default function CalendarModule({
         </div>
 
         {/* Monthly Grid */}
-        <div className="grid grid-cols-7 gap-1.5 mt-2">
+        <div className="grid grid-cols-7 gap-1 md:gap-1.5 mt-2">
           {renderCalendarCells()}
         </div>
+
+        {/* Mobile-only selected day event list */}
+        <div className="md:hidden mt-4 pt-4 border-t border-edge">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-bold font-fredoka text-ink">
+              {(() => {
+                const [y, m, d] = selectedDate.split("-").map(Number);
+                const dt = new Date(y, (m || 1) - 1, d || 1);
+                return dt.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+              })()}
+            </h3>
+            <button
+              type="button"
+              onClick={() => {
+                const [, , dStr] = selectedDate.split("-");
+                handleCellSelect(parseInt(dStr, 10));
+              }}
+              className="text-[11px] font-extrabold text-white bg-brand hover:bg-brand-hover px-3 py-1.5 rounded-lg shadow-xs min-h-9"
+            >
+              + Add
+            </button>
+          </div>
+          {(() => {
+            const list = getEventsForDay(selectedDate);
+            if (list.length === 0) {
+              return (
+                <p className="text-xs text-ink-muted italic py-3 text-center">
+                  Nothing scheduled — tap + Add to plan something cozy.
+                </p>
+              );
+            }
+            return (
+              <ul className="space-y-1.5">
+                {list.map((evt) => (
+                  <li key={`m-${evt.id}`}>
+                    <button
+                      type="button"
+                      onClick={(e) => handleEventClick(e, evt)}
+                      className={`w-full text-left text-xs font-bold py-2 px-3 border rounded-lg truncate focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F27D26] ${evt.color}`}
+                    >
+                      {evt.time && <span className="font-mono text-[10px] mr-1 opacity-80">{evt.time}</span>}
+                      {evt.type === "task" ? "🎯 " : "📌 "}{evt.title}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            );
+          })()}
+        </div>
+
+
 
         <div className="flex flex-wrap items-center justify-center gap-4 mt-4 pt-4 border-t border-edge text-xs text-ink-muted">
           <div className="flex items-center gap-1.5">
