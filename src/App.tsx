@@ -56,6 +56,21 @@ function readTabFromHash(): TabId | null {
 export default function App() {
   const { pushToast } = useToast();
   const [activeTab, setActiveTabState] = useState<TabId>("todo");
+  const mainRef = useRef<HTMLElement | null>(null);
+
+  // Move focus to the main region and scroll it into view. Used after
+  // deep-link / back-forward navigation so the user's attention (and
+  // screen-reader focus) lands on the correct tab content instead of
+  // staying pinned to the top nav.
+  const focusMainForTab = useCallback((_tab: TabId) => {
+    // Wait one frame so the newly mounted module is in the DOM.
+    requestAnimationFrame(() => {
+      const el = mainRef.current;
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      el.focus({ preventScroll: true });
+    });
+  }, []);
 
   // ─── URL hash routing ─────────────────────────────────────────────────────
   // Sync `activeTab` with `window.location.hash` so browser back/forward and
@@ -64,7 +79,10 @@ export default function App() {
   useEffect(() => {
     const apply = () => {
       const t = readTabFromHash();
-      if (t) setActiveTabState(t);
+      if (t) {
+        setActiveTabState(t);
+        focusMainForTab(t);
+      }
     };
     apply();
     window.addEventListener("popstate", apply);
@@ -73,7 +91,7 @@ export default function App() {
       window.removeEventListener("popstate", apply);
       window.removeEventListener("hashchange", apply);
     };
-  }, []);
+  }, [focusMainForTab]);
   const setActiveTab = useCallback((tab: TabId) => {
     setActiveTabState(tab);
     if (typeof window !== "undefined") {
@@ -82,7 +100,8 @@ export default function App() {
         window.history.pushState(null, "", target);
       }
     }
-  }, []);
+    focusMainForTab(tab);
+  }, [focusMainForTab]);
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [manualEvents, setManualEvents] = useState<CalendarEvent[]>([]);
