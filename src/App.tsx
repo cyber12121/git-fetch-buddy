@@ -4,8 +4,11 @@ import { motion, AnimatePresence } from "motion/react";
 import { Task, CalendarEvent, Habit, HabitLog, HabitDayStatus } from "./types";
 import GubbyCompanion from "./components/GubbyCompanion";
 import AppNav from "./components/AppNav";
+import SideNav from "./components/SideNav";
+import TodaysQuests from "./components/TodaysQuests";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AppStatusBar from "./components/AppStatusBar";
+
 import { useToast } from "./components/Toast";
 import { useCloudSync } from "./hooks/useCloudSync";
 import { useGoogleCalendar } from "./hooks/useGoogleCalendar";
@@ -483,145 +486,167 @@ export default function App() {
       />
 
 
-      {/* 3. Global Gubby Companion Layer — inline on every breakpoint. */}
-      {activeTab !== "weekly" && activeTab !== "calendar" && activeTab !== "habits" && (
-        gubbyHidden ? (
-          <div className="px-4 mt-6 max-w-5xl mx-auto w-full flex justify-end">
-            <button
-              type="button"
-              onClick={() => updateGubbyHidden(false)}
-              aria-label="Bring Gubby companion back"
-              className="flex items-center gap-1.5 text-xs font-bold text-ink-muted hover:text-brand bg-surface border border-edge rounded-full px-3 py-2 shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              🦦 Bring Gubby back
-            </button>
-          </div>
-        ) : (
-          <section
-            aria-label="Gubby companion"
-            className="px-4 mt-6 max-w-5xl mx-auto w-full"
-          >
+      {/* 3. Three-column dashboard layout on desktop; stacked on mobile/tablet */}
+      <div className={`flex-1 w-full ${
+        activeTab === "weekly" ? "p-0" : "max-w-[1400px] mx-auto px-4 mt-6"
+      }`}>
+        <div className={`${
+          activeTab === "weekly"
+            ? "block"
+            : "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)_20rem] lg:gap-6 lg:items-start"
+        }`}>
+          {/* LEFT: sidebar nav + tip (desktop only) */}
+          {activeTab !== "weekly" && (
+            <SideNav
+              activeTab={activeTab}
+              onTabChange={(tab) => setActiveTab(tab as "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits")}
+              onGubbyMessage={triggerGubbySpeak}
+              onPrefetchTab={(tab) => { MODULE_PREFETCH[tab]?.().catch(() => {}); }}
+              taskCount={tasks.filter(t => !t.completed).length}
+            />
+          )}
+
+          {/* CENTER: active module */}
+          <main className={`min-w-0 ${activeTab === "weekly" ? "w-full" : ""}`}>
+            <ErrorBoundary>
+              <Suspense fallback={
+                <div className="flex items-center justify-center py-16 text-ink-muted text-sm">Gubby is warming up… 🍄</div>
+              }>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.15 }}
+                    className="w-full"
+                  >
+                    {activeTab === "compiler" && (
+                      <CompilerModule
+                        onTasksCompiled={handleTasksCompiled}
+                        onGubbyMessage={triggerGubbySpeak}
+                      />
+                    )}
+
+                    {activeTab === "todo" && (
+                      <MagicTodoModule
+                        tasks={tasks}
+                        onAddTask={handleAddTask}
+                        onDeleteTask={handleDeleteTask}
+                        onToggleTask={handleToggleTask}
+                        onUpdateTask={handleUpdateTask}
+                        onFocusTask={handleFocusTask}
+                        onFocusAndSwitch={(taskTitle, taskId) => {
+                          handleFocusTask(taskTitle, undefined, taskId);
+                        }}
+                        onGainXp={addXp}
+                        onGubbyMessage={triggerGubbySpeak}
+                        selectedDate={selectedDate}
+                        onSelectDate={setSelectedDate}
+                      />
+                    )}
+
+                    {activeTab === "taskmaster" && (
+                      <TaskmasterModule
+                        activeTaskTitle={activeTaskTitle}
+                        activeTaskId={activeTaskId}
+                        activeSubtaskId={activeSubtaskId}
+                        tasks={tasks}
+                        onCompleteActiveTask={handleCompleteActiveTask}
+                        onGubbyMessage={triggerGubbySpeak}
+                      />
+                    )}
+
+                    {activeTab === "calendar" && (
+                      <CalendarModule
+                        tasks={tasks}
+                        manualEvents={manualEvents}
+                        onAddManualEvent={handleAddManualEvent}
+                        onDeleteManualEvent={handleDeleteManualEvent}
+                        onDeleteTask={handleDeleteTask}
+                        onFocusTask={handleFocusTask}
+                        onGubbyMessage={triggerGubbySpeak}
+                        selectedDate={selectedDate}
+                        onSelectDate={setSelectedDate}
+                        onAddTask={handleAddTask}
+                        googleEvents={googleEvents}
+                        isLoadingGoogle={isLoadingGoogle}
+                        googleError={googleError}
+                        user={user}
+                        accessToken={accessToken}
+                        calendarConnected={!!(user && accessToken)}
+                        onConnectGoogle={handleConnectGoogle}
+                        onDisconnectGoogle={handleDisconnectGoogle}
+                        onSignOut={handleSignOut}
+                        onLoadGoogleEvents={loadGoogleEvents}
+                      />
+                    )}
+
+                    {activeTab === "weekly" && (
+                      <WeeklyPlannerModule
+                        tasks={tasks}
+                        onAddTask={handleAddTask}
+                        onDeleteTask={handleDeleteTask}
+                        onToggleTask={handleToggleTask}
+                        onUpdateTask={handleUpdateTask}
+                        onUpdateTasksList={syncTasks}
+                        onGubbyMessage={triggerGubbySpeak}
+                        manualEvents={manualEvents}
+                        onDeleteManualEvent={handleDeleteManualEvent}
+                      />
+                    )}
+
+                    {activeTab === "habits" && (
+                      <HabitTrackerModule
+                        habits={habits}
+                        habitLog={habitLog}
+                        onAddHabit={handleAddHabit}
+                        onDeleteHabit={handleDeleteHabit}
+                        onToggleDay={handleToggleHabitDay}
+                        onGubbyMessage={triggerGubbySpeak}
+                      />
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              </Suspense>
+            </ErrorBoundary>
+          </main>
+
+          {/* RIGHT: Gubby companion + Today's Quests (desktop only) */}
+          {activeTab !== "weekly" && (
+            <aside className="hidden lg:flex flex-col gap-4 w-80 shrink-0">
+              {!gubbyHidden ? (
+                <GubbyCompanion
+                  mood={gubbyMood}
+                  customMessage={gubbyMessage}
+                  xp={xp}
+                  onHide={() => updateGubbyHidden(true)}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => updateGubbyHidden(false)}
+                  className="text-xs font-bold text-ink-muted hover:text-brand bg-surface border border-edge rounded-full px-3 py-2 shadow-sm self-end"
+                >
+                  🦦 Bring Gubby back
+                </button>
+              )}
+              <TodaysQuests tasks={tasks} onToggleTask={handleToggleTask} />
+            </aside>
+          )}
+        </div>
+
+        {/* Mobile/tablet: inline Gubby below the module (unchanged behavior) */}
+        {activeTab !== "weekly" && activeTab !== "calendar" && activeTab !== "habits" && !gubbyHidden && (
+          <section aria-label="Gubby companion" className="lg:hidden mt-6">
             <GubbyCompanion mood={gubbyMood} customMessage={gubbyMessage} xp={xp} onHide={() => updateGubbyHidden(true)} />
           </section>
-        )
-      )}
+        )}
+      </div>
 
-
-
-      {/* 4. Active Workspace Modules */}
-      <main className={`flex-1 ${
-        activeTab === "weekly"
-          ? "w-full p-0"
-          : activeTab === "calendar" || activeTab === "habits"
-            ? "w-full pb-20"
-            : "px-4 mt-6 max-w-5xl mx-auto w-full"
-      }`}>
-        <ErrorBoundary>
-        <Suspense fallback={
-          <div className="flex items-center justify-center py-16 text-ink-muted text-sm">Gubby is warming up… 🍄</div>
-        }>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.15 }}
-            className="w-full"
-          >
-            {activeTab === "compiler" && (
-              <CompilerModule
-                onTasksCompiled={handleTasksCompiled}
-                onGubbyMessage={triggerGubbySpeak}
-              />
-            )}
-
-            {activeTab === "todo" && (
-              <MagicTodoModule
-                tasks={tasks}
-                onAddTask={handleAddTask}
-                onDeleteTask={handleDeleteTask}
-                onToggleTask={handleToggleTask}
-                onUpdateTask={handleUpdateTask}
-                onFocusTask={handleFocusTask}
-                onFocusAndSwitch={(taskTitle, taskId) => {
-                  handleFocusTask(taskTitle, undefined, taskId);
-                }}
-                onGainXp={addXp}
-                onGubbyMessage={triggerGubbySpeak}
-                selectedDate={selectedDate}
-                onSelectDate={setSelectedDate}
-              />
-            )}
-
-            {activeTab === "taskmaster" && (
-              <TaskmasterModule
-                activeTaskTitle={activeTaskTitle}
-                activeTaskId={activeTaskId}
-                activeSubtaskId={activeSubtaskId}
-                tasks={tasks}
-                onCompleteActiveTask={handleCompleteActiveTask}
-                onGubbyMessage={triggerGubbySpeak}
-              />
-            )}
-
-            {activeTab === "calendar" && (
-              <CalendarModule
-                tasks={tasks}
-                manualEvents={manualEvents}
-                onAddManualEvent={handleAddManualEvent}
-                onDeleteManualEvent={handleDeleteManualEvent}
-                onDeleteTask={handleDeleteTask}
-                onFocusTask={handleFocusTask}
-                onGubbyMessage={triggerGubbySpeak}
-                selectedDate={selectedDate}
-                onSelectDate={setSelectedDate}
-                onAddTask={handleAddTask}
-                googleEvents={googleEvents}
-                isLoadingGoogle={isLoadingGoogle}
-                googleError={googleError}
-                user={user}
-                accessToken={accessToken}
-                calendarConnected={!!(user && accessToken)}
-                onConnectGoogle={handleConnectGoogle}
-                onDisconnectGoogle={handleDisconnectGoogle}
-                onSignOut={handleSignOut}
-                onLoadGoogleEvents={loadGoogleEvents}
-              />
-            )}
-
-            {activeTab === "weekly" && (
-              <WeeklyPlannerModule
-                tasks={tasks}
-                onAddTask={handleAddTask}
-                onDeleteTask={handleDeleteTask}
-                onToggleTask={handleToggleTask}
-                onUpdateTask={handleUpdateTask}
-                onUpdateTasksList={syncTasks}
-                onGubbyMessage={triggerGubbySpeak}
-                manualEvents={manualEvents}
-                onDeleteManualEvent={handleDeleteManualEvent}
-              />
-            )}
-
-            {activeTab === "habits" && (
-              <HabitTrackerModule
-                habits={habits}
-                habitLog={habitLog}
-                onAddHabit={handleAddHabit}
-                onDeleteHabit={handleDeleteHabit}
-                onToggleDay={handleToggleHabitDay}
-                onGubbyMessage={triggerGubbySpeak}
-              />
-            )}
-          </motion.div>
-        </AnimatePresence>
-        </Suspense>
-        </ErrorBoundary>
-      </main>
-
-      {/* 5. Footer Status Bar (Simplified layout for less visual noise) */}
+      {/* 4. Footer Status Bar */}
       {activeTab !== "weekly" && <AppStatusBar user={user} cloudStatus={cloudStatus} />}
+
 
     </div>
   );
