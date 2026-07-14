@@ -263,76 +263,73 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-surface p-6 rounded-3xl border-2 border-edge card-shadow space-y-4"
+          className="bg-surface p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-edge card-shadow space-y-3 sm:space-y-4"
         >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-edge">
-            <div>
-              <h3 className="text-lg font-bold text-ink font-fredoka flex items-center gap-2">
-                Compiled Checklist Preview <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Draft Mode</span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-edge">
+            <div className="min-w-0">
+              <h3 className="text-base sm:text-lg font-bold text-ink font-fredoka flex items-center gap-2 flex-wrap">
+                Compiled Preview <span className="text-[10px] sm:text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Draft</span>
               </h3>
-              <p className="text-xs text-ink-muted">Deselect items you don't want. Adjust titles or priorities before sending to the main list.</p>
+              <p className="text-[11px] sm:text-xs text-ink-muted leading-snug mt-0.5">Deselect, edit titles, or change priority before sending.</p>
             </div>
-            
+
             <button
               id="send-all-todo-btn"
               onClick={handleSendToTodo}
-              className="px-5 py-2.5 bg-brand hover:bg-brand-hover text-white font-bold rounded-xl shadow hover:shadow-md transition-all flex items-center justify-center gap-1.5 text-sm select-none"
+              className="w-full sm:w-auto px-4 sm:px-5 py-2.5 bg-brand hover:bg-brand-hover text-white font-bold rounded-xl shadow hover:shadow-md transition-all flex items-center justify-center gap-1.5 text-sm select-none shrink-0"
             >
               Send to Magic To-Do <ArrowRight size={16} />
             </button>
           </div>
 
-          <div className="divide-y divide-stone-100 space-y-3 max-h-[400px] overflow-y-auto pr-1">
+          <div className="divide-y divide-stone-100 max-h-[420px] overflow-y-auto pr-1 -mr-1">
             {tempTasks.map((task, index) => (
               <div
                 key={task.id}
-                className={`flex flex-col md:flex-row md:items-center justify-between gap-3 pt-3 first:pt-0 ${
+                className={`flex flex-col gap-2 py-3 first:pt-0 last:pb-0 ${
                   task.selected ? "opacity-100" : "opacity-50"
                 }`}
               >
-                {/* Checkbox and Text edit */}
-                <div className="flex items-start gap-3 flex-1">
+                {/* Row 1: checkbox + editable title */}
+                <div className="flex items-start gap-2.5 sm:gap-3">
                   <button
                     id={`temp-task-checkbox-${index}`}
                     role="checkbox"
                     aria-checked={task.selected}
                     aria-label={`Select task: ${task.title}`}
                     onClick={() => handleToggleSelect(index)}
-                    className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors cursor-pointer shrink-0 mt-1 ${
+                    className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors cursor-pointer shrink-0 mt-0.5 ${
                       task.selected
                         ? "bg-emerald-600 border-emerald-600 text-white"
-                        : "border-edge-strong  bg-surface  hover:border-emerald-500"
+                        : "border-edge-strong bg-surface hover:border-emerald-500"
                     }`}
                   >
                     {task.selected && <Check size={14} strokeWidth={3} />}
                   </button>
 
-                  <div className="flex-1">
-                    <input
-                      id={`temp-task-title-input-${index}`}
-                      type="text"
-                      value={task.title}
-                      onChange={(e) => handleUpdateTitle(index, e.target.value)}
-                      className="w-full text-base font-semibold text-ink-2 border-b border-transparent hover:border-edge-soft focus:border-brand outline-none bg-transparent transition-colors py-0.5"
-                    />
-
-                  </div>
+                  <input
+                    id={`temp-task-title-input-${index}`}
+                    type="text"
+                    value={task.title}
+                    onChange={(e) => handleUpdateTitle(index, e.target.value)}
+                    className="flex-1 min-w-0 text-sm sm:text-base font-semibold text-ink-2 border-b border-transparent hover:border-edge-soft focus:border-brand outline-none bg-transparent transition-colors py-0.5"
+                  />
                 </div>
 
-                {/* Priority controls and Delete */}
-                <div className="flex items-center gap-2 self-end md:self-center pl-9 md:pl-0">
-                  {/* Priority Quick Buttons */}
-                  <div className="flex items-center gap-1 border border-edge rounded-xl p-1 bg-surface">
+                {/* Row 2: priority + delete, indented under title */}
+                <div className="flex items-center justify-between gap-2 pl-[34px] sm:pl-[38px]">
+                  <div className="flex items-center gap-0.5 border border-edge rounded-lg p-0.5 bg-surface">
                     {(["low", "medium", "high"] as const).map((lvl) => (
                       <button
                         key={lvl}
                         id={`temp-task-${index}-priority-${lvl}`}
                         onClick={() => handleUpdatePriority(index, lvl)}
-                        className={`text-xs px-2.5 py-1 rounded-lg border transition-all font-semibold ${
+                        className={`text-xs px-2 py-1 rounded-md border transition-all font-semibold ${
                           task.priority === lvl
                             ? getPriorityColor(lvl) + " shadow-sm font-bold"
-                            : "border-transparent text-ink-muted  hover:text-ink  bg-transparent"
+                            : "border-transparent text-ink-muted hover:text-ink bg-transparent"
                         }`}
+                        aria-label={`Priority ${lvl}`}
                       >
                         {lvl === "low" && "🟢"}
                         {lvl === "medium" && "🟡"}
@@ -341,12 +338,12 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
                     ))}
                   </div>
 
-                  {/* Delete Temporary */}
                   <button
                     id={`delete-temp-task-btn-${index}`}
                     onClick={() => handleDeleteTemp(index)}
-                    className="p-2 text-ink-muted hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                    title="Discard from preview list"
+                    className="p-2 text-ink-muted hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                    title="Discard from preview"
+                    aria-label="Discard task"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -355,13 +352,12 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
             ))}
           </div>
 
-          <div className="bg-surface p-3 rounded-2xl flex items-center justify-between text-xs text-ink-muted">
-            <span>
-              💡 <strong>ADHD Tip:</strong> Adjust priority levels! High priority tasks can be broken down into tiny manageable micro-steps to get started easily.
-            </span>
+          <div className="bg-surface-sunken p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs text-ink-muted leading-snug">
+            💡 <strong>Tip:</strong> Break high-priority tasks into tiny micro-steps to get started easily.
           </div>
         </motion.div>
       )}
+
     </div>
   );
 }
