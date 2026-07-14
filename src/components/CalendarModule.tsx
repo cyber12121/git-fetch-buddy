@@ -555,7 +555,7 @@ export default function CalendarModule({
   };
 
   return (
-    <div id="calendar-module" className="w-full px-6 py-6 space-y-6">
+    <div id="calendar-module" className="w-full px-3 md:px-6 py-4 md:py-6 space-y-4 md:space-y-6">
 
       {/* Google Calendar Connection Status Bar */}
       <div className="bg-surface p-4 rounded-3xl border-2 border-edge card-shadow flex flex-col md:flex-row items-center justify-between gap-4">
