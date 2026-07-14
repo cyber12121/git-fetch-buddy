@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Sparkles, Play, Calendar, Trash2, Check, Plus, AlertCircle, ChevronDown, ChevronUp, Clock, Mic, Square } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Task, SubTask } from "../types";
