@@ -422,7 +422,7 @@ export default function CalendarModule({
     // Empty cells for padding of the first week
     for (let i = 0; i < firstDayIndex; i++) {
       cells.push(
-        <div key={`empty-${i}`} className="min-h-[90px] md:min-h-[110px] bg-surface/40 border border-edge/50 rounded-lg"></div>
+        <div key={`empty-${i}`} className="aspect-square md:aspect-auto md:min-h-[110px] bg-surface/40 border border-edge/50 rounded-lg"></div>
       );
     }
 
@@ -447,7 +447,7 @@ export default function CalendarModule({
               handleCellSelect(day);
             }
           }}
-          className={`min-h-[90px] md:min-h-[110px] p-1 border rounded-xl transition-all cursor-pointer flex flex-col items-stretch group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F27D26] ${expanded ? "relative z-10" : ""} ${
+          className={`aspect-square md:aspect-auto md:min-h-[110px] p-0.5 md:p-1 border rounded-lg md:rounded-xl transition-all cursor-pointer flex flex-col items-stretch group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F27D26] ${expanded ? "relative z-10" : ""} ${
             isToday
               ? "ring-2 ring-[#F27D26] ring-offset-2 border-orange-200 bg-orange-50/20 shadow-[0_0_12px_rgba(242,125,38,0.35)]"
               : isSelected
@@ -456,8 +456,8 @@ export default function CalendarModule({
           }`}
         >
           {/* Day number header */}
-          <div className="flex justify-between items-center px-1">
-            <span className={`text-xs font-bold font-fredoka ${isToday ? "text-white bg-brand rounded-full w-5 h-5 flex items-center justify-center" : "text-ink-muted "}`}>
+          <div className="flex justify-between items-center md:px-1">
+            <span className={`text-[11px] md:text-xs font-bold font-fredoka ${isToday ? "text-white bg-brand rounded-full w-5 h-5 flex items-center justify-center" : "text-ink-muted "}`}>
               {day}
             </span>
             <button
@@ -466,11 +466,31 @@ export default function CalendarModule({
                 e.stopPropagation();
                 handleCellSelect(day);
               }}
-              className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-[9px] md:text-[10px] font-extrabold text-white bg-brand hover:bg-brand-hover px-2.5 py-1 rounded-lg transition-all cursor-pointer shadow-xs"
+              className="hidden md:inline-block opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-[9px] md:text-[10px] font-extrabold text-white bg-brand hover:bg-brand-hover px-2.5 py-1 rounded-lg transition-all cursor-pointer shadow-xs"
             >
               {filterType === "task" ? "+ Task 🎯" : filterType === "event" ? "+ Event 📌" : "+ Add 🌟"}
             </button>
           </div>
+
+          {/* Mobile-only event dot indicators */}
+          {dayEvents.length > 0 && (
+            <div className="flex md:hidden items-end justify-center gap-0.5 flex-1 pb-1">
+              {dayEvents.slice(0, 3).map((evt) => (
+                <span
+                  key={`dot-${evt.id}`}
+                  className={`w-1.5 h-1.5 rounded-full border ${evt.color}`}
+                  aria-hidden="true"
+                />
+              ))}
+              {dayEvents.length > 3 && (
+                <span className="text-[8px] font-bold text-ink-muted leading-none ml-0.5">+{dayEvents.length - 3}</span>
+              )}
+            </div>
+          )}
+
+          {/* Desktop event stack */}
+          <div className="hidden md:flex flex-col flex-1 min-h-0">
+
 
           {/* Events Stack */}
           {(() => {
@@ -525,7 +545,9 @@ export default function CalendarModule({
               </div>
             );
           })()}
+          </div>
         </div>
+
       );
     }
 
@@ -533,7 +555,7 @@ export default function CalendarModule({
   };
 
   return (
-    <div id="calendar-module" className="w-full px-6 py-6 space-y-6">
+    <div id="calendar-module" className="w-full px-3 md:px-6 py-4 md:py-6 space-y-4 md:space-y-6">
 
       {/* Google Calendar Connection Status Bar */}
       <div className="bg-surface p-4 rounded-3xl border-2 border-edge card-shadow flex flex-col md:flex-row items-center justify-between gap-4">
@@ -729,9 +751,60 @@ export default function CalendarModule({
         </div>
 
         {/* Monthly Grid */}
-        <div className="grid grid-cols-7 gap-1.5 mt-2">
+        <div className="grid grid-cols-7 gap-1 md:gap-1.5 mt-2">
           {renderCalendarCells()}
         </div>
+
+        {/* Mobile-only selected day event list */}
+        <div className="md:hidden mt-4 pt-4 border-t border-edge">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-bold font-fredoka text-ink">
+              {(() => {
+                const [y, m, d] = selectedDate.split("-").map(Number);
+                const dt = new Date(y, (m || 1) - 1, d || 1);
+                return dt.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+              })()}
+            </h3>
+            <button
+              type="button"
+              onClick={() => {
+                const [, , dStr] = selectedDate.split("-");
+                handleCellSelect(parseInt(dStr, 10));
+              }}
+              className="text-[11px] font-extrabold text-white bg-brand hover:bg-brand-hover px-3 py-1.5 rounded-lg shadow-xs min-h-9"
+            >
+              + Add
+            </button>
+          </div>
+          {(() => {
+            const list = getEventsForDay(selectedDate);
+            if (list.length === 0) {
+              return (
+                <p className="text-xs text-ink-muted italic py-3 text-center">
+                  Nothing scheduled — tap + Add to plan something cozy.
+                </p>
+              );
+            }
+            return (
+              <ul className="space-y-1.5">
+                {list.map((evt) => (
+                  <li key={`m-${evt.id}`}>
+                    <button
+                      type="button"
+                      onClick={(e) => handleEventClick(e, evt)}
+                      className={`w-full text-left text-xs font-bold py-2 px-3 border rounded-lg truncate focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F27D26] ${evt.color}`}
+                    >
+                      {evt.time && <span className="font-mono text-[10px] mr-1 opacity-80">{evt.time}</span>}
+                      {evt.type === "task" ? "🎯 " : "📌 "}{evt.title}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            );
+          })()}
+        </div>
+
+
 
         <div className="flex flex-wrap items-center justify-center gap-4 mt-4 pt-4 border-t border-edge text-xs text-ink-muted">
           <div className="flex items-center gap-1.5">
