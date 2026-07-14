@@ -513,7 +513,7 @@ export default function App() {
           ),
         };
       }
-      if (!t.completed) addXp(15);
+      if (!t.completed) { addXp(15); registerCombo(); }
       return { ...t, completed: true };
     });
     syncTasks(updated);
