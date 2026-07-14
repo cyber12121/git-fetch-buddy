@@ -89,23 +89,39 @@ export default function App() {
   }, []);
 
   // Sync helpers: update React state AND mirror to localStorage. Passed to the
-  // cloud-sync hook so pulled data persists locally too.
-  const syncTasks = (updatedTasks: Task[]) => {
+  // cloud-sync hook so pulled data persists locally too. Writes go through
+  // safeStorage so a full quota / disabled storage does NOT crash the app —
+  // we keep the in-memory update and warn the user once per session.
+  const storageWarnedRef = useRef(false);
+  const handleStorageError = useCallback((err: unknown) => {
+    if (storageWarnedRef.current) return;
+    storageWarnedRef.current = true;
+    const quota = err instanceof DOMException && err.name === "QuotaExceededError";
+    pushToast({
+      icon: "⚠️",
+      tone: "warn",
+      message: quota
+        ? "Local storage is full — changes stay in this tab only."
+        : "Couldn't save to local storage — changes stay in this tab only.",
+    });
+  }, [pushToast]);
+
+  const syncTasks = useCallback((updatedTasks: Task[]) => {
     setTasks(updatedTasks);
-    localStorage.setItem("goblin_tasks", JSON.stringify(updatedTasks));
-  };
-  const syncEvents = (updatedEvents: CalendarEvent[]) => {
+    writeJSON("goblin_tasks", updatedTasks, { onError: handleStorageError });
+  }, [handleStorageError]);
+  const syncEvents = useCallback((updatedEvents: CalendarEvent[]) => {
     setManualEvents(updatedEvents);
-    localStorage.setItem("goblin_events", JSON.stringify(updatedEvents));
-  };
-  const syncHabits = (updated: Habit[]) => {
+    writeJSON("goblin_events", updatedEvents, { onError: handleStorageError });
+  }, [handleStorageError]);
+  const syncHabits = useCallback((updated: Habit[]) => {
     setHabits(updated);
-    localStorage.setItem("goblin_habits", JSON.stringify(updated));
-  };
-  const syncHabitLog = (updated: HabitLog) => {
+    writeJSON("goblin_habits", updated, { onError: handleStorageError });
+  }, [handleStorageError]);
+  const syncHabitLog = useCallback((updated: HabitLog) => {
     setHabitLog(updated);
-    localStorage.setItem("goblin_habit_log", JSON.stringify(updated));
-  };
+    writeJSON("goblin_habit_log", updated, { onError: handleStorageError });
+  }, [handleStorageError]);
 
   // ─── Auth + Google Calendar session (extracted into a hook) ───────────────
   const { user, accessToken, googleEvents, isLoadingGoogle, googleError, setIsLoadingGoogle, loadGoogleEvents, handleConnectGoogle, handleDisconnectGoogle, handleSignOut } = useGoogleCalendar({
