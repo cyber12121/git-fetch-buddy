@@ -15,7 +15,7 @@ interface TabDef {
 const TABS: TabDef[] = [
   { id: "compiler", label: "Compiler", Icon: Brain, msg: "Dump all those messy thoughts here! Gubby will sweep and filter them.", mood: "thoughtful", group: "do" },
   { id: "todo", label: "To-Do", Icon: CheckSquare, msg: "Here are your active quests! Let's conquer them one micro-step at a time.", mood: "cozy", group: "do" },
-  { id: "taskmaster", label: "Focus Timer", Icon: Play, msg: "Welcome to the sensory-friendly Focus Timer! One thing at a time. No clutter.", mood: "focused", group: "do" },
+  { id: "taskmaster", label: "Focus", Icon: Play, msg: "Welcome to the sensory-friendly Focus Timer! One thing at a time. No clutter.", mood: "focused", group: "do" },
   { id: "calendar", label: "Calendar", Icon: Calendar, msg: "Take a high-level look at your days! Plot tasks easily.", mood: "cozy", group: "plan" },
   { id: "weekly", label: "Weekly", Icon: CalendarDays, msg: "Let's map out your week!", mood: "cozy", group: "plan" },
   { id: "habits", label: "Habits", Icon: Repeat, msg: "Build tiny daily chains! Even a 1-day streak is a win 🌱", mood: "happy", group: "plan" },
@@ -38,80 +38,138 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, xp }: A
   };
 
   return (
-    <nav className="sticky top-0 z-40 border-b border-edge/60 bg-gradient-to-r from-[#DCE8DC]/90 via-[#E8F2E8]/95 to-[#DCE8DC]/90 backdrop-blur-md shadow-sm transition-colors duration-150" style={{ paddingTop: "env(safe-area-inset-top)" }}>
-      <div className="max-w-[1400px] mx-auto px-4">
-        <div className="flex flex-col xl:flex-row items-center justify-between gap-3 py-2.5">
-
-          {/* Brand */}
-          <div className="flex items-center gap-2.5 shrink-0 w-full xl:w-auto justify-between xl:justify-start">
-            <div className="flex items-center gap-2.5">
+    <>
+      {/* ============ TOP BAR ============ */}
+      <header
+        className="sticky top-0 z-40 border-b border-edge/60 bg-secondary/85 backdrop-blur-md shadow-sm"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
+        <div className="max-w-[1400px] mx-auto px-4">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-2.5 md:flex md:flex-wrap md:justify-between">
+            {/* Brand */}
+            <div className="flex min-w-0 items-center gap-2.5">
               <motion.div
                 animate={{ y: [0, -3, 0], rotate: [0, -8, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="text-2xl drop-shadow"
-              >🧝</motion.div>
-              <div className="leading-none">
-                <div className="font-fredoka font-extrabold text-ink text-base tracking-tight">Goblin Flow</div>
-                <div className="text-[10px] font-bold text-ink-muted/80 uppercase tracking-widest">cozy focus OS</div>
+                className="shrink-0 text-2xl drop-shadow"
+                aria-hidden="true"
+              >
+                🧝
+              </motion.div>
+              <div className="min-w-0 leading-none">
+                <h1 className="font-fredoka font-extrabold text-ink text-base tracking-tight truncate">
+                  Goblin Flow
+                </h1>
+                <div className="text-[10px] font-bold text-ink-muted uppercase tracking-widest truncate">
+                  cozy focus OS
+                </div>
               </div>
             </div>
 
-            {/* Mobile: compact level */}
-            <div className="flex xl:hidden items-center gap-1.5">
-              <div className="flex items-center gap-1.5 bg-surface/70 border border-edge rounded-full px-2.5 py-1">
-                <span className="text-[10px] font-bold text-ink-muted">Lv.{level}</span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-50"></span>
+            {/* Desktop tab row */}
+            <nav
+              aria-label="Primary"
+              className="hidden md:flex items-center gap-1.5 lg:gap-2 bg-surface-sunken/70 p-1.5 rounded-2xl shadow-sm border border-edge-soft overflow-x-auto no-scrollbar"
+            >
+              {TABS.map((tab, i) => {
+                const isActive = activeTab === tab.id;
+                const showDivider = tab.group === "plan" && TABS[i - 1]?.group === "do";
+                return (
+                  <span key={tab.id} className="flex items-center shrink-0">
+                    {showDivider && (
+                      <span aria-hidden="true" className="mx-1 w-[2px] h-6 bg-edge rounded-full shrink-0" />
+                    )}
+                    <motion.button
+                      id={`nav-tab-${tab.id}`}
+                      onClick={() => select(tab)}
+                      whileHover={{ y: -1 }}
+                      whileTap={{ scale: 0.97 }}
+                      aria-current={isActive ? "page" : undefined}
+                      className={`flex items-center gap-1.5 px-3 lg:px-4 py-2 rounded-xl font-bold text-xs transition-colors cursor-pointer select-none min-h-11 ${
+                        isActive
+                          ? "bg-primary text-primary-foreground shadow-md ring-2 ring-primary/30"
+                          : "bg-surface-sunken text-ink-muted hover:bg-surface hover:text-ink shadow-sm border border-edge-soft"
+                      }`}
+                    >
+                      <tab.Icon size={14} aria-hidden="true" />
+                      <span>{tab.label}</span>
+                    </motion.button>
+                  </span>
+                );
+              })}
+            </nav>
+
+            {/* Right side: XP + status */}
+            <div className="flex items-center gap-2 shrink-0 justify-self-end">
+              {/* Compact level chip (always visible) */}
+              <div
+                className="flex items-center gap-1.5 bg-surface-sunken/80 border border-edge rounded-full px-2.5 py-1 shadow-sm"
+                aria-label={`Level ${level}, ${xpInLevel} of 100 experience`}
+              >
+                <span aria-hidden="true" className="text-xs">🌿</span>
+                <span className="text-[11px] font-bold text-ink-muted tabular-nums">Lv.{level}</span>
+                <div
+                  className="hidden sm:block w-16 lg:w-24 h-2 rounded-full bg-edge overflow-hidden"
+                  role="progressbar"
+                  aria-valuenow={xpInLevel}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <div
+                    className="h-full bg-primary transition-all duration-500"
+                    style={{ width: `${xpInLevel}%` }}
+                  />
+                </div>
+                <span className="hidden sm:inline text-[10px] font-semibold text-ink-muted tabular-nums">
+                  {xpInLevel}/100
+                </span>
+              </div>
+
+              <div className="hidden lg:flex items-center gap-1.5 bg-surface-sunken/80 border border-edge rounded-full px-3 py-1.5 shadow-sm">
+                <span aria-hidden="true" className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                <span className="text-[11px] font-bold text-ink-muted">Gubby online</span>
               </div>
             </div>
           </div>
+        </div>
+      </header>
 
-          {/* Center: Unified tab row — Do group · Plan group */}
-          <div className="flex items-center gap-1.5 md:gap-2 bg-surface/50 p-1.5 rounded-2xl shadow-sm border border-white/60 overflow-x-auto w-full xl:w-auto no-scrollbar scroll-smooth">
-
-            {TABS.map((tab, i) => {
-              const isActive = activeTab === tab.id;
-              const showDivider = tab.group === "plan" && TABS[i - 1]?.group === "do";
-              return (
-                <span key={tab.id} className="flex items-center shrink-0">
-                  {showDivider && <span className="w-[2px] h-6 bg-surface/60 rounded-full shrink-0"></span>}
-                  <motion.button
-                    id={`nav-tab-${tab.id}`}
-                    onClick={() => select(tab)}
-                    whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }}
-                    aria-current={isActive ? "page" : undefined}
-                    className={`flex items-center gap-1.5 px-3 md:px-4 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer select-none ${
-                      isActive
-                        ? "bg-gradient-to-r from-[#F27D26] to-[#FF9D4E] text-white shadow-md ring-2 ring-[#F27D26]/30 border border-brand/50"
-                        : "bg-surface/80  text-ink-muted  hover:bg-surface  hover:text-ink  shadow-sm border border-edge-soft    "
+      {/* ============ MOBILE BOTTOM TAB BAR ============ */}
+      <nav
+        aria-label="Primary"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-edge/70 bg-secondary/95 backdrop-blur-md shadow-[0_-4px_16px_-8px_rgba(45,58,45,0.15)]"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <ul className="grid grid-cols-6">
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <li key={tab.id} className="flex">
+                <button
+                  type="button"
+                  onClick={() => select(tab)}
+                  aria-current={isActive ? "page" : undefined}
+                  aria-label={tab.label}
+                  className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-14 text-[10px] font-bold transition-colors ${
+                    isActive
+                      ? "text-primary"
+                      : "text-ink-muted hover:text-ink active:text-ink"
+                  }`}
+                >
+                  <span
+                    className={`flex items-center justify-center w-9 h-9 rounded-xl transition-colors ${
+                      isActive ? "bg-primary/15" : ""
                     }`}
                   >
-                    <tab.Icon size={13} /><span>{tab.label}</span>
-                  </motion.button>
-                </span>
-              );
-            })}
-          </div>
-
-          {/* Desktop: XP bar + live status */}
-          <div className="hidden xl:flex items-center gap-3 shrink-0">
-            {/* XP / Level progress */}
-            <div className="flex items-center gap-2 bg-surface/70 border border-edge rounded-full px-3 py-1.5 shadow-sm">
-              <span className="text-xs">🌿</span>
-              <span className="text-[11px] font-bold text-ink-muted tabular-nums">Lv.{level}</span>
-              <div className="w-24 h-2 rounded-full bg-[#E6EEE6] overflow-hidden" role="progressbar" aria-valuenow={xpInLevel} aria-valuemin={0} aria-valuemax={100}>
-                <div className="h-full bg-gradient-to-r from-[#F27D26] to-[#FF9D4E] transition-all duration-500" style={{ width: `${xpInLevel}%` }} />
-              </div>
-              <span className="text-[10px] font-semibold text-ink-muted tabular-nums">{xpInLevel}/100</span>
-            </div>
-
-            <div className="flex items-center gap-1.5 bg-surface/70 border border-edge rounded-full px-3 py-1.5 shadow-sm">
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-50"></span>
-              <span className="text-[11px] font-bold text-ink-muted">Gubby online</span>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </nav>
+                    <tab.Icon size={20} aria-hidden="true" />
+                  </span>
+                  <span className="truncate max-w-full px-0.5">{tab.label}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </>
   );
 }
