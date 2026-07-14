@@ -961,6 +961,9 @@ export default function CalendarModule({
             );
           })()}
         </div>
+      </div>
+
+
 
 
       {/* Pop-up Modals: A. Create Event */}
