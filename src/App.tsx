@@ -201,11 +201,9 @@ export default function App() {
     if (nextCount >= 2) {
       const bonus = Math.min(nextCount - 1, 5) * 5;
       addXp(bonus);
-      pushToast({
-        icon: "⚡",
-        tone: "success",
-        message: `${nextCount}× combo! +${bonus} bonus XP`,
-      });
+      const msg = `${nextCount}× combo! +${bonus} bonus XP`;
+      pushToast({ icon: "⚡", tone: "success", message: msg });
+      recordReward("combo", "⚡", msg);
     }
     return nextCount;
   }, [addXp, pushToast]);
