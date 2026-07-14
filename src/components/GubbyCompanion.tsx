@@ -152,7 +152,11 @@ export default function GubbyCompanion({ mood = "cozy", customMessage, xp = 0, o
   const faceInfo = getGoblinFace();
 
   return (
-    <div id="gubby-companion-container" className="flex flex-col md:flex-row items-center gap-4 p-4 bg-brand-soft/10 border-2 border-edge rounded-2xl max-w-3xl mx-auto my-3 card-shadow relative overflow-hidden">
+    <section
+      id="gubby-companion-container"
+      aria-label="Gubby companion"
+      className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-brand-soft/10 border-2 border-edge rounded-2xl max-w-3xl mx-auto my-3 card-shadow relative overflow-hidden"
+    >
       {/* Growth pet: level + XP progress bar */}
       <div className="absolute top-0 left-0 right-0 h-1.5 bg-brand-soft/40 z-10">
         <div className="h-full bg-brand transition-all duration-500" style={{ width: `${xpInLevel}%` }} />
