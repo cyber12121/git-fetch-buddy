@@ -177,7 +177,9 @@ export default function App() {
       if (amount > 0) {
         for (const m of XP_MILESTONES) {
           if (prev < m && next >= m) {
-            pushToast({ icon: "🎉", tone: "success", message: MILESTONE_LABELS[m] });
+            const label = MILESTONE_LABELS[m];
+            pushToast({ icon: "🎉", tone: "success", message: label });
+            recordReward("milestone", "🎉", label);
             confetti({ particleCount: 60, spread: 55, origin: { y: 0.7 }, colors: ["#F27D26", "#FBBF24", "#556B55"] });
             break;
           }
