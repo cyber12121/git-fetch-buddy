@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
-import { Brain, Play, Calendar, CheckSquare, CalendarDays, Repeat } from "lucide-react";
+import { Brain, Play, Calendar, CheckSquare, CalendarDays, Repeat, Sparkles } from "lucide-react";
 import ThemeSwitcher from "./ThemeSwitcher";
+import { useTheme } from "../lib/themes";
 
 type GubbyMood = "happy" | "thoughtful" | "focused" | "cozy" | "excited";
 
