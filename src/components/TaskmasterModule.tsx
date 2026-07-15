@@ -698,7 +698,7 @@ export default function TaskmasterModule({
             monoFont={monoFont}
             onClose={() => setShowBreathing(false)}
             onComplete={(secs) => {
-              logSession("breathe", "4-7-8 breathing", secs);
+              logSession("breathe", "4-2-6 breathing", secs);
               setShowBreathing(false);
               onGubbyMessage("Breathing complete. Nervous system, downshifted. 🌬️", "cozy");
             }}
