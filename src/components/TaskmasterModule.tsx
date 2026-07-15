@@ -71,9 +71,16 @@ export default function TaskmasterModule({
   onCompleteActiveTask,
   onGubbyMessage
 }: TaskmasterModuleProps) {
-  // Configurable duration (in seconds). Defaults to 50:00 (3000s)
-  const [duration, setDuration] = useState(3000);
-  const [timeLeft, setTimeLeft] = useState(3000);
+  // Configurable duration presets (persisted)
+  const [settings, setSettings] = useState<DurationSettings>(() => loadSettings());
+  const [showSettings, setShowSettings] = useState(false);
+  const POMODORO_FOCUS_SECS = settings.pomoFocusMinutes * 60;
+  const POMODORO_BREAK_SECS = settings.pomoBreakMinutes * 60;
+  const BREAK_SECS = settings.breakMinutes * 60;
+
+  // Configurable duration (in seconds). Defaults to focus preset.
+  const [duration, setDuration] = useState(() => loadSettings().focusMinutes * 60);
+  const [timeLeft, setTimeLeft] = useState(() => loadSettings().focusMinutes * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [pacingEnabled, setPacingEnabled] = useState(false); // subtle body-double ticking sound
