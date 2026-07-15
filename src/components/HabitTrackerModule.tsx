@@ -105,7 +105,7 @@ export default function HabitTrackerModule({
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; name: string } | null>(null);
 
   const isMobile = useIsMobile();
-  const windowSize = isMobile ? 7 : 14;
+  const windowSize = isMobile ? 5 : 14;
   const [offset, setOffset] = useState(0); // days shift from today (end of window)
   const days = useMemo(
     () => getNDaysEndingAt(windowSize, offset),
@@ -145,7 +145,9 @@ export default function HabitTrackerModule({
   const bodyFont = { fontFamily: "'Manrope', ui-sans-serif, system-ui" };
 
   // Grid template: [ name | day1 ... dayN | streak | total ]
-  const gridCols = `minmax(150px, 1.6fr) repeat(${days.length}, minmax(36px, 1fr)) 60px 56px`;
+  const gridCols = isMobile
+    ? `minmax(88px, 1.4fr) repeat(${days.length}, minmax(26px, 1fr)) 36px`
+    : `minmax(150px, 1.6fr) repeat(${days.length}, minmax(36px, 1fr)) 60px 56px`;
 
   const addFormBlock = (
     <AnimatePresence mode="wait">
@@ -261,7 +263,7 @@ export default function HabitTrackerModule({
 
   return (
     <div className="w-full pb-24" style={bodyFont}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-10 space-y-4 sm:space-y-6">
         {/* Header */}
         <motion.header
           initial={{ opacity: 0, y: 8 }}
@@ -291,24 +293,24 @@ export default function HabitTrackerModule({
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-[2rem] border p-4 sm:p-6 overflow-x-auto"
+          className="rounded-2xl sm:rounded-[2rem] border p-3 sm:p-6 overflow-x-auto"
           style={{ backgroundColor: SAGE.surface, borderColor: SAGE.muted }}
         >
           {/* Toolbar: range label + Today / prev / next */}
-          <div className="flex items-center justify-between gap-2 mb-4">
+          <div className="flex items-center justify-between gap-2 mb-3 sm:mb-4">
             <div
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold"
+              className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold"
               style={{ ...headerFont, color: SAGE.ink, backgroundColor: SAGE.bg }}
             >
               {rangeLabel}
-              <ChevronDown size={14} style={{ color: SAGE.inkMuted }} aria-hidden />
+              <ChevronDown size={12} style={{ color: SAGE.inkMuted }} aria-hidden />
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1 sm:gap-1.5">
               <button
                 type="button"
                 onClick={() => setOffset(0)}
                 disabled={offset === 0}
-                className="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors disabled:opacity-40"
+                className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-semibold border transition-colors disabled:opacity-40"
                 style={{ borderColor: SAGE.muted, color: SAGE.ink, backgroundColor: SAGE.surface }}
               >
                 Today
@@ -317,20 +319,20 @@ export default function HabitTrackerModule({
                 type="button"
                 onClick={() => setOffset((o) => o - windowSize)}
                 aria-label="Previous period"
-                className="p-1.5 rounded-full border transition-colors hover:bg-[color:var(--h)]"
-                style={{ borderColor: SAGE.muted, color: SAGE.ink, ["--h" as any]: SAGE.bg }}
+                className="p-1 sm:p-1.5 rounded-full border transition-colors"
+                style={{ borderColor: SAGE.muted, color: SAGE.ink }}
               >
-                <ChevronLeft size={14} />
+                <ChevronLeft size={13} />
               </button>
               <button
                 type="button"
                 onClick={() => setOffset((o) => Math.min(0, o + windowSize))}
                 disabled={offset === 0}
                 aria-label="Next period"
-                className="p-1.5 rounded-full border transition-colors hover:bg-[color:var(--h)] disabled:opacity-40"
-                style={{ borderColor: SAGE.muted, color: SAGE.ink, ["--h" as any]: SAGE.bg }}
+                className="p-1 sm:p-1.5 rounded-full border transition-colors disabled:opacity-40"
+                style={{ borderColor: SAGE.muted, color: SAGE.ink }}
               >
-                <ChevronRight size={14} />
+                <ChevronRight size={13} />
               </button>
             </div>
           </div>
@@ -369,10 +371,12 @@ export default function HabitTrackerModule({
                 <Flame size={12} aria-hidden />
                 <span className="text-[9px] font-bold uppercase tracking-wider">Streak</span>
               </div>
-              <div className="flex flex-col items-center gap-0.5" style={{ color: SAGE.inkMuted }}>
-                <span className="text-xs font-bold leading-none" aria-hidden>∑</span>
-                <span className="text-[9px] font-bold uppercase tracking-wider">Total</span>
-              </div>
+              {!isMobile && (
+                <div className="flex flex-col items-center gap-0.5" style={{ color: SAGE.inkMuted }}>
+                  <span className="text-xs font-bold leading-none" aria-hidden>∑</span>
+                  <span className="text-[9px] font-bold uppercase tracking-wider">Total</span>
+                </div>
+              )}
             </div>
 
             {/* Rows (one habit per row) */}
@@ -432,7 +436,7 @@ export default function HabitTrackerModule({
                             onClick={() => onToggleDay(habit.id, date)}
                             aria-label={`${habit.name} on ${date} — ${done ? "done" : skip ? "skipped" : "not done"}`}
                             aria-pressed={done}
-                            className={`${today ? "w-9 h-9" : "w-8 h-8"} rounded-full flex items-center justify-center transition-colors`}
+                            className={`${today ? (isMobile ? "w-8 h-8" : "w-9 h-9") : (isMobile ? "w-7 h-7" : "w-8 h-8")} rounded-full flex items-center justify-center transition-colors`}
                             style={{
                               backgroundColor: done
                                 ? habit.color
@@ -472,11 +476,13 @@ export default function HabitTrackerModule({
                     </div>
 
                     {/* Total */}
-                    <div className="text-center">
-                      <span className="text-xs font-bold tabular-nums" style={{ color: SAGE.ink }}>
-                        {total}
-                      </span>
-                    </div>
+                    {!isMobile && (
+                      <div className="text-center">
+                        <span className="text-xs font-bold tabular-nums" style={{ color: SAGE.ink }}>
+                          {total}
+                        </span>
+                      </div>
+                    )}
                   </motion.div>
                 );
               })}
