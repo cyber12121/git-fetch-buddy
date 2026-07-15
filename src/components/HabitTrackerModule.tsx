@@ -33,12 +33,14 @@ interface HabitTrackerModuleProps {
   onGubbyMessage: (msg: string, mood: "happy" | "thoughtful" | "focused" | "cozy" | "excited") => void;
 }
 
-function getLastNDays(n: number): string[] {
+function getNDaysEndingAt(n: number, endOffsetDays: number): string[] {
   const days: string[] = [];
   const today = new Date();
+  const end = new Date(today);
+  end.setDate(today.getDate() + endOffsetDays);
   for (let i = n - 1; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
+    const d = new Date(end);
+    d.setDate(end.getDate() - i);
     days.push(toLocalDateKey(d));
   }
   return days;
