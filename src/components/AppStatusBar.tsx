@@ -19,7 +19,7 @@ export default function AppStatusBar({ user, cloudStatus }: AppStatusBarProps) {
     >
       <div className="flex gap-4 items-center">
         <span className="flex items-center gap-1.5">
-          <div className="w-1.5 h-1.5 bg-brand rounded-full" /> Goblin Flow Active
+          <div className="w-1.5 h-1.5 bg-brand rounded-full" /> Momentum Active
         </span>
         {user && (
           <span className="flex items-center gap-1.5">

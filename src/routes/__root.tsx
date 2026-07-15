@@ -78,10 +78,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Goblin Flow — Cozy focus OS for ADHD brains" },
+      { title: "Momentum — Cozy focus OS for ADHD brains" },
       { name: "description", content: "A cozy focus OS for ADHD brains: brain-dump compiler, magic to-do, sensory-friendly focus timer, calendar, weekly planner, and habit chains." },
       { name: "theme-color", content: "#E6F0E6" },
-      { property: "og:title", content: "Goblin Flow — Cozy focus OS for ADHD brains" },
+      { property: "og:title", content: "Momentum — Cozy focus OS for ADHD brains" },
       { property: "og:description", content: "Brain-dump compiler, magic to-do, sensory-friendly focus timer, calendar, and habit chains — designed for ADHD brains." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

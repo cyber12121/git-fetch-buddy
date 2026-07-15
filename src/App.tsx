@@ -124,7 +124,7 @@ export default function App() {
 
   // Sprig companion custom reactive state
   const [gubbyMessage, setGubbyMessage] = useState<string>(
-    "Welcome to Goblin Flow! Sprig is here to help you defeat task paralysis. Where should we start?"
+    "Welcome to Momentum! Sprig is here to help you defeat task paralysis. Where should we start?"
   );
   const [gubbyMood, setGubbyMood] = useState<"happy" | "thoughtful" | "focused" | "cozy" | "excited">("cozy");
 
