@@ -403,7 +403,7 @@ export default function App() {
     }
     const updated = tasks.filter((t) => t.id !== id);
     syncTasks(updated);
-    pushToast({ icon: "🗑️", message: "Quest deleted", tone: "warn" });
+    
   };
 
   const handleToggleTask = (id: string) => {
