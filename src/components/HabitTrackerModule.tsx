@@ -212,20 +212,7 @@ export default function HabitTrackerModule({
             </div>
           </div>
         </motion.div>
-      ) : (
-        <motion.button
-          key="button"
-          type="button"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          onClick={() => setShowAddForm(true)}
-          className="w-full flex items-center justify-center gap-2 rounded-3xl border-2 border-dashed py-4 text-sm font-bold transition-colors hover:bg-white/40"
-          style={{ borderColor: SAGE.mid, color: SAGE.deep, ...bodyFont }}
-        >
-          <Plus size={16} />
-          New habit
-        </motion.button>
-      )}
+      ) : null}
     </AnimatePresence>
   );
 
