@@ -366,6 +366,11 @@ export default function WeeklyPlannerModule({
     const dayEvents = isSomeday ? [] : eventsFor(dateStr);
     const rendered = dayEvents.length + dayTasks.length + (isAdding ? 1 : 0);
     const empty = Math.max(0, lines - rendered);
+    const morningTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "morning");
+    const afternoonTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "afternoon");
+    const eveningTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "evening");
+    const anytimeTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "anytime");
+
     return (
       <div key={dateStr} className={`flex flex-col min-w-0 flex-1 transition-colors rounded-lg ${dragOverDate === dateStr ? "bg-surface-sunken/60" : ""}`}
         onDragOver={e => { if (!showTimeBlocks) onDragOver(e, dateStr); }}
