@@ -132,7 +132,7 @@ function TaskRow({ task, dateStr, editingId, editTitle, colorPickerId, draggedId
             ref={editRef}
             value={editTitle}
             onChange={e => onEditChange(e.target.value)}
-            onKeyDown={e => onEditKeyDown(e, task.id)}
+            onKeyDown={e => onEditKeyDown(e, task.id, dateStr)}
             onBlur={() => onEditBlur(task.id)}
             onClick={e => e.stopPropagation()}
             className="w-full text-sm bg-transparent outline-none text-ink font-normal"
