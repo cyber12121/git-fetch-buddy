@@ -378,11 +378,12 @@ export default function WeeklyPlannerModule({
         onDrop={e => { if (!showTimeBlocks) onDrop(e, isSomeday ? undefined : dateStr); }}
         onClick={() => { setAddingDate(dateStr); setNewTitle(""); setEditingId(null); }}>
 
-        {/* Header */}
-        <div className={`flex items-baseline justify-between pb-1.5 select-none border-b-2 ${today ? "border-brand" : "border-edge"}`}>
-          <span className={`text-[15px] font-semibold ${today ? "text-brand" : "text-ink"}`} style={{ fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>{label}</span>
-          <span className={`text-[11px] font-medium uppercase tracking-wider ${today ? "text-brand" : "text-ink-muted"}`}>{sublabel}</span>
+        {/* Header — tweek.so style: bold date left, muted weekday right, thin underline */}
+        <div className={`flex items-baseline justify-between pb-2 select-none border-b-2 ${today ? "border-brand" : "border-ink"}`}>
+          <span className={`text-[17px] font-bold tracking-tight ${today ? "text-brand" : "text-ink"}`}>{label}</span>
+          <span className={`text-[13px] font-medium ${today ? "text-brand/70" : "text-ink-muted/60"}`}>{sublabel}</span>
         </div>
+
 
 
         {/* Content */}
