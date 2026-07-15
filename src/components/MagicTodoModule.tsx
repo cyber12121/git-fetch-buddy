@@ -141,6 +141,11 @@ export default function MagicTodoModule({
     setExpandedTaskIds(prev => ({ ...prev, [taskId]: !prev[taskId] }));
   };
 
+  // Keep the latest tasks array reachable inside long-running async handlers
+  // so post-await guards see current data instead of a stale render snapshot.
+  const tasksRef = useRef(tasks);
+  useEffect(() => { tasksRef.current = tasks; }, [tasks]);
+
   // Slices a task down using API breakdown
   const handleBreakItDown = async (task: Task) => {
     setBreakingDownTaskIds(prev => ({ ...prev, [task.id]: true }));
@@ -156,11 +161,13 @@ export default function MagicTodoModule({
         completed: false
       }));
 
-      // Guard: if the task was deleted/unmounted while the request was in flight, bail out.
-      if (!tasks.some(t => t.id === task.id)) return;
+      // Look up the CURRENT task (not the captured snapshot) — subtasks added
+      // manually while the breakdown request was in flight would otherwise
+      // be discarded by the overwrite below.
+      const currentTask = tasksRef.current.find(t => t.id === task.id);
+      if (!currentTask) return; // task was deleted mid-request
 
-      // Merge or overwrite subtasks
-      onUpdateTask(task.id, { subtasks: [...task.subtasks, ...newSubtasks] });
+      onUpdateTask(task.id, { subtasks: [...currentTask.subtasks, ...newSubtasks] });
 
       // Auto expand to see result
       setExpandedTaskIds(prev => ({ ...prev, [task.id]: true }));
