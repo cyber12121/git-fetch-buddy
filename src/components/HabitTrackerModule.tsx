@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Plus, Trash2, Flame, X, Leaf, Check } from "lucide-react";
+import { Plus, Trash2, Flame, X, Leaf, Check, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import type { Habit, HabitLog, HabitDayStatus } from "../types";
 import { toLocalDateKey } from "../lib/constants";
