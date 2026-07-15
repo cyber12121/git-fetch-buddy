@@ -119,13 +119,12 @@ function TaskRow({ task, dateStr, editingId, editTitle, colorPickerId, draggedId
       onDragLeave={onDragLeave}
       onDrop={e => onDropOnTask(e, task.id, dateStr)}
       onClick={e => e.stopPropagation()}
-      className={`group relative flex items-center w-full transition-colors ${isPlaceholder ? "opacity-40" : ""}`}
+      className={`group relative flex items-center w-full transition-colors border-b border-edge/60 ${isPlaceholder ? "opacity-40" : ""} ${dragOverTaskId === task.id ? "border-t-2 border-t-brand" : ""}`}
       style={{
         minHeight: 36,
-        borderBottom: "1px solid #e6eee6",
         opacity: draggedId === task.id ? 0.3 : undefined,
-        borderTop: dragOverTaskId === task.id ? "2px solid #F27D26" : undefined,
       }}>
+
       <div className="flex-1 min-w-0 px-2 py-0.5 cursor-text"
         onClick={() => { if (!isEditing) onStartEdit(task); }}>
         {isEditing ? (
