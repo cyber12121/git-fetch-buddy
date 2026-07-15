@@ -105,7 +105,22 @@ export default function HabitTrackerModule({
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; name: string } | null>(null);
 
   const isMobile = useIsMobile();
-  const days = useMemo(() => getLastNDays(isMobile ? 7 : 14), [isMobile]);
+  const windowSize = isMobile ? 7 : 14;
+  const [offset, setOffset] = useState(0); // days shift from today (end of window)
+  const days = useMemo(
+    () => getNDaysEndingAt(windowSize, offset),
+    [windowSize, offset]
+  );
+  const rangeLabel = useMemo(() => {
+    if (days.length === 0) return "";
+    const first = new Date(days[0] + "T00:00:00");
+    const last = new Date(days[days.length - 1] + "T00:00:00");
+    const sameMonth = first.getMonth() === last.getMonth() && first.getFullYear() === last.getFullYear();
+    if (sameMonth) {
+      return last.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    }
+    return `${first.toLocaleDateString("en-US", { month: "short" })} – ${last.toLocaleDateString("en-US", { month: "short", year: "numeric" })}`;
+  }, [days]);
 
   const statsByHabit = useMemo(() => {
     const map: Record<string, { streak: number; total: number }> = {};
