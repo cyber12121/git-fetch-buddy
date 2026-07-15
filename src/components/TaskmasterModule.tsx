@@ -736,6 +736,15 @@ export default function TaskmasterModule({
           >
             <Award size={12} /> Recap
           </button>
+          <button
+            id="timer-settings-btn"
+            onClick={() => setShowSettings(true)}
+            className="text-ink-muted hover:text-ink cursor-pointer transition-colors"
+            aria-label="Timer settings"
+            title="Timer settings"
+          >
+            <SettingsIcon size={13} />
+          </button>
         </div>
       </div>
 
