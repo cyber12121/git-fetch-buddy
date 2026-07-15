@@ -349,15 +349,15 @@ export function usePlannerState(props: WeeklyPlannerModuleProps) {
   // ─── Bundled props for TaskRow ──────────────────────────────────────────
   const taskRowProps: TaskRowSharedProps = useMemo(
     () => ({
-      editingId, editTitle, colorPickerId, draggedId, dragOverTaskId, editRef,
-      onStartEdit, onEditChange, onEditKeyDown, onEditBlur,
+      editingId, colorPickerId, draggedId, dragOverTaskId,
+      onStartEdit, onCommitEdit, onEditEnterAdd,
       onToggle: onToggleTask, onDelete: onDeleteTask,
       onColorSet, onColorToggle,
       onDragStart, onDragOver: onDragOverTask, onDragLeave, onDropOnTask,
     }),
     [
-      editingId, editTitle, colorPickerId, draggedId, dragOverTaskId,
-      onStartEdit, onEditChange, onEditKeyDown, onEditBlur,
+      editingId, colorPickerId, draggedId, dragOverTaskId,
+      onStartEdit, onCommitEdit, onEditEnterAdd,
       onToggleTask, onDeleteTask, onColorSet, onColorToggle,
       onDragStart, onDragOverTask, onDragLeave, onDropOnTask,
     ],
