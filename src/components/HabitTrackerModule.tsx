@@ -286,29 +286,24 @@ export default function HabitTrackerModule({
               <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: SAGE.inkMuted }}>
                 Habit
               </div>
-              {days.map((date, i) => {
-                const showMonth = i === 0 || monthLabel(date) !== monthLabel(days[i - 1]);
+              {days.map((date) => {
                 const today = isToday(date);
+                const weekday = new Date(date + "T00:00:00")
+                  .toLocaleDateString("en-US", { weekday: "short" })
+                  .toUpperCase();
                 return (
                   <div key={date} className="flex flex-col items-center gap-0.5">
-                    {showMonth ? (
-                      <span className="text-[9px] font-bold uppercase" style={{ color: SAGE.deep }}>
-                        {monthLabel(date)}
-                      </span>
-                    ) : (
-                      <span className="h-[11px]" />
-                    )}
                     <span
                       className="text-[11px] font-bold tabular-nums leading-none"
-                      style={{ color: today ? SAGE.deep : SAGE.ink }}
+                      style={{ color: SAGE.ink }}
                     >
                       {dayNum(date)}
                     </span>
                     <span
-                      className="text-[9px] font-semibold uppercase leading-none"
-                      style={{ color: today ? SAGE.deep : `${SAGE.ink}66` }}
+                      className="text-[9px] font-semibold tracking-wider leading-none"
+                      style={{ color: today ? SAGE.ink : `${SAGE.ink}66` }}
                     >
-                      {today ? "Now" : dayLetter(date)}
+                      {today ? "TODAY" : weekday}
                     </span>
                   </div>
                 );
