@@ -249,17 +249,25 @@ export default function HabitTrackerModule({
         <motion.header
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-wrap items-end justify-between gap-4 pb-4 border-b"
-          style={{ borderColor: SAGE.muted }}
+          className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4"
         >
           <div className="min-w-0">
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight truncate" style={{ ...headerFont, color: SAGE.ink }}>
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight truncate" style={{ ...headerFont, color: SAGE.ink }}>
               Habit Tracker
             </h1>
-            <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: SAGE.deep }}>
-              Don't break the chain
+            <p className="mt-1 text-xs" style={{ color: SAGE.inkMuted }}>
+              Small habits. Big change.
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => setShowAddForm(true)}
+            className="group inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-white font-semibold text-xs sm:text-sm shadow-md transition-all hover:brightness-110 shrink-0"
+            style={{ backgroundColor: SAGE.ink }}
+          >
+            <Plus size={14} className="transition-transform group-hover:rotate-90" />
+            Add habit
+          </button>
         </motion.header>
 
         {/* Matrix: habits × days */}
