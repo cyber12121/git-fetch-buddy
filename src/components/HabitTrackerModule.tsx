@@ -250,7 +250,7 @@ export default function HabitTrackerModule({
 
   return (
     <div className="w-full pb-24" style={bodyFont}>
-      <div className="w-full mx-auto px-3 sm:px-6 py-4 sm:py-10 space-y-4 sm:space-y-6">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-10 space-y-4 sm:space-y-6">
         {/* Header */}
         <motion.header
           initial={{ opacity: 0, y: 8 }}
