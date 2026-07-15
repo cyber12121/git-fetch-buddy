@@ -61,7 +61,8 @@ export function usePlannerState(props: WeeklyPlannerModuleProps) {
   const [newTitle, setNewTitle] = useState("");
 
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editTitle, setEditTitle] = useState("");
+  // NOTE: the live editTitle keystroke value used to live here; it now lives
+  // inside <InlineEditor/> so unrelated rows don't re-render on every char.
 
   const [colorPickerId, setColorPickerId] = useState<string | null>(null);
 
@@ -72,15 +73,10 @@ export function usePlannerState(props: WeeklyPlannerModuleProps) {
 
   // ─── Refs for focus management ──────────────────────────────────────────
   const addRef = useRef<HTMLInputElement>(null);
-  const editRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if ((addingDate || addingBlockKey) && addRef.current) addRef.current.focus();
   }, [addingDate, addingBlockKey]);
-
-  useEffect(() => {
-    if (editingId && editRef.current) editRef.current.focus();
-  }, [editingId]);
 
   // ─── Derived: week days & label ─────────────────────────────────────────
   const weekDays = useMemo(() => {
@@ -194,35 +190,35 @@ export function usePlannerState(props: WeeklyPlannerModuleProps) {
   }, []);
 
   // ─── Edit ───────────────────────────────────────────────────────────────
+  // ─── Edit ───────────────────────────────────────────────────────────────
+  // The live keystroke value lives inside <InlineEditor/> so unrelated rows
+  // don't re-render on every character. Here we only track "which row is
+  // in edit mode" and how to commit / delete when the editor reports back.
   const onStartEdit = useCallback((task: Task) => {
     setEditingId(task.id);
-    setEditTitle(task.title);
   }, []);
-  const onEditChange = useCallback((val: string) => setEditTitle(val), []);
-  const onEditKeyDown = useCallback(
-    (e: React.KeyboardEvent, _id: string, dateStr?: string) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        (e.target as HTMLInputElement).blur();
-        // Jump straight into a new blank row under the same day.
-        setAddingDate(dateStr ?? SOMEDAY_KEY);
-        setAddingBlockKey(null);
-        setNewTitle("");
-      } else if (e.key === "Escape") {
+
+  const onCommitEdit = useCallback(
+    (id: string, newTitle: string | null, _dateStr?: string) => {
+      // null = user hit Escape (cancel, no changes)
+      if (newTitle === null) {
         setEditingId(null);
+        return;
       }
-    },
-    [],
-  );
-  const onEditBlur = useCallback(
-    (id: string) => {
-      const trimmed = editTitle.trim();
+      const trimmed = newTitle.trim();
       if (trimmed) onUpdateTask(id, { title: trimmed });
       else onDeleteTask(id);
       setEditingId(null);
     },
-    [editTitle, onUpdateTask, onDeleteTask],
+    [onUpdateTask, onDeleteTask],
   );
+
+  const onEditEnterAdd = useCallback((dateStr?: string) => {
+    // Jump straight into a new blank row under the same day.
+    setAddingDate(dateStr ?? SOMEDAY_KEY);
+    setAddingBlockKey(null);
+    setNewTitle("");
+  }, []);
 
   // ─── Color picker ───────────────────────────────────────────────────────
   const onColorSet = useCallback(
