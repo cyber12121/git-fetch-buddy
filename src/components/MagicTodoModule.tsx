@@ -421,7 +421,7 @@ export default function MagicTodoModule({
                 {newTitle.trim() && (
                   <div className="text-[11px] sm:text-xs font-bold text-brand flex items-center gap-1.5 flex-wrap">
                     <Sparkles size={12} className="animate-pulse text-brand shrink-0" />
-                    <span>Auto Estimate: <strong className="font-mono bg-orange-50 text-brand border border-orange-100 px-1.5 py-0.5 rounded-md">{estimateTaskDuration(newTitle)}m</strong></span>
+                    <span>Auto Estimate: <strong className="font-mono bg-brand-soft/30 text-brand border border-brand/30 px-1.5 py-0.5 rounded-md">{estimateTaskDuration(newTitle)}m</strong></span>
                   </div>
                 )}
               </div>
@@ -531,7 +531,7 @@ export default function MagicTodoModule({
                   onGubbyMessage("Cleaned away your completed quests! Sparkling tidy now! ✨", "happy");
                   pushToast({ icon: "🧹", message: "Completed quests swept away", tone: "info" });
                 }}
-                className="text-xs text-ink-muted hover:text-danger font-bold transition-colors border-2 border-edge hover:border-red-100 px-3 py-1.5 rounded-xl bg-surface cursor-pointer"
+                className="text-xs text-ink-muted hover:text-danger font-bold transition-colors border-2 border-edge hover:border-danger/30 px-3 py-1.5 rounded-xl bg-surface cursor-pointer"
               >
                 Sweep Completed Quests
               </button>
@@ -614,7 +614,7 @@ export default function MagicTodoModule({
                         className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-colors cursor-pointer shrink-0 mt-0.5 ${
                           task.completed
                             ? "bg-brand border-brand text-white"
-                            : "border-brand bg-surface  hover:bg-orange-50"
+                            : "border-brand bg-surface  hover:bg-brand-soft/30"
                         }`}
                       >
                         {task.completed && <Check size={16} strokeWidth={3} />}
@@ -756,7 +756,7 @@ export default function MagicTodoModule({
                                     <span className="text-xs font-extrabold text-ink font-fredoka flex items-center gap-1.5">
                                       ⏰ Custom Quest Timer
                                     </span>
-                                    <span className="text-[9px] font-bold text-brand bg-orange-50 px-1.5 py-0.5 rounded-full border border-orange-100">
+                                    <span className="text-[9px] font-bold text-brand bg-brand-soft/30 px-1.5 py-0.5 rounded-full border border-brand/30">
                                       {task.estimatedMinutes !== undefined ? task.estimatedMinutes : estimateTaskDuration(task.title)}m total
                                     </span>
                                   </div>
@@ -1048,7 +1048,7 @@ export default function MagicTodoModule({
                           onDeleteTask(task.id);
                           onGubbyMessage("Goblin quest banished! Begone, task clutter!", "cozy");
                         }}
-                        className="p-1.5 text-ink-muted hover:text-danger hover:bg-red-50 border border-transparent hover:border-red-100 rounded-xl transition-all"
+                        className="p-1.5 text-ink-muted hover:text-danger hover:bg-danger-soft border border-transparent hover:border-danger/30 rounded-xl transition-all"
                         title="Delete quest completely"
                       >
                         <Trash2 size={14} />
