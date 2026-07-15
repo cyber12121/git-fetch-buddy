@@ -23,9 +23,44 @@ interface TaskmasterModuleProps {
 type PendingAction = { type: "quest" | "quick_focus"; value: string };
 type TimerMode = "focus" | "pomodoro" | "break";
 
-const POMODORO_FOCUS_SECS = 25 * 60;
-const POMODORO_BREAK_SECS = 5 * 60;
-const BREAK_SECS = 5 * 60;
+type DurationSettings = {
+  focusMinutes: number;
+  breakMinutes: number;
+  pomoFocusMinutes: number;
+  pomoBreakMinutes: number;
+};
+
+const DEFAULT_SETTINGS: DurationSettings = {
+  focusMinutes: 50,
+  breakMinutes: 5,
+  pomoFocusMinutes: 25,
+  pomoBreakMinutes: 5,
+};
+
+const SETTINGS_KEY = "goblin_focus_settings_v1";
+
+const loadSettings = (): DurationSettings => {
+  if (typeof window === "undefined") return DEFAULT_SETTINGS;
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (!raw) return DEFAULT_SETTINGS;
+    const parsed = JSON.parse(raw);
+    return {
+      focusMinutes: clampMin(parsed.focusMinutes, 1, 180, DEFAULT_SETTINGS.focusMinutes),
+      breakMinutes: clampMin(parsed.breakMinutes, 1, 60, DEFAULT_SETTINGS.breakMinutes),
+      pomoFocusMinutes: clampMin(parsed.pomoFocusMinutes, 5, 90, DEFAULT_SETTINGS.pomoFocusMinutes),
+      pomoBreakMinutes: clampMin(parsed.pomoBreakMinutes, 1, 30, DEFAULT_SETTINGS.pomoBreakMinutes),
+    };
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
+};
+
+function clampMin(v: unknown, min: number, max: number, fallback: number) {
+  const n = typeof v === "number" ? v : parseInt(String(v), 10);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(min, Math.min(max, Math.round(n)));
+}
 
 
 export default function TaskmasterModule({
