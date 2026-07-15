@@ -167,11 +167,15 @@ export function subscribeTheme(cb: (id: ThemeId) => void): () => void {
     const id = (e as CustomEvent<ThemeId>).detail;
     if (id) cb(id);
   };
+  window.addEventListener("goblin:theme-change", handler);
+  return () => window.removeEventListener("goblin:theme-change", handler);
+}
 
 export function useTheme(): ThemeId {
   const [id, setId] = useState<ThemeId>(() => readStoredTheme());
   useEffect(() => subscribeTheme(setId), []);
   return id;
 }
+
 
 
