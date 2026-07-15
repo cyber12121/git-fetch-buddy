@@ -522,9 +522,10 @@ export default function WeeklyPlannerModule({
               />
             )}
             {/* Ruled empty lines */}
-            {Array.from({ length: Math.max(0, lines - dayTasks.length - dayEvents.length - (isAdding ? 1 : 0)) }).map((_, i) => (
+            {Array.from({ length: emptyLines }).map((_, i) => (
               <div key={`empty-${i}`} className="border-b border-edge/60" style={{ minHeight: 36 }} />
             ))}
+
 
 
           </div>
