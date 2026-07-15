@@ -426,104 +426,85 @@ export default function TaskmasterModule({
     onGubbyMessage("New focus session started! Fresh energy, fresh start. Let's go! 🌟", "happy");
   };
 
+  // ─────────────────── SUMMARY VIEW ───────────────────
   if (showSummary) {
     return (
-      <div id="taskmaster-summary-module" className="max-w-2xl mx-auto space-y-4 sm:space-y-6 px-1 sm:px-0">
+      <div id="taskmaster-summary-module" className="max-w-3xl mx-auto px-1 sm:px-0 pb-8">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-surface p-5 sm:p-8 rounded-2xl sm:rounded-3xl border-2 border-brand/30 card-shadow text-center space-y-5 sm:space-y-6 relative overflow-hidden"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-5"
         >
-          {/* Sparkles / Confetti Background elements */}
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-soft via-brand to-brand-hover"></div>
-          
-          <div className="space-y-2">
-            <div className="inline-flex p-3 bg-warn-soft rounded-2xl text-brand border border-warn/30">
-              <Award size={32} className="animate-pulse sm:hidden" />
-              <Award size={36} className="animate-pulse hidden sm:block" />
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-ink-muted">Session recap</div>
+              <h1 className="text-2xl sm:text-3xl font-fredoka font-bold text-ink">Nice work today</h1>
             </div>
-            <h1 className="text-xl sm:text-3xl font-extrabold text-ink font-fredoka tracking-tight">
-              Focus Session Accomplished!
-            </h1>
-            <p className="text-xs sm:text-sm text-ink-muted font-semibold">
-              You did a magnificent job. Here's your brain-power stats! ⚡
-            </p>
+            <Award size={28} className="text-brand" />
           </div>
 
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto pt-2">
-            <div className="bg-surface-sunken border-2 border-edge-soft p-5 rounded-2xl flex flex-col items-center justify-center space-y-1">
-              <Clock size={20} className="text-brand" />
-              <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">Total Focused Time</span>
-              <span className="text-2xl font-extrabold text-ink font-fredoka">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="relative bg-surface-sunken border border-edge rounded-2xl p-5 overflow-hidden">
+              <span className="absolute inset-y-0 left-0 w-1 bg-brand" />
+              <div className="text-[10px] font-bold uppercase tracking-widest text-ink-muted">Focused</div>
+              <div className="font-mono text-3xl sm:text-4xl font-bold text-ink tabular-nums mt-1">
                 {formatFocusDuration(sessionFocusSeconds)}
-              </span>
+              </div>
             </div>
-            <div className="bg-surface-sunken border-2 border-edge-soft p-5 rounded-2xl flex flex-col items-center justify-center space-y-1">
-              <CheckSquare size={20} className="text-success" />
-              <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">Quests Cleared</span>
-              <span className="text-2xl font-extrabold text-ink font-fredoka">
+            <div className="relative bg-surface-sunken border border-edge rounded-2xl p-5 overflow-hidden">
+              <span className="absolute inset-y-0 left-0 w-1 bg-success" />
+              <div className="text-[10px] font-bold uppercase tracking-widest text-ink-muted">Cleared</div>
+              <div className="font-mono text-3xl sm:text-4xl font-bold text-ink tabular-nums mt-1">
                 {completedMissions.length}
-              </span>
+              </div>
             </div>
           </div>
 
-          {/* Completed List */}
-          <div className="max-w-lg mx-auto bg-surface-sunken border-2 border-edge-soft rounded-2xl p-5 text-left space-y-3">
-            <h3 className="text-xs font-bold text-ink-muted uppercase tracking-wider flex items-center gap-1.5 border-b border-edge pb-2">
-              <Zap size={14} className="text-warn" /> Completed Quests
-            </h3>
+          <div className="bg-surface-sunken border border-edge rounded-2xl p-5">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-ink-muted mb-3 flex items-center gap-1.5">
+              <Zap size={11} className="text-brand" /> Completed quests
+            </div>
             {completedMissions.length > 0 ? (
-              <ul className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
-                {completedMissions.map((title, index) => (
+              <ul className="space-y-1.5 max-h-56 overflow-y-auto">
+                {completedMissions.map((title, i) => (
                   <motion.li
-                    key={`${index}-${title}`}
-                    initial={{ opacity: 0, x: -8 }}
+                    key={`${i}-${title}`}
+                    initial={{ opacity: 0, x: -6 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="flex items-start gap-2.5 text-sm font-semibold text-ink"
+                    transition={{ delay: i * 0.04 }}
+                    className="flex items-center gap-2 text-sm font-semibold text-ink"
                   >
-                    <CheckCircle size={16} className="text-success shrink-0 mt-0.5" />
-                    <span>{title}</span>
+                    <CheckCircle size={14} className="text-success shrink-0" />
+                    <span className="truncate">{title}</span>
                   </motion.li>
                 ))}
               </ul>
             ) : (
-              <p className="text-xs text-ink-muted font-semibold italic text-center py-2">
-                No quests fully marked complete this session, but your dedicated focus time is an incredible win! Keep building that momentum! 🌱
-              </p>
+              <p className="text-xs text-ink-muted italic">No completions logged — showing up still counts.</p>
             )}
           </div>
 
-          {/* Sprig Feedback Box */}
-          <div className="max-w-lg mx-auto bg-warn-soft border border-warn/30 rounded-2xl p-4 flex gap-3 text-left items-center">
-            <div className="text-3xl select-none shrink-0">🦉</div>
-            <p className="text-xs font-semibold text-warn font-nunito leading-relaxed">
-              <strong>Sprig says:</strong> {getGubbyResponse(sessionFocusSeconds, completedMissions.length)}
-            </p>
+          <div className="bg-brand-soft/20 border border-brand/30 rounded-2xl p-4 text-sm text-ink font-semibold leading-relaxed">
+            <span className="text-lg mr-2">🦉</span>{getGubbyResponse(sessionFocusSeconds, completedMissions.length)}
           </div>
 
-          {/* Controls */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <div className="flex gap-2">
             <button
               id="summary-back-btn"
               onClick={() => setShowSummary(false)}
-              className="w-full sm:w-auto px-6 py-2.5 bg-brand hover:bg-brand-hover text-white font-bold text-sm rounded-xl shadow transition-all active:scale-[0.98] cursor-pointer"
+              className="flex-1 py-3 bg-brand hover:bg-brand-hover text-primary-foreground font-bold text-sm rounded-xl transition-all cursor-pointer"
+              style={{ boxShadow: "var(--theme-glow)" }}
             >
-              Back to Timer
+              Back to timer
             </button>
             <button
               id="summary-reset-session-btn"
               onClick={() => {
-                if (window.confirm("Are you sure you want to reset all focus stats for today? 🦉")) {
-                  handleStartNewSession();
-                }
+                if (window.confirm("Reset all focus stats for today?")) handleStartNewSession();
               }}
-              className="w-full sm:w-auto px-6 py-2.5 bg-surface-raised hover:bg-surface-raised2 text-ink-muted font-bold text-sm rounded-xl transition-all active:scale-[0.98] cursor-pointer"
+              className="px-4 py-3 bg-surface-sunken hover:bg-surface-raised text-ink-muted font-bold text-sm rounded-xl border border-edge cursor-pointer"
             >
-              Reset Today's Progress
+              Reset day
             </button>
           </div>
         </motion.div>
@@ -531,377 +512,296 @@ export default function TaskmasterModule({
     );
   }
 
+  // ─────────────────── MAIN COCKPIT ───────────────────
+  const remainingRatio = duration > 0 ? timeLeft / duration : 1;
+  const donePct = Math.round((1 - remainingRatio) * 100);
+  const zone = remainingRatio <= 0.1 ? "danger" : remainingRatio <= 0.2 ? "warn" : "brand";
+  const zoneColor = zone === "danger" ? "var(--color-danger)" : zone === "warn" ? "var(--color-warn)" : "var(--color-brand)";
+  const status = isRunning ? "focusing" : timeLeft === duration ? "ready" : "paused";
+
   return (
-    <div id="taskmaster-module" className="max-w-2xl mx-auto space-y-4 sm:space-y-6 px-1 sm:px-0">
-      
-      {/* Distraction-Free Focus Arena */}
-      <div className="bg-surface p-4 sm:p-8 rounded-2xl sm:rounded-3xl border-2 border-edge card-shadow text-center space-y-5 sm:space-y-6 relative overflow-hidden">
-        
-        {/* Elegant Overlap Confirmation for Active Session Protection */}
+    <div id="taskmaster-module" className="max-w-4xl mx-auto px-1 sm:px-0 pb-8">
+
+      {/* ── HEADER ─────────────────────────────────────────────── */}
+      <div className="flex items-end justify-between gap-4 mb-5">
+        <div className="min-w-0">
+          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-ink-muted">Focus cockpit</div>
+          <h1 className="text-2xl sm:text-3xl font-fredoka font-bold text-ink truncate">
+            {isRunning ? "In flow" : status === "paused" ? "Held" : "Ready"}
+          </h1>
+        </div>
+        <button
+          id="timer-view-summary-btn"
+          onClick={() => { setIsRunning(false); setShowSummary(true); }}
+          className="shrink-0 flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-ink-muted hover:text-ink bg-surface-sunken border border-edge rounded-xl cursor-pointer"
+        >
+          <Award size={13} /> Recap
+        </button>
+      </div>
+
+      {/* ── COCKPIT CARD ───────────────────────────────────────── */}
+      <div className="relative bg-surface-sunken border border-edge rounded-3xl overflow-hidden card-shadow">
         <AnimatePresence>
           {pendingAction && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-surface/95 z-30 flex flex-col items-center justify-center p-6 text-center space-y-4"
+              className="absolute inset-0 bg-surface/95 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-6 text-center space-y-4"
             >
-              <div className="p-3 bg-warn-soft rounded-2xl text-brand border border-warn/30">
-                <AlertCircle size={32} className="animate-bounce" />
-              </div>
-              <h3 className="text-xl font-extrabold text-ink font-fredoka">
-                Reset Focus Progress?
-              </h3>
-              <p className="text-xs font-bold text-ink-muted max-w-sm font-nunito leading-relaxed">
-                You are currently in the middle of a focus run! Changing this will discard your active countdown progress. Are you sure you want to proceed? 🦉
-              </p>
-              <div className="flex flex-col sm:flex-row gap-2.5 pt-2 w-full max-w-xs">
+              <AlertCircle size={28} className="text-warn animate-pulse" />
+              <h3 className="text-lg font-bold text-ink font-fredoka">Reset focus progress?</h3>
+              <p className="text-xs text-ink-muted max-w-sm">Loading a new mission will discard your active countdown.</p>
+              <div className="flex gap-2 w-full max-w-xs">
                 <button
                   id="confirm-action-yes-btn"
                   onClick={() => executeAction(pendingAction)}
-                  className="flex-1 px-4 py-2.5 bg-danger hover:bg-danger text-white font-bold text-xs rounded-xl shadow-sm transition-all cursor-pointer"
-                >
-                  Yes, Reset & Switch
-                </button>
+                  className="flex-1 py-2.5 bg-danger text-white font-bold text-xs rounded-xl cursor-pointer"
+                >Yes, switch</button>
                 <button
                   id="confirm-action-no-btn"
-                  onClick={() => {
-                    setPendingAction(null);
-                    onGubbyMessage("Decision saved! Let's resume focus. 🦉💪", "focused");
-                  }}
-                  className="flex-1 px-4 py-2.5 bg-surface-raised hover:bg-surface-raised2 text-ink-muted font-bold text-xs rounded-xl transition-all cursor-pointer"
-                >
-                  No, Keep Going
-                </button>
+                  onClick={() => setPendingAction(null)}
+                  className="flex-1 py-2.5 bg-surface-raised text-ink-muted font-bold text-xs rounded-xl cursor-pointer border border-edge"
+                >Keep going</button>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Subtle Background Radial Ring */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full border border-brand/30/10 pointer-events-none select-none"></div>
-
-        <div className="space-y-1">
-          <span className="text-xs font-bold text-brand uppercase tracking-widest block">
-            🚀 Your mission, should you choose to accept it:
-          </span>
-          
+        {/* mission strip */}
+        <div className="px-5 sm:px-8 pt-6 pb-4 border-b border-edge-soft">
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-brand mb-2">
+            <span className={`w-1.5 h-1.5 rounded-full bg-brand ${isRunning ? "animate-pulse" : ""}`} />
+            {isRunning ? "One thing, right now" : "Mission"}
+          </div>
           <AnimatePresence mode="wait">
             {currentMission ? (
-              <motion.h1
+              <motion.h2
                 key={currentMission}
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                className="text-xl sm:text-3xl md:text-4xl font-extrabold text-ink font-fredoka leading-snug tracking-tight max-w-xl mx-auto break-words px-2"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="text-lg sm:text-2xl font-fredoka font-bold text-ink leading-tight break-words"
               >
                 {currentMission}
-              </motion.h1>
+              </motion.h2>
             ) : (
-              <motion.div
-                key="empty-mission"
+              <motion.form
+                key="quick"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="py-4 space-y-4"
+                onSubmit={handleCreateTempMission}
+                className="flex items-center gap-2"
               >
-                <p className="text-ink-muted font-bold text-base sm:text-lg font-fredoka">No focus mission loaded yet!</p>
-                
-                {/* Pick existing tasks or type a quick one */}
-                <form onSubmit={handleCreateTempMission} className="max-w-md mx-auto flex items-center gap-2">
-                  <input
-                    id="quick-focus-input"
-                    type="text"
-                    value={tempFocusTitle}
-                    onChange={(e) => setTempFocusTitle(e.target.value)}
-                    placeholder="Type a quick thing to focus on right now..."
-                    aria-label="Type a quick focus mission to load"
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-surface-sunken border-2 border-edge-soft focus:border-brand focus:bg-surface outline-none font-semibold text-sm text-ink-2"
-                  />
-                  <button
-                    id="load-quick-focus-btn"
-                    type="submit"
-                    className="p-3 bg-brand hover:bg-brand-hover text-white rounded-xl shadow font-bold text-sm"
-                    title="Load quick mission"
-                  >
-                    <Plus size={16} />
-                  </button>
-                </form>
-
-                {tasks.length > 0 && (
-                  <div className="space-y-2 max-w-md mx-auto">
-                    <p className="text-xs text-ink-muted font-bold uppercase tracking-wider">Or pick an existing quest:</p>
-                    <div className="flex flex-col gap-1.5 max-h-36 overflow-y-auto bg-surface-sunken p-2 rounded-xl border-2 border-edge-soft">
-                      {tasks.filter(t => !t.completed).map(task => (
-                        <button
-                          key={task.id}
-                          id={`quick-pick-task-${task.id}`}
-                          onClick={() => {
-                            const hasProgress = timeLeft < duration && timeLeft > 0;
-                            if (hasProgress) {
-                              setPendingAction({ type: "quest", value: task.title });
-                              setIsRunning(false);
-                              onGubbyMessage("Hold on! Loading a new quest will reset your current timer's progress. Are you sure? 🦉❓", "thoughtful");
-                            } else {
-                              setCurrentMission(task.title);
-                              setTimeLeft(duration);
-                              setIsRunning(false);
-                              setActiveSessionSeconds(0);
-                              onGubbyMessage(`Loaded task: "${task.title}". Let's crush this!`, "focused");
-                            }
-                          }}
-                          className="text-xs text-left text-ink-muted hover:text-ink hover:bg-brand-soft/20 px-2.5 py-1.5 rounded-lg font-semibold transition-colors truncate"
-                        >
-                          🎯 {task.title}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </motion.div>
+                <input
+                  id="quick-focus-input"
+                  type="text"
+                  value={tempFocusTitle}
+                  onChange={(e) => setTempFocusTitle(e.target.value)}
+                  placeholder="What's the one thing?"
+                  className="flex-1 min-w-0 bg-transparent outline-none text-lg sm:text-xl font-fredoka font-bold text-ink placeholder:text-ink-muted/60"
+                />
+                <button
+                  id="load-quick-focus-btn"
+                  type="submit"
+                  className="shrink-0 p-2.5 bg-brand hover:bg-brand-hover text-primary-foreground rounded-xl cursor-pointer"
+                >
+                  <Plus size={16} />
+                </button>
+              </motion.form>
             )}
           </AnimatePresence>
         </div>
 
-        {/* SVG Radial Ring Timer — visual time representation for ADHD time blindness */}
-        <div className="flex flex-col items-center gap-3">
-          {(() => {
-            const size = typeof window !== "undefined" && window.innerWidth < 400 ? 180 : 220;
-            const stroke = size < 200 ? 12 : 14;
-            const r = (size - stroke) / 2;
-            const circ = 2 * Math.PI * r;
-            const remaining = duration > 0 ? timeLeft / duration : 1;
-            const dashOffset = circ * (1 - remaining);
-            const pct = 1 - remaining;
-            // Color shifts based on how much time is left
-            const ringColor = remaining <= 0.1 ? "#ef4444" : remaining <= 0.2 ? "#f59e0b" : "#4ade80";
-            const ringGlowColor = remaining <= 0.1 ? "rgba(239,68,68,0.3)" : remaining <= 0.2 ? "rgba(245,158,11,0.25)" : "rgba(74,222,128,0.2)";
-            return (
-              <motion.div
-                className="relative"
-                style={{ width: size, height: size }}
-                animate={isRunning ? { scale: [1, 1.03, 1] } : { scale: 1 }}
-                transition={isRunning ? { duration: 4, repeat: Infinity, ease: "easeInOut" } : { duration: 0.3 }}
-              >
-                <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
-                  {/* Background ring */}
-                  <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--color-edge)" strokeWidth={stroke} />
-                  {/* Progress ring */}
-                  <circle
-                    cx={size/2} cy={size/2} r={r} fill="none"
-                    stroke={ringColor} strokeWidth={stroke}
-                    strokeLinecap="round"
-                    strokeDasharray={circ}
-                    strokeDashoffset={dashOffset}
-                    style={{ transition: "stroke-dashoffset 0.8s linear, stroke 1s ease", filter: `drop-shadow(0 0 6px ${ringGlowColor})` }}
-                  />
-                </svg>
-                {/* Center content */}
-                <div
-                  className="absolute inset-0 flex flex-col items-center justify-center gap-0.5"
-                  role="timer"
-                  aria-live="polite"
-                  aria-label={`${formatTime(timeLeft)} remaining, ${isRunning ? "focusing" : timeLeft === duration ? "ready" : "paused"}`}
-                >
-                  <div className={`text-3xl sm:text-4xl font-extrabold font-fredoka tabular-nums select-none transition-colors duration-1000 ${remaining <= 0.1 ? "text-danger" : remaining <= 0.2 ? "text-warn" : "text-ink "}`}>
-                    {formatTime(timeLeft)}
-                  </div>
-                  <div className="text-[10px] font-bold text-ink-muted uppercase tracking-wider">
-                    {isRunning ? "focusing..." : timeLeft === duration ? "ready" : "paused"}
-                  </div>
-                  {duration > 0 && (
-                    <div className="text-[11px] font-bold text-ink-muted mt-0.5">
-                      {Math.round(pct * 100)}% done
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-
-            );
-          })()}
+        {/* MEGA TIMER: typographic, not a ring */}
+        <div className="px-5 sm:px-8 py-8 sm:py-10 text-center relative">
+          <div
+            role="timer"
+            aria-live="polite"
+            aria-label={`${formatTime(timeLeft)} remaining, ${status}`}
+            className="font-mono font-bold tabular-nums leading-none tracking-tight select-none transition-colors duration-700"
+            style={{
+              fontSize: "clamp(4.5rem, 18vw, 9rem)",
+              color: zoneColor,
+              textShadow: isRunning ? `0 0 40px ${zoneColor}55` : "none",
+            }}
+          >
+            {formatTime(timeLeft)}
+          </div>
+          <div className="mt-3 flex items-center justify-center gap-3 text-[11px] font-bold uppercase tracking-[0.2em] text-ink-muted">
+            <span className="flex items-center gap-1.5">
+              <span className={`w-1.5 h-1.5 rounded-full ${isRunning ? "bg-success animate-pulse" : status === "paused" ? "bg-warn" : "bg-ink-muted"}`} />
+              {status}
+            </span>
+            <span className="text-ink-muted/40">·</span>
+            <span>{donePct}%</span>
+            <span className="text-ink-muted/40">·</span>
+            <span>{Math.floor(duration / 60)}m goal</span>
+          </div>
         </div>
 
-        {/* Primary Controls */}
-        <div className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
-          {/* Pause / Play */}
+        {/* THIN LINEAR PROGRESS */}
+        <div className="h-1 w-full bg-surface/50 relative overflow-hidden">
+          <motion.div
+            className="h-full absolute inset-y-0 left-0"
+            style={{ backgroundColor: zoneColor, boxShadow: `0 0 12px ${zoneColor}` }}
+            animate={{ width: `${donePct}%` }}
+            transition={{ duration: 0.6, ease: "linear" }}
+          />
+        </div>
+
+        {/* CONTROL DECK */}
+        <div className="px-5 sm:px-8 py-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
           <button
             id="timer-play-pause-btn"
             onClick={handleStartPause}
-            aria-label={isRunning ? "Pause focus timer" : "Start focus timer"}
-            className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white shadow-md hover:shadow-lg transition-all active:scale-[0.95] cursor-pointer ${
-              isRunning
-                ? "bg-success hover:bg-success"
-                : "bg-brand hover:bg-brand-hover"
+            aria-label={isRunning ? "Pause" : "Start"}
+            className={`h-14 min-w-[140px] px-6 flex items-center justify-center gap-2 rounded-2xl font-bold text-sm text-primary-foreground transition-all active:scale-95 cursor-pointer ${
+              isRunning ? "bg-warn hover:opacity-90" : "bg-brand hover:bg-brand-hover"
             }`}
+            style={{ boxShadow: isRunning ? "none" : "var(--theme-glow)" }}
           >
-            {isRunning ? <Pause size={24} className="fill-white sm:hidden" /> : <Play size={24} className="fill-white ml-0.5 sm:hidden" />}
-            {isRunning ? <Pause size={28} className="fill-white hidden sm:block" /> : <Play size={28} className="fill-white ml-1 hidden sm:block" />}
+            {isRunning ? <><Pause size={18} className="fill-current" /> Pause</> : <><Play size={18} className="fill-current" /> {status === "paused" ? "Resume" : "Start"}</>}
           </button>
 
-          {/* Reset */}
           <button
             id="timer-reset-btn"
             onClick={handleReset}
-            aria-label="Reset timer"
-            className="w-11 h-11 sm:w-12 sm:h-12 bg-surface-raised hover:bg-surface-raised2 text-ink-muted rounded-full flex items-center justify-center shadow-sm transition-all"
-            title="Reset Timer"
+            className="h-14 w-14 flex items-center justify-center bg-surface hover:bg-surface-raised border border-edge rounded-2xl text-ink-muted transition-colors cursor-pointer"
+            title="Reset"
           >
-            <RotateCcw size={18} />
+            <RotateCcw size={16} />
           </button>
 
-          {/* Complete early */}
           {currentMission && (
             <button
               id="timer-complete-btn"
               onClick={handleCompleteMission}
-              aria-label="Finish mission"
-              className="w-11 h-11 sm:w-12 sm:h-12 bg-success-soft hover:bg-success-soft text-success rounded-full flex items-center justify-center shadow-sm transition-all cursor-pointer"
-              title="Finish Mission!"
+              className="h-14 px-4 flex items-center gap-1.5 bg-success-soft hover:bg-success/20 border border-success/30 text-success font-bold text-xs rounded-2xl transition-colors cursor-pointer"
+              title="Finish mission"
             >
-              <CheckCircle size={18} />
+              <CheckCircle size={16} /> Done
             </button>
           )}
-
-          {/* View Today's Milestones / Summary */}
-          <button
-            id="timer-view-summary-btn"
-            onClick={() => {
-              setIsRunning(false);
-              setShowSummary(true);
-              onGubbyMessage("Let's review your focus milestones! Celebrate every second of effort! 🏆", "happy");
-            }}
-            aria-label="View daily milestones"
-            className="w-11 h-11 sm:w-12 sm:h-12 bg-warn-soft hover:bg-warn-soft text-brand rounded-full flex items-center justify-center shadow-sm transition-all cursor-pointer"
-            title="View Daily Milestones"
-          >
-            <Award size={18} className="text-brand" />
-          </button>
         </div>
 
-        {/* Sensory and Assistive Settings */}
-        <div className="flex flex-wrap items-center justify-center gap-4 pt-3 text-xs text-ink-muted">
-          {/* Sound FX */}
+        {/* SENSORY TOGGLES */}
+        <div className="px-5 sm:px-8 pb-5 flex flex-wrap items-center justify-center gap-2">
           <button
             id="sound-fx-toggle"
-            onClick={() => {
-              setSoundEnabled(!soundEnabled);
-              onGubbyMessage(soundEnabled ? "Chimes muted!" : "Chimes unmuted!", "happy");
-            }}
-            className="flex items-center gap-1 hover:text-ink"
-          >
-            {soundEnabled ? <Volume2 size={14} className="text-brand" /> : <VolumeX size={14} />}
-            <span>Timer Sound {soundEnabled ? "ON" : "OFF"}</span>
-          </button>
-
-          {/* Body Double Click */}
-          <button
-            id="body-double-pacing-toggle"
-            onClick={() => {
-              const val = !pacingEnabled;
-              setPacingEnabled(val);
-              onGubbyMessage(val ? "Ticking feedback enabled! Like a rhythmic clock companion." : "Ticking feedback disabled.", "happy");
-            }}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border-2 transition-all ${
-              pacingEnabled 
-                ? "bg-brand-soft  text-brand border-brand/30 font-bold" 
-                : "hover:text-ink  border-transparent"
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
+              soundEnabled ? "bg-brand-soft/30 border-brand/30 text-ink" : "bg-surface border-edge-soft text-ink-muted hover:text-ink"
             }`}
           >
-            🎯 <span>Body Double Ticking: {pacingEnabled ? "ON" : "OFF"}</span>
+            {soundEnabled ? <Volume2 size={12} /> : <VolumeX size={12} />} Chimes
+          </button>
+          <button
+            id="body-double-pacing-toggle"
+            onClick={() => setPacingEnabled(!pacingEnabled)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
+              pacingEnabled ? "bg-brand-soft/30 border-brand/30 text-ink" : "bg-surface border-edge-soft text-ink-muted hover:text-ink"
+            }`}
+          >
+            🎯 Body-double tick
           </button>
         </div>
       </div>
 
-      {/* Completion Trophy Card */}
-      {currentMission && (
-        <div className="bg-brand-soft/10 border-2 border-edge p-4 rounded-2xl flex items-center gap-3">
-          <div className="p-2.5 bg-brand-soft text-brand rounded-xl">
-            <Trophy size={20} />
-          </div>
-          <div className="flex-1 text-sm font-semibold text-brand">
-            Work in progress! Finish this mission to clear it from your Magic To-Do master list automatically!
+      {/* ── QUEST PICKER (when no mission) ─────────────────────── */}
+      {!currentMission && tasks.filter(t => !t.completed).length > 0 && (
+        <div className="mt-5 bg-surface-sunken border border-edge rounded-2xl p-4">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-ink-muted mb-2">Or pick a quest</div>
+          <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
+            {tasks.filter(t => !t.completed).map(task => (
+              <button
+                key={task.id}
+                id={`quick-pick-task-${task.id}`}
+                onClick={() => {
+                  const hasProgress = timeLeft < duration && timeLeft > 0;
+                  if (hasProgress) {
+                    setPendingAction({ type: "quest", value: task.title });
+                    setIsRunning(false);
+                  } else {
+                    setCurrentMission(task.title);
+                    setTimeLeft(duration);
+                    setIsRunning(false);
+                    setActiveSessionSeconds(0);
+                    onGubbyMessage(`Loaded task: "${task.title}". Let's crush this!`, "focused");
+                  }
+                }}
+                className="text-xs font-semibold text-ink-muted hover:text-ink bg-surface border border-edge-soft hover:border-brand/40 rounded-lg px-2.5 py-1.5 transition-all cursor-pointer truncate max-w-[240px]"
+              >
+                🎯 {task.title}
+              </button>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Live Active Stats Banner directly below the Taskmaster Arena - always visible for daily progress */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-surface p-5 rounded-2xl border-2 border-edge-soft card-shadow space-y-3"
-      >
-        <div className="flex items-center justify-between border-b border-edge pb-2">
-          <div className="flex items-center gap-2">
-            <Zap size={16} className="text-brand animate-pulse" />
-            <h3 className="text-sm font-extrabold text-ink font-fredoka">
-              Today's Focus Milestones
-            </h3>
+      {/* ── TODAY STRIP ────────────────────────────────────────── */}
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        <div className="relative bg-surface-sunken border border-edge rounded-2xl p-4 overflow-hidden">
+          <span className="absolute inset-y-0 left-0 w-1 bg-brand" />
+          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-ink-muted">
+            <Clock size={11} /> Focused today
           </div>
-          <span className="text-xs font-bold text-warn bg-warn-soft px-2.5 py-0.5 rounded-full border border-warn/30">
-            Daily Progress
+          <div className="font-mono text-2xl sm:text-3xl font-bold text-ink tabular-nums mt-1">
+            {formatFocusDuration(sessionFocusSeconds)}
+          </div>
+          {activeSessionSeconds > 0 && activeSessionSeconds < 600 && (
+            <div className="text-[10px] font-bold text-brand mt-1">
+              ⏳ Run: {Math.floor(activeSessionSeconds / 60)}m {activeSessionSeconds % 60}s / 10m
+            </div>
+          )}
+          {activeSessionSeconds >= 600 && (
+            <div className="text-[10px] font-bold text-success mt-1">✅ Current run counted</div>
+          )}
+        </div>
+        <div className="relative bg-surface-sunken border border-edge rounded-2xl p-4 overflow-hidden">
+          <span className="absolute inset-y-0 left-0 w-1 bg-success" />
+          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-ink-muted">
+            <CheckSquare size={11} /> Cleared today
+          </div>
+          <div className="font-mono text-2xl sm:text-3xl font-bold text-ink tabular-nums mt-1">
+            {completedMissions.length}
+          </div>
+        </div>
+      </div>
+
+      {/* ── 10-MIN NOTICE ──────────────────────────────────────── */}
+      <div className="mt-3 text-[10px] text-ink-muted font-semibold flex items-center gap-1.5 px-3 py-2 bg-surface-sunken border border-edge-soft rounded-xl">
+        <span>🦉</span>
+        <span>Only sessions <strong className="text-ink">≥ 10 min</strong> are counted — deep flow gets the credit.</span>
+      </div>
+
+      {/* ── COMPLETED CHIPS ────────────────────────────────────── */}
+      {completedMissions.length > 0 && (
+        <div className="mt-4">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-ink-muted mb-2">Cleared today</div>
+          <div className="flex flex-wrap gap-1.5">
+            {completedMissions.map((title, i) => (
+              <span
+                key={`${i}-${title}`}
+                className="inline-flex items-center gap-1.5 text-[11px] font-bold bg-success-soft border border-success/30 text-success px-2.5 py-1 rounded-lg"
+              >
+                <CheckCircle size={10} />
+                <span className="truncate max-w-[180px]">{title}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* progress-in-mission trophy strip */}
+      {currentMission && (
+        <div className="mt-4 flex items-center gap-2.5 bg-brand-soft/15 border border-brand/20 rounded-xl px-3 py-2.5">
+          <Trophy size={14} className="text-brand shrink-0" />
+          <span className="text-xs font-semibold text-ink">
+            Finish this to auto-clear it from your Quest Log.
           </span>
         </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-center gap-3 bg-surface-sunken p-3 rounded-xl border border-edge">
-            <Clock size={16} className="text-brand shrink-0" />
-            <div className="flex flex-col min-w-0">
-              <span className="text-[10px] font-bold text-ink-muted uppercase tracking-wider truncate">Total Focused Today</span>
-              <span className="text-sm font-extrabold text-ink font-fredoka">
-                {formatFocusDuration(sessionFocusSeconds)}
-              </span>
-              {activeSessionSeconds > 0 && activeSessionSeconds < 600 && (
-                <span className="text-[9px] font-extrabold text-brand animate-pulse mt-0.5" title="Focus sessions must reach 10 minutes to be saved. Keep going!">
-                  ⏳ Run: {Math.floor(activeSessionSeconds / 60)}m {activeSessionSeconds % 60}s / 10m
-                </span>
-              )}
-              {activeSessionSeconds >= 600 && (
-                <span className="text-[9px] font-extrabold text-success mt-0.5">
-                  ✅ Current run counted!
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 bg-surface-sunken p-3 rounded-xl border border-edge">
-            <CheckSquare size={16} className="text-success shrink-0" />
-            <div className="flex flex-col min-w-0">
-              <span className="text-[10px] font-bold text-ink-muted uppercase tracking-wider truncate">Quests Completed Today</span>
-              <span className="text-sm font-extrabold text-ink font-fredoka">
-                {completedMissions.length} {completedMissions.length === 1 ? "Quest" : "Quests"}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Info notice about ADHD 10-min filter */}
-        <div className="text-[10px] text-ink-muted/90 font-semibold bg-surface border border-edge px-3 py-2 rounded-xl flex items-center gap-1.5 leading-relaxed">
-          <span>🦉</span>
-          <span>Only focus sessions <strong>10 minutes or longer</strong> are saved and counted towards your daily milestones to encourage deep flow.</span>
-        </div>
-
-        {/* Quick inline list of completed tasks today */}
-        {completedMissions.length > 0 ? (
-          <div className="pt-1.5 space-y-1">
-            <span className="text-[10px] font-bold text-ink-muted uppercase tracking-widest block">Completed today:</span>
-            <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto pt-1">
-              {completedMissions.map((title, index) => (
-                <span
-                  key={`${index}-${title}`}
-                  className="inline-flex items-center gap-1.5 text-[11px] font-bold bg-success-soft text-success border border-success/30 px-2.5 py-1 rounded-lg"
-                >
-                  <CheckCircle size={10} className="text-success" />
-                  <span className="truncate max-w-[150px]">{title}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <p className="text-[10px] text-ink-muted font-semibold italic pt-1">
-            No focus tasks completed today yet. Start a quest above to build your daily streak! 🌱
-          </p>
-        )}
-      </motion.div>
-
+      )}
     </div>
   );
 }
