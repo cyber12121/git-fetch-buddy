@@ -18,6 +18,7 @@ import { DEFAULT_TASKS } from "./lib/defaultTasks";
 import { readJSON, writeJSON } from "./lib/safeStorage";
 import { recordReward } from "./lib/rewardHistory";
 import RewardHistory from "./components/RewardHistory";
+import { applyTheme, readStoredTheme } from "./lib/themes";
 import confetti from "canvas-confetti";
 
 // Code-split every workspace module so the initial bundle only carries the
@@ -57,6 +58,11 @@ export default function App() {
   const { pushToast } = useToast();
   const [activeTab, setActiveTabState] = useState<TabId>("todo");
   const mainRef = useRef<HTMLElement | null>(null);
+
+  // Apply the saved theme as soon as the app mounts so CSS variables reflect
+  // the user's choice before the first paint of interactive content.
+  useEffect(() => { applyTheme(readStoredTheme()); }, []);
+
 
   // Move focus to the main region and scroll it into view. Used after
   // deep-link / back-forward navigation so the user's attention (and

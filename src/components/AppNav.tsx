@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { Brain, Play, Calendar, CheckSquare, CalendarDays, Repeat } from "lucide-react";
+import ThemeSwitcher from "./ThemeSwitcher";
 
 type GubbyMood = "happy" | "thoughtful" | "focused" | "cozy" | "excited";
 
@@ -128,7 +129,10 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
                 </span>
               </div>
 
+              <ThemeSwitcher />
+
               <div className="hidden lg:flex items-center gap-1.5 bg-surface-sunken/80 border border-edge rounded-full px-3 py-1.5 shadow-sm">
+
                 <span aria-hidden="true" className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                 <span className="text-[11px] font-bold text-ink-muted">Sprig online</span>
               </div>
