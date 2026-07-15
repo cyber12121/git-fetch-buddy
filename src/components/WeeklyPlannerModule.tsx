@@ -366,30 +366,19 @@ export default function WeeklyPlannerModule({
     const dayEvents = isSomeday ? [] : eventsFor(dateStr);
     const rendered = dayEvents.length + dayTasks.length + (isAdding ? 1 : 0);
     const empty = Math.max(0, lines - rendered);
-    const underline = today ? "#F27D26" : "#CDE0CD";
-    const titleColor = today ? "#F27D26" : "#1A261A";
-    const subColor = today ? "#F27D26" : "#556B55";
-
-    // Snapping time block tasks
-    const morningTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "morning");
-    const afternoonTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "afternoon");
-    const eveningTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "evening");
-    const anytimeTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "anytime");
-
     return (
-      <div key={dateStr} className="flex flex-col min-w-0 flex-1"
+      <div key={dateStr} className={`flex flex-col min-w-0 flex-1 transition-colors rounded-lg ${dragOverDate === dateStr ? "bg-surface-sunken/60" : ""}`}
         onDragOver={e => { if (!showTimeBlocks) onDragOver(e, dateStr); }}
         onDragLeave={onDragLeaveHandler}
         onDrop={e => { if (!showTimeBlocks) onDrop(e, isSomeday ? undefined : dateStr); }}
-        onClick={() => { setAddingDate(dateStr); setNewTitle(""); setEditingId(null); }}
-        style={{ background: dragOverDate === dateStr ? "rgba(248,250,252,0.8)" : "transparent" }}>
+        onClick={() => { setAddingDate(dateStr); setNewTitle(""); setEditingId(null); }}>
 
         {/* Header */}
-        <div className="flex items-baseline justify-between pb-1 select-none"
-          style={{ borderBottom: `2px solid ${underline}` }}>
-          <span className="text-[15px] font-semibold" style={{ color: titleColor, fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>{label}</span>
-          <span className="text-[11px] font-normal" style={{ color: subColor }}>{sublabel}</span>
+        <div className={`flex items-baseline justify-between pb-1.5 select-none border-b-2 ${today ? "border-brand" : "border-edge"}`}>
+          <span className={`text-[15px] font-semibold ${today ? "text-brand" : "text-ink"}`} style={{ fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>{label}</span>
+          <span className={`text-[11px] font-medium uppercase tracking-wider ${today ? "text-brand" : "text-ink-muted"}`}>{sublabel}</span>
         </div>
+
 
         {/* Content */}
         {showTimeBlocks && !isSomeday ? (
