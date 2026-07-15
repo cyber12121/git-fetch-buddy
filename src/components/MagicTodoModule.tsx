@@ -308,7 +308,7 @@ export default function MagicTodoModule({
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="bg-gradient-to-br from-[#FFF5EB] to-[#FFECD8] border-2 border-brand/20 rounded-2xl p-3 sm:p-4 card-shadow"
+            className="bg-surface-sunken border-2 border-brand/20 rounded-2xl p-3 sm:p-4 card-shadow"
           >
             <div className="flex items-center gap-2 mb-2.5 sm:mb-3">
               <span className="text-base">🎯</span>
@@ -397,7 +397,7 @@ export default function MagicTodoModule({
                   step="1"
                   value={priorityVal}
                   onChange={(e) => handlePriorityChange(parseInt(e.target.value, 10))}
-                  className="flex-1 accent-[#F27D26] cursor-pointer h-1.5 bg-surface-raised2 rounded-lg appearance-none"
+                  className="flex-1 accent-brand cursor-pointer h-1.5 bg-surface-raised2 rounded-lg appearance-none"
                 />
                 <span className="text-xl select-none shrink-0 font-fredoka">
                   {priorityVal === 1 && "🟢"}
@@ -455,7 +455,7 @@ export default function MagicTodoModule({
               </p>
             </div>
             
-            <div className="grid grid-cols-3 sm:flex sm:items-center gap-1 sm:gap-1.5 bg-[#F5FAF5] p-1 rounded-xl border border-edge w-full sm:w-auto">
+            <div className="grid grid-cols-3 sm:flex sm:items-center gap-1 sm:gap-1.5 bg-surface-sunken p-1 rounded-xl border border-edge w-full sm:w-auto">
               <button
                 id="filter-date-btn"
                 type="button"
@@ -592,12 +592,12 @@ export default function MagicTodoModule({
                   key={task.id}
                   className={`bg-gradient-to-br rounded-2xl border-2 transition-all card-shadow ${
                     task.completed
-                      ? "from-white to-white border-edge-soft   opacity-60"
+                      ? "from-surface to-surface border-edge-soft   opacity-60"
                       : task.priority === "high"
-                      ? "from-[#FFF5EB] to-white border-orange-200/70 hover:border-orange-300"
+                      ? "from-surface-sunken to-surface border-orange-200/70 hover:border-orange-300"
                       : task.priority === "medium"
-                      ? "from-[#F9FBF9] to-white border-edge   hover:border-emerald-300"
-                      : "from-[#F0F7F0] to-white border-edge   hover:border-emerald-300"
+                      ? "from-surface-sunken to-surface border-edge   hover:border-emerald-300"
+                      : "from-surface-sunken to-surface border-edge   hover:border-emerald-300"
                   }`}
                 >
                   {/* Task Card Header Area */}
@@ -636,7 +636,7 @@ export default function MagicTodoModule({
                                 {[1, 2, 3].map((seg) => (
                                   <span
                                     key={seg}
-                                    className={`w-4 h-1.5 rounded-full ${seg <= segments ? segColor : "bg-[#E6EEE6]"}`}
+                                    className={`w-4 h-1.5 rounded-full ${seg <= segments ? segColor : "bg-edge-soft"}`}
                                   />
                                 ))}
                               </div>
@@ -658,7 +658,7 @@ export default function MagicTodoModule({
                         <div className="flex flex-wrap items-center gap-2 pt-1">
                           {/* Scheduled Time info if exists */}
                           {task.scheduledTime && (
-                            <div className="flex items-center gap-1.5 text-xs font-semibold text-brand bg-brand-soft/20 px-2.5 py-1 rounded-lg w-fit border border-[#FFD4A3]/40">
+                            <div className="flex items-center gap-1.5 text-xs font-semibold text-brand bg-brand-soft/20 px-2.5 py-1 rounded-lg w-fit border border-brand/30">
                               <Clock size={12} />
                               <span>Scheduled @ {task.scheduledTime}</span>
                             </div>
@@ -681,7 +681,7 @@ export default function MagicTodoModule({
                                   onUpdateTask(task.id, { estimatedMinutes: nextEst });
                                   onGubbyMessage(`Decreased estimate for "${task.title}" to ${nextEst}m! ⏱️`, "cozy");
                                 }}
-                                className="text-xs font-extrabold text-brand hover:bg-[#FFF5EB] w-4 h-4 rounded flex items-center justify-center transition-colors cursor-pointer select-none"
+                                className="text-xs font-extrabold text-brand hover:bg-brand-soft/30 w-4 h-4 rounded flex items-center justify-center transition-colors cursor-pointer select-none"
                                 title="Decrease estimate by 5 mins"
                               >
                                 -
@@ -717,7 +717,7 @@ export default function MagicTodoModule({
                                   onUpdateTask(task.id, { estimatedMinutes: nextEst });
                                   onGubbyMessage(`Increased estimate for "${task.title}" to ${nextEst}m! ⏱️`, "happy");
                                 }}
-                                className="text-xs font-extrabold text-brand hover:bg-[#FFF5EB] w-4 h-4 rounded flex items-center justify-center transition-colors cursor-pointer select-none"
+                                className="text-xs font-extrabold text-brand hover:bg-brand-soft/30 w-4 h-4 rounded flex items-center justify-center transition-colors cursor-pointer select-none"
                                 title="Increase estimate by 5 mins"
                               >
                                 +
@@ -907,7 +907,7 @@ export default function MagicTodoModule({
                         </button>
 
                         {/* Tooltip on Hover */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-stone-900 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
                           <span className="capitalize">{task.priority} Priority</span> - Click to change
                           <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-900"></div>
                         </div>
@@ -936,7 +936,7 @@ export default function MagicTodoModule({
                                     onGubbyMessage(`Adjusted priority of "${task.title}" to ${lvl}! 🎯`, "happy");
                                   }}
                                   className={`flex items-center gap-2.5 px-3 py-1.5 text-xs font-bold rounded-xl text-left transition-colors cursor-pointer w-full hover:bg-surface  ${
-                                    task.priority === lvl ? "bg-surface-raised  text-ink " : "text-stone-600"
+                                    task.priority === lvl ? "bg-surface-raised  text-ink " : "text-ink-muted"
                                   }`}
                                 >
                                   <span>{getPriorityLabel(lvl)}</span>
@@ -966,7 +966,7 @@ export default function MagicTodoModule({
                           </button>
 
                           {/* Tooltip on Hover */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-stone-900 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
                             {breakingDownTaskIds[task.id] ? "Slicing tasks..." : "Break down into subtasks 🪄"}
                             <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-900"></div>
                           </div>
@@ -986,7 +986,7 @@ export default function MagicTodoModule({
                           </button>
 
                           {/* Tooltip on Hover */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-stone-900 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
                             Focus Session 🎯
                             <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-900"></div>
                           </div>
@@ -1007,7 +1007,7 @@ export default function MagicTodoModule({
                         </button>
 
                         {/* Tooltip on Hover */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-stone-900 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
                           Schedule on Calendar 📅
                           <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-900"></div>
                         </div>
@@ -1031,7 +1031,7 @@ export default function MagicTodoModule({
                           <>
                             <div className="flex gap-0.5 mr-1">
                               {Array.from({ length: Math.min(totalSubs, 8) }).map((_, i) => (
-                                <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < completedSubs ? "bg-[#556B55]" : "bg-surface "}`} />
+                                <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < completedSubs ? "bg-brand" : "bg-surface "}`} />
                               ))}
                               {totalSubs > 8 && <span className="text-[8px] leading-[6px] ml-0.5 opacity-50 text-ink-muted">+{totalSubs - 8}</span>}
                             </div>
@@ -1174,7 +1174,7 @@ export default function MagicTodoModule({
       {/* 3. Scheduling Popup Modal */}
       <AnimatePresence>
         {schedulingTaskId && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-ink/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <motion.div
               ref={scheduleDialogRef}
               role="dialog"
