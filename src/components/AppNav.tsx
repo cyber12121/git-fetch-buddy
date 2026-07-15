@@ -34,6 +34,8 @@ interface AppNavProps {
 export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefetchTab, xp }: AppNavProps) {
   const level = Math.floor(xp / 100) + 1;
   const xpInLevel = xp % 100;
+  const theme = useTheme();
+  const isDark = theme === "kinetic-dark";
 
   const prefetch = (tab: TabDef) => onPrefetchTab?.(tab.id);
 
@@ -57,50 +59,28 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
               <motion.div
                 animate={{ y: [0, -3, 0], rotate: [0, -8, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="shrink-0 text-2xl drop-shadow"
+                className="shrink-0 drop-shadow"
                 aria-hidden="true"
               >
-                🧝
+                {isDark ? (
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-primary/15 text-primary ring-1 ring-primary/30">
+                    <Sparkles size={18} strokeWidth={2.5} />
+                  </span>
+                ) : (
+                  <span className="text-2xl">🧝</span>
+                )}
               </motion.div>
               <div className="min-w-0 leading-none">
                 <h1 className="font-fredoka font-extrabold text-ink text-base tracking-tight truncate">
                   Momentum
                 </h1>
                 <div className="text-[10px] font-bold text-ink-muted uppercase tracking-widest truncate">
-                  cozy focus OS
+                  {isDark ? "kinetic focus OS" : "cozy focus OS"}
                 </div>
               </div>
             </div>
 
-            {/* Desktop tab row — always visible on lg+ for consistent tab switching
-                across every tab (planning tabs hide the SideNav, so this is the
-                primary switcher there; on do-tabs it complements the SideNav). */}
-            <nav
-              aria-label="Primary"
-              className="hidden lg:flex items-center gap-1 order-3 lg:order-none w-full lg:w-auto justify-center lg:justify-start mt-2 lg:mt-0"
-            >
-              {TABS.map((tab) => {
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => select(tab)}
-                    onMouseEnter={() => prefetch(tab)}
-                    onFocus={() => prefetch(tab)}
-                    aria-current={isActive ? "page" : undefined}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors min-h-9 ${
-                      isActive
-                        ? "bg-[#556B55] text-white shadow-sm"
-                        : "text-ink-muted hover:text-ink hover:bg-surface-sunken"
-                    }`}
-                  >
-                    <tab.Icon size={14} aria-hidden="true" />
-                    <span>{tab.label}</span>
-                  </button>
-                );
-              })}
-            </nav>
+
 
 
 
