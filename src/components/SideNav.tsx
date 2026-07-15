@@ -57,7 +57,7 @@ export default function SideNav({ activeTab, onTabChange, onGubbyMessage, onPref
                   aria-current={isActive ? "page" : undefined}
                   className={`w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold transition-all min-h-11 ${
                     isActive
-                      ? "bg-[#556B55] text-white shadow-md"
+                      ? "bg-primary text-primary-foreground shadow-md"
                       : "text-ink-muted hover:text-ink hover:bg-surface"
                   }`}
                 >
