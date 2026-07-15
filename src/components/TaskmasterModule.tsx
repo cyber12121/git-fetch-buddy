@@ -510,7 +510,7 @@ export default function TaskmasterModule({
             <button
               id="summary-back-btn"
               onClick={() => setShowSummary(false)}
-              className="w-full sm:w-auto px-6 py-2.5 bg-brand hover:bg-brand-hover text-primary-foreground font-bold text-sm rounded-xl shadow transition-all active:scale-[0.98] cursor-pointer"
+              className="w-full sm:w-auto px-6 py-2.5 bg-brand hover:bg-brand-hover text-white font-bold text-sm rounded-xl shadow transition-all active:scale-[0.98] cursor-pointer"
             >
               Back to Timer
             </button>
@@ -559,7 +559,7 @@ export default function TaskmasterModule({
                 <button
                   id="confirm-action-yes-btn"
                   onClick={() => executeAction(pendingAction)}
-                  className="flex-1 px-4 py-2.5 bg-danger hover:bg-danger text-primary-foreground font-bold text-xs rounded-xl shadow-sm transition-all cursor-pointer"
+                  className="flex-1 px-4 py-2.5 bg-danger hover:bg-danger text-white font-bold text-xs rounded-xl shadow-sm transition-all cursor-pointer"
                 >
                   Yes, Reset & Switch
                 </button>
@@ -620,7 +620,7 @@ export default function TaskmasterModule({
                   <button
                     id="load-quick-focus-btn"
                     type="submit"
-                    className="p-3 bg-brand hover:bg-brand-hover text-primary-foreground rounded-xl shadow font-bold text-sm"
+                    className="p-3 bg-brand hover:bg-brand-hover text-white rounded-xl shadow font-bold text-sm"
                     title="Load quick mission"
                   >
                     <Plus size={16} />
@@ -727,7 +727,7 @@ export default function TaskmasterModule({
             id="timer-play-pause-btn"
             onClick={handleStartPause}
             aria-label={isRunning ? "Pause focus timer" : "Start focus timer"}
-            className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-primary-foreground shadow-md hover:shadow-lg transition-all active:scale-[0.95] cursor-pointer ${
+            className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white shadow-md hover:shadow-lg transition-all active:scale-[0.95] cursor-pointer ${
               isRunning
                 ? "bg-success hover:bg-success"
                 : "bg-brand hover:bg-brand-hover"
