@@ -42,7 +42,12 @@ export function useGoogleCalendar({ selectedDate, onMessage, setManualEvents }: 
       setIsLoadingGoogle(true);
       setGoogleError(null);
       try {
-        const baseDate = new Date(selectedDateRef.current);
+        // Parse the YYYY-MM-DD selected date as LOCAL midnight so the
+        // ±45/90-day window aligns with the same local-time interpretation
+        // used a few lines down when filtering manual events. `new Date("YYYY-MM-DD")`
+        // alone parses as UTC midnight and shifts the window by up to a day
+        // in negative-offset timezones, mis-filtering boundary events.
+        const baseDate = new Date(selectedDateRef.current + "T00:00:00");
         const timeMinDate = new Date(baseDate.getTime() - 45 * 24 * 60 * 60 * 1000);
         const timeMaxDate = new Date(baseDate.getTime() + 90 * 24 * 60 * 60 * 1000);
         const timeMin = timeMinDate.toISOString();
@@ -173,14 +178,17 @@ export function useGoogleCalendar({ selectedDate, onMessage, setManualEvents }: 
     return () => unsubscribe();
   }, []);
 
-  // Reload events when the token or visible date range changes.
+  // Reload events when the token changes. Consumers (CalendarModule) drive
+  // range-based refetches themselves on month navigation — depending on
+  // selectedDate here too would double-fetch on the same tab.
   useEffect(() => {
     if (accessToken) {
       void loadGoogleEvents(accessToken);
     } else {
       setGoogleEvents([]);
     }
-  }, [accessToken, selectedDate, loadGoogleEvents]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessToken]);
 
   return {
     user,

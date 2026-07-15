@@ -90,6 +90,12 @@ export default function TaskmasterModule({
   // For pomodoro: which half of the cycle we're in.
   const [pomoPhase, setPomoPhase] = useState<"focus" | "break">("focus");
   const [pomoRound, setPomoRound] = useState(1);
+  // Monotonically-incrementing token bumped every time we want to (re)start
+  // the countdown interval. Fixes a freeze bug where auto-continuing from
+  // one pomodoro phase to the next set isRunning false → true in the same
+  // React batch: `isRunning` net-unchanged means the countdown effect never
+  // re-fires. Depending on `sessionGen` guarantees a fresh interval.
+  const [sessionGen, setSessionGen] = useState(0);
   const [showBreathing, setShowBreathing] = useState(false);
   const [history, setHistory] = useState<SessionRecord[]>(() => loadHistory());
   const [showHistory, setShowHistory] = useState(false);
@@ -275,7 +281,7 @@ export default function TaskmasterModule({
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isRunning]);
+  }, [isRunning, sessionGen]);
 
   const playTickSound = () => {
     if (!soundEnabledRef.current) return;
@@ -430,6 +436,7 @@ export default function TaskmasterModule({
         setTimeLeft(POMODORO_BREAK_SECS);
         setActiveSessionSeconds(0);
         setIsRunning(true); // auto-start break
+        setSessionGen((g) => g + 1); // force interval effect to re-fire
       } else {
         logSession("break", "Pomodoro break", elapsed);
         onGubbyMessage("Break done — back to focus! 🔥", "excited");
@@ -439,6 +446,7 @@ export default function TaskmasterModule({
         setTimeLeft(POMODORO_FOCUS_SECS);
         setActiveSessionSeconds(0);
         setIsRunning(true); // auto-start next focus
+        setSessionGen((g) => g + 1); // force interval effect to re-fire
       }
       return;
     }
