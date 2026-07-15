@@ -119,13 +119,12 @@ function TaskRow({ task, dateStr, editingId, editTitle, colorPickerId, draggedId
       onDragLeave={onDragLeave}
       onDrop={e => onDropOnTask(e, task.id, dateStr)}
       onClick={e => e.stopPropagation()}
-      className={`group relative flex items-center w-full transition-colors ${isPlaceholder ? "opacity-40" : ""}`}
+      className={`group relative flex items-center w-full transition-colors border-b border-edge/60 ${isPlaceholder ? "opacity-40" : ""} ${dragOverTaskId === task.id ? "border-t-2 border-t-brand" : ""}`}
       style={{
         minHeight: 36,
-        borderBottom: "1px solid #e6eee6",
         opacity: draggedId === task.id ? 0.3 : undefined,
-        borderTop: dragOverTaskId === task.id ? "2px solid #F27D26" : undefined,
       }}>
+
       <div className="flex-1 min-w-0 px-2 py-0.5 cursor-text"
         onClick={() => { if (!isEditing) onStartEdit(task); }}>
         {isEditing ? (
@@ -181,11 +180,12 @@ function TaskRow({ task, dateStr, editingId, editTitle, colorPickerId, draggedId
           onClick={e => { e.stopPropagation(); onToggle(task.id); }}
           className={`mr-1 shrink-0 w-4 h-4 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
             task.completed
-              ? "border-[#556B55] text-ink-muted  opacity-100"
-              : "border-edge  text-transparent opacity-0 group-hover:opacity-60 hover:border-[#556B55]"
+              ? "border-brand text-brand opacity-100"
+              : "border-edge text-transparent opacity-0 group-hover:opacity-60 hover:border-brand"
           }`}>
           <Check size={10} strokeWidth={2} />
         </button>
+
       )}
     </div>
   );
@@ -194,25 +194,26 @@ function TaskRow({ task, dateStr, editingId, editTitle, colorPickerId, draggedId
 interface EventRowProps { key?: string | number; evt: CalendarEvent; onDelete: (id: string) => void; }
 function EventRow({ evt, onDelete }: EventRowProps) {
   return (
-    <div className="group flex items-center w-full px-2" style={{ minHeight: 36, borderBottom: "1px solid #e6eee6" }}>
+    <div className="group flex items-center w-full px-2 border-b border-edge/60" style={{ minHeight: 36 }}>
       <span className="text-xs mr-1.5 shrink-0">📌</span>
       <div className="flex-1 min-w-0">
-        <span className="text-[13px] text-ink-2 font-normal">{evt.title}</span>
+        <span className="text-[13px] text-ink font-normal">{evt.title}</span>
         {evt.time && <span className="block text-[10px] text-brand font-mono">{evt.time}</span>}
       </div>
       <button type="button" onClick={() => onDelete(evt.id)}
-        className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-50 text-ink-muted hover:text-rose-400 transition-all cursor-pointer">
+        className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-danger-soft text-ink-muted hover:text-danger transition-all cursor-pointer">
         <Trash2 size={11} />
       </button>
     </div>
   );
 }
 
+
 // ─── Add Input ────────────────────────────────────────────────────────────────
 interface AddInputProps { addRef: React.RefObject<HTMLInputElement | null>; value: string; onChange: (v:string)=>void; onKeyDown: (e:React.KeyboardEvent)=>void; onBlur: ()=>void; }
 function AddInput({ addRef, value, onChange, onKeyDown, onBlur }: AddInputProps) {
   return (
-    <div className="flex items-center px-2" style={{ minHeight: 36, borderBottom: "1px solid #e6eee6" }}
+    <div className="flex items-center px-2 border-b border-edge/60" style={{ minHeight: 36 }}
       onClick={e => e.stopPropagation()}>
       <input
         ref={addRef}
@@ -226,6 +227,7 @@ function AddInput({ addRef, value, onChange, onKeyDown, onBlur }: AddInputProps)
     </div>
   );
 }
+
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 function getTaskTimeBlock(task: Task): "morning" | "afternoon" | "evening" | "anytime" {
@@ -364,30 +366,24 @@ export default function WeeklyPlannerModule({
     const dayEvents = isSomeday ? [] : eventsFor(dateStr);
     const rendered = dayEvents.length + dayTasks.length + (isAdding ? 1 : 0);
     const empty = Math.max(0, lines - rendered);
-    const underline = today ? "#F27D26" : "#CDE0CD";
-    const titleColor = today ? "#F27D26" : "#1A261A";
-    const subColor = today ? "#F27D26" : "#556B55";
-
-    // Snapping time block tasks
     const morningTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "morning");
     const afternoonTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "afternoon");
     const eveningTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "evening");
     const anytimeTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "anytime");
 
     return (
-      <div key={dateStr} className="flex flex-col min-w-0 flex-1"
+      <div key={dateStr} className={`flex flex-col min-w-0 flex-1 transition-colors rounded-lg ${dragOverDate === dateStr ? "bg-surface-sunken/60" : ""}`}
         onDragOver={e => { if (!showTimeBlocks) onDragOver(e, dateStr); }}
         onDragLeave={onDragLeaveHandler}
         onDrop={e => { if (!showTimeBlocks) onDrop(e, isSomeday ? undefined : dateStr); }}
-        onClick={() => { setAddingDate(dateStr); setNewTitle(""); setEditingId(null); }}
-        style={{ background: dragOverDate === dateStr ? "rgba(248,250,252,0.8)" : "transparent" }}>
+        onClick={() => { setAddingDate(dateStr); setNewTitle(""); setEditingId(null); }}>
 
         {/* Header */}
-        <div className="flex items-baseline justify-between pb-1 select-none"
-          style={{ borderBottom: `2px solid ${underline}` }}>
-          <span className="text-[15px] font-semibold" style={{ color: titleColor, fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>{label}</span>
-          <span className="text-[11px] font-normal" style={{ color: subColor }}>{sublabel}</span>
+        <div className={`flex items-baseline justify-between pb-1.5 select-none border-b-2 ${today ? "border-brand" : "border-edge"}`}>
+          <span className={`text-[15px] font-semibold ${today ? "text-brand" : "text-ink"}`} style={{ fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>{label}</span>
+          <span className={`text-[11px] font-medium uppercase tracking-wider ${today ? "text-brand" : "text-ink-muted"}`}>{sublabel}</span>
         </div>
+
 
         {/* Content */}
         {showTimeBlocks && !isSomeday ? (
@@ -524,10 +520,13 @@ export default function WeeklyPlannerModule({
                 onBlur={() => commitAdd(dateStr)}
               />
             )}
-            {/* Empty rows */}
-            {Array.from({ length: empty }).map((_, i) => (
-              <div key={i} style={{ minHeight: 36, borderBottom: "1px solid #e6eee6" }} />
-            ))}
+            {/* Ghost hint when empty */}
+            {dayTasks.length === 0 && dayEvents.length === 0 && !isAdding && (
+              <div className="text-[11px] italic text-ink-muted/40 py-3 text-center select-none">
+                +
+              </div>
+            )}
+
           </div>
         )}
       </div>
@@ -539,11 +538,11 @@ export default function WeeklyPlannerModule({
   const fmtSub = (d: Date) => DAYS_S[d.getDay()];
 
   return (
-    <div className="min-h-screen" style={{ background: "#ffffff", fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>
+    <div className="min-h-screen bg-canvas text-ink" style={{ fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>
 
       {/* Top Bar */}
-      <div className="flex items-center justify-between px-6 py-5">
-        <h1 className="text-3xl font-bold tracking-tight leading-none select-none" style={{ color: "#1A261A", fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>
+      <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-5 border-b border-edge">
+        <h1 className="text-3xl font-bold tracking-tight leading-none select-none text-ink" style={{ fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>
           {headerLabel()}
         </h1>
         <div className="flex items-center gap-3">
@@ -556,11 +555,12 @@ export default function WeeklyPlannerModule({
                 "cozy"
               );
             }}
-            className={`px-3 py-1.5 rounded-xl font-bold text-xs cursor-pointer transition-all ${
+            className={`px-3 py-1.5 rounded-full font-bold text-xs cursor-pointer transition-all border ${
               showTimeBlocks
-                ? "bg-brand text-white shadow-xs border-2 border-brand"
-                : "bg-surface-sunken  text-ink-muted  border-2 border-edge-soft  hover:bg-surface "
+                ? "bg-brand text-primary-foreground border-brand"
+                : "bg-surface-sunken text-ink-muted border-edge hover:text-ink hover:border-edge/80"
             }`}
+            style={showTimeBlocks ? { boxShadow: "var(--theme-glow)" } : undefined}
           >
             ⏱️ Time Blocks: {showTimeBlocks ? "ON" : "OFF"}
           </button>
@@ -568,46 +568,49 @@ export default function WeeklyPlannerModule({
           <div className="flex items-center gap-2">
             <button id="prev-week-btn" type="button"
               onClick={() => { const d = new Date(refDate); d.setDate(d.getDate()-7); setRefDate(d); onGubbyMessage("Back a week! 🕰️","thoughtful"); }}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white hover:opacity-90 transition-colors cursor-pointer" style={{ background: "#2D3A2D" }}>
+              className="w-9 h-9 rounded-full flex items-center justify-center bg-surface-sunken border border-edge text-ink hover:bg-surface-raised transition-colors cursor-pointer">
               <ChevronLeft size={16} />
             </button>
             <button id="next-week-btn" type="button"
               onClick={() => { const d = new Date(refDate); d.setDate(d.getDate()+7); setRefDate(d); onGubbyMessage("Forward a week! 🚀","happy"); }}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white hover:opacity-90 transition-colors cursor-pointer" style={{ background: "#2D3A2D" }}>
+              className="w-9 h-9 rounded-full flex items-center justify-center bg-brand text-primary-foreground hover:bg-brand-hover transition-colors cursor-pointer">
               <ChevronRight size={16} />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Desktop: 7-column grid — flat, full-width, no vertical borders */}
-      <div className="hidden lg:flex">
+
+      {/* Desktop: 7-column grid with subtle dividers */}
+      <div className="hidden lg:flex divide-x divide-edge/60">
         {[mon, tue, wed, thu, fri].map((d) => (
-          <div key={toLocalDateKey(d)} className="flex-1 min-w-0 px-3 pt-3">
+          <div key={toLocalDateKey(d)} className="flex-1 min-w-0 px-3 pt-4 pb-3">
             {renderColumn({ label: fmtLabel(d), sublabel: fmtSub(d), dateStr: toLocalDateKey(d), today: isToday(d), lines: 12 })}
           </div>
         ))}
         {/* Sat + Sun stacked in last column */}
-        <div className="flex-1 min-w-0 flex flex-col">
-          <div className="px-3 pt-3 flex-1" style={{ borderBottom: "1px solid #efefef" }}>
+        <div className="flex-1 min-w-0 flex flex-col divide-y divide-edge/60">
+          <div className="px-3 pt-4 pb-3 flex-1">
             {renderColumn({ label: fmtLabel(sat), sublabel: fmtSub(sat), dateStr: toLocalDateKey(sat), today: isToday(sat), lines: 5 })}
           </div>
-          <div className="px-3 pt-3 flex-1">
+          <div className="px-3 pt-4 pb-3 flex-1">
             {renderColumn({ label: fmtLabel(sun), sublabel: fmtSub(sun), dateStr: toLocalDateKey(sun), today: isToday(sun), lines: 5 })}
           </div>
         </div>
       </div>
 
       {/* Desktop: Someday strip */}
-      <div className="hidden lg:block mt-2" style={{ borderTop: "1px solid #e8e8e8" }}
+      <div className="hidden lg:block mt-4 mx-4 mb-8 rounded-2xl border border-edge bg-surface-sunken/40"
         onDragOver={e => onDragOver(e, "someday")}
         onDragLeave={onDragLeaveHandler}
         onDrop={e => onDrop(e, undefined)}
         onClick={() => { setAddingDate("someday"); setNewTitle(""); setEditingId(null); }}>
-        <div className="px-3 pt-3 pb-1">
-          <span className="text-[13px] font-normal select-none" style={{ color: "#556B55" }}>Someday</span>
+        <div className="px-4 pt-3 pb-2 flex items-center gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-ink-muted select-none">Someday</span>
+          <span className="text-[10px] text-ink-muted/60">·</span>
+          <span className="text-[10px] text-ink-muted/60">unscheduled backlog</span>
         </div>
-        <div className="px-3 pb-6">
+        <div className="px-4 pb-4">
           {somedayTasks().map(task => <TaskRow key={task.id} task={task} dateStr={undefined} {...commonTaskProps} />)}
           {addingDate === "someday" && (
             <AddInput addRef={addRef} value={newTitle} onChange={setNewTitle}
@@ -617,24 +620,29 @@ export default function WeeklyPlannerModule({
               }}
               onBlur={() => commitAdd("someday")} />
           )}
-          {Array.from({ length: 3 }).map((_,j) => <div key={j} style={{ minHeight: 36, borderBottom: "1px solid #e6eee6" }} />)}
+          {somedayTasks().length === 0 && addingDate !== "someday" && (
+            <div className="text-[11px] italic text-ink-muted/50 py-3 text-center select-none">
+              Click to add something for later
+            </div>
+          )}
         </div>
       </div>
 
       {/* Mobile: stacked cards */}
-      <div className="flex flex-col lg:hidden px-4 pb-8 gap-5">
+      <div className="flex flex-col lg:hidden px-4 py-4 gap-4">
         {weekDays.map((d) => {
           const ds = toLocalDateKey(d);
           return (
-            <div key={ds} className="bg-surface rounded-2xl border border-edge-soft/60 p-4 shadow-sm">
+            <div key={ds} className="bg-surface-sunken/40 rounded-2xl border border-edge p-4">
               {renderColumn({ label: fmtLabel(d), sublabel: fmtSub(d), dateStr: ds, today: isToday(d), lines: 5 })}
             </div>
           );
         })}
-        <div className="bg-surface rounded-2xl border border-edge-soft/60 p-4 shadow-sm">
+        <div className="bg-surface-sunken/40 rounded-2xl border border-edge p-4">
           {renderColumn({ label: "Someday", sublabel: "Backlog", dateStr: "someday", today: false, lines: 5 })}
         </div>
       </div>
+
     </div>
   );
 }
