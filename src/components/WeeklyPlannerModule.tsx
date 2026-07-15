@@ -578,34 +578,36 @@ export default function WeeklyPlannerModule({
       </div>
 
 
-      {/* Desktop: 7-column grid — flat, full-width, no vertical borders */}
-      <div className="hidden lg:flex">
+      {/* Desktop: 7-column grid with subtle dividers */}
+      <div className="hidden lg:flex divide-x divide-edge/60">
         {[mon, tue, wed, thu, fri].map((d) => (
-          <div key={toLocalDateKey(d)} className="flex-1 min-w-0 px-3 pt-3">
+          <div key={toLocalDateKey(d)} className="flex-1 min-w-0 px-3 pt-4 pb-3">
             {renderColumn({ label: fmtLabel(d), sublabel: fmtSub(d), dateStr: toLocalDateKey(d), today: isToday(d), lines: 12 })}
           </div>
         ))}
         {/* Sat + Sun stacked in last column */}
-        <div className="flex-1 min-w-0 flex flex-col">
-          <div className="px-3 pt-3 flex-1" style={{ borderBottom: "1px solid #efefef" }}>
+        <div className="flex-1 min-w-0 flex flex-col divide-y divide-edge/60">
+          <div className="px-3 pt-4 pb-3 flex-1">
             {renderColumn({ label: fmtLabel(sat), sublabel: fmtSub(sat), dateStr: toLocalDateKey(sat), today: isToday(sat), lines: 5 })}
           </div>
-          <div className="px-3 pt-3 flex-1">
+          <div className="px-3 pt-4 pb-3 flex-1">
             {renderColumn({ label: fmtLabel(sun), sublabel: fmtSub(sun), dateStr: toLocalDateKey(sun), today: isToday(sun), lines: 5 })}
           </div>
         </div>
       </div>
 
       {/* Desktop: Someday strip */}
-      <div className="hidden lg:block mt-2" style={{ borderTop: "1px solid #e8e8e8" }}
+      <div className="hidden lg:block mt-4 mx-4 mb-8 rounded-2xl border border-edge bg-surface-sunken/40"
         onDragOver={e => onDragOver(e, "someday")}
         onDragLeave={onDragLeaveHandler}
         onDrop={e => onDrop(e, undefined)}
         onClick={() => { setAddingDate("someday"); setNewTitle(""); setEditingId(null); }}>
-        <div className="px-3 pt-3 pb-1">
-          <span className="text-[13px] font-normal select-none" style={{ color: "#556B55" }}>Someday</span>
+        <div className="px-4 pt-3 pb-2 flex items-center gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-ink-muted select-none">Someday</span>
+          <span className="text-[10px] text-ink-muted/60">·</span>
+          <span className="text-[10px] text-ink-muted/60">unscheduled backlog</span>
         </div>
-        <div className="px-3 pb-6">
+        <div className="px-4 pb-4">
           {somedayTasks().map(task => <TaskRow key={task.id} task={task} dateStr={undefined} {...commonTaskProps} />)}
           {addingDate === "someday" && (
             <AddInput addRef={addRef} value={newTitle} onChange={setNewTitle}
@@ -615,24 +617,29 @@ export default function WeeklyPlannerModule({
               }}
               onBlur={() => commitAdd("someday")} />
           )}
-          {Array.from({ length: 3 }).map((_,j) => <div key={j} style={{ minHeight: 36, borderBottom: "1px solid #e6eee6" }} />)}
+          {somedayTasks().length === 0 && addingDate !== "someday" && (
+            <div className="text-[11px] italic text-ink-muted/50 py-3 text-center select-none">
+              Click to add something for later
+            </div>
+          )}
         </div>
       </div>
 
       {/* Mobile: stacked cards */}
-      <div className="flex flex-col lg:hidden px-4 pb-8 gap-5">
+      <div className="flex flex-col lg:hidden px-4 py-4 gap-4">
         {weekDays.map((d) => {
           const ds = toLocalDateKey(d);
           return (
-            <div key={ds} className="bg-surface rounded-2xl border border-edge-soft/60 p-4 shadow-sm">
+            <div key={ds} className="bg-surface-sunken/40 rounded-2xl border border-edge p-4">
               {renderColumn({ label: fmtLabel(d), sublabel: fmtSub(d), dateStr: ds, today: isToday(d), lines: 5 })}
             </div>
           );
         })}
-        <div className="bg-surface rounded-2xl border border-edge-soft/60 p-4 shadow-sm">
+        <div className="bg-surface-sunken/40 rounded-2xl border border-edge p-4">
           {renderColumn({ label: "Someday", sublabel: "Backlog", dateStr: "someday", today: false, lines: 5 })}
         </div>
       </div>
+
     </div>
   );
 }
