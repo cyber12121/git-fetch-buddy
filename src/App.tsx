@@ -18,7 +18,7 @@ import { DEFAULT_TASKS } from "./lib/defaultTasks";
 import { readJSON, writeJSON } from "./lib/safeStorage";
 import { recordReward } from "./lib/rewardHistory";
 import RewardHistory from "./components/RewardHistory";
-import { applyTheme, readStoredTheme } from "./lib/themes";
+import { applyTheme, readStoredTheme, subscribeTheme, type ThemeId } from "./lib/themes";
 import confetti from "canvas-confetti";
 
 // Code-split every workspace module so the initial bundle only carries the
