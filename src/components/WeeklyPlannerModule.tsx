@@ -297,10 +297,17 @@ export default function WeeklyPlannerModule({
 
   const onStartEdit = useCallback((task: Task) => { setEditingId(task.id); setEditTitle(task.title); }, []);
   const onEditChange = useCallback((val: string) => setEditTitle(val), []);
-  const onEditKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Enter") { e.preventDefault(); (e.target as HTMLInputElement).blur(); }
+  const onEditKeyDown = useCallback((e: React.KeyboardEvent, _id: string, dateStr?: string) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      (e.target as HTMLInputElement).blur();
+      // Jump to a new blank line under the same day
+      setAddingDate(dateStr ?? "someday");
+      setNewTitle("");
+    }
     else if (e.key === "Escape") setEditingId(null);
   }, []);
+
   const onEditBlur = useCallback((id: string) => {
     if (editTitle.trim()) onUpdateTask(id, { title: editTitle.trim() }); else onDeleteTask(id); setEditingId(null);
   }, [editTitle, onUpdateTask, onDeleteTask]);
