@@ -34,12 +34,12 @@ export interface ModuleRouterProps {
   googleEvents: CalendarEvent[];
   isLoadingGoogle: boolean;
   googleError: string | null;
-  user: unknown;
+  user: User | null;
   accessToken: string | null;
-  onConnectGoogle: () => void;
-  onDisconnectGoogle: () => void;
-  onSignOut: () => void;
-  onLoadGoogleEvents: (token: string) => void;
+  onConnectGoogle: () => Promise<void>;
+  onDisconnectGoogle: () => Promise<void>;
+  onSignOut: () => Promise<void>;
+  onLoadGoogleEvents: (token: string) => Promise<void>;
 
   onGubbyMessage: (msg: string, mood: GubbyMood) => void;
   onGainXp: (n: number) => void;
