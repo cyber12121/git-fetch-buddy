@@ -436,7 +436,7 @@ export default function HabitTrackerModule({
                             onClick={() => onToggleDay(habit.id, date)}
                             aria-label={`${habit.name} on ${date} — ${done ? "done" : skip ? "skipped" : "not done"}`}
                             aria-pressed={done}
-                            className={`${today ? "w-9 h-9" : "w-8 h-8"} rounded-full flex items-center justify-center transition-colors`}
+                            className={`${today ? (isMobile ? "w-8 h-8" : "w-9 h-9") : (isMobile ? "w-7 h-7" : "w-8 h-8")} rounded-full flex items-center justify-center transition-colors`}
                             style={{
                               backgroundColor: done
                                 ? habit.color
