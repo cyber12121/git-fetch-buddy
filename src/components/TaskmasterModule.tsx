@@ -158,6 +158,26 @@ export default function TaskmasterModule({
     localStorage.setItem(key, JSON.stringify(completedMissions));
   }, [completedMissions]);
 
+  // Persist duration settings, and if the timer is idle for the current mode,
+  // reflect the new preset immediately.
+  useEffect(() => {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    if (!isRunning) {
+      const nextDur =
+        mode === "break"
+          ? settings.breakMinutes * 60
+          : mode === "pomodoro"
+          ? (pomoPhase === "break" ? settings.pomoBreakMinutes : settings.pomoFocusMinutes) * 60
+          : settings.focusMinutes * 60;
+      // Only reset if timer hasn't been touched (avoid clobbering task-specific durations mid-session)
+      if (timeLeft === duration) {
+        setDuration(nextDur);
+        setTimeLeft(nextDur);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings]);
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
 
