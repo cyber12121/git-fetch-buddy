@@ -424,34 +424,6 @@ export default function HabitTrackerModule({
                 );
               })}
             </AnimatePresence>
-
-            {/* Daily summary row */}
-            {habits.length > 0 && (
-              <div
-                className="grid items-center gap-1 pt-3 mt-2 border-t"
-                style={{ gridTemplateColumns: gridCols, borderColor: SAGE.muted }}
-              >
-                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: SAGE.inkMuted }}>
-                  Daily
-                </span>
-                {days.map((date) => {
-                  const doneCount = habits.filter((h) => getStatus(h.id, date) === "done").length;
-                  const allDone = doneCount === habits.length && habits.length > 0;
-                  return (
-                    <div key={date} className="text-center">
-                      <span
-                        className="text-[11px] font-bold tabular-nums"
-                        style={{ color: allDone ? SAGE.deep : `${SAGE.ink}66` }}
-                      >
-                        {doneCount > 0 ? doneCount : "·"}
-                      </span>
-                    </div>
-                  );
-                })}
-                <div />
-                <div />
-              </div>
-            )}
           </div>
         </motion.div>
 
