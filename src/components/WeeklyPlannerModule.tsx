@@ -194,19 +194,20 @@ function TaskRow({ task, dateStr, editingId, editTitle, colorPickerId, draggedId
 interface EventRowProps { key?: string | number; evt: CalendarEvent; onDelete: (id: string) => void; }
 function EventRow({ evt, onDelete }: EventRowProps) {
   return (
-    <div className="group flex items-center w-full px-2" style={{ minHeight: 36, borderBottom: "1px solid #e6eee6" }}>
+    <div className="group flex items-center w-full px-2 border-b border-edge/60" style={{ minHeight: 36 }}>
       <span className="text-xs mr-1.5 shrink-0">📌</span>
       <div className="flex-1 min-w-0">
-        <span className="text-[13px] text-ink-2 font-normal">{evt.title}</span>
+        <span className="text-[13px] text-ink font-normal">{evt.title}</span>
         {evt.time && <span className="block text-[10px] text-brand font-mono">{evt.time}</span>}
       </div>
       <button type="button" onClick={() => onDelete(evt.id)}
-        className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-50 text-ink-muted hover:text-rose-400 transition-all cursor-pointer">
+        className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-danger-soft text-ink-muted hover:text-danger transition-all cursor-pointer">
         <Trash2 size={11} />
       </button>
     </div>
   );
 }
+
 
 // ─── Add Input ────────────────────────────────────────────────────────────────
 interface AddInputProps { addRef: React.RefObject<HTMLInputElement | null>; value: string; onChange: (v:string)=>void; onKeyDown: (e:React.KeyboardEvent)=>void; onBlur: ()=>void; }
