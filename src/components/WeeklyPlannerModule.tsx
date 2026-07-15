@@ -78,7 +78,7 @@ interface TaskRowProps {
   editRef: React.RefObject<HTMLInputElement | null>;
   onStartEdit: (task: Task) => void;
   onEditChange: (val: string) => void;
-  onEditKeyDown: (e: React.KeyboardEvent, id: string) => void;
+  onEditKeyDown: (e: React.KeyboardEvent, id: string, dateStr?: string) => void;
   onEditBlur: (id: string) => void;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
