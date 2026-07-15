@@ -328,7 +328,7 @@ export default function MagicTodoModule({
                       if (onFocusAndSwitch) onFocusAndSwitch(task.title, task.id);
                       onGubbyMessage(`Starting "${task.title}"! You've got this 🎯`, "focused");
                     }}
-                    className="shrink-0 flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 min-h-9 bg-brand text-white text-[11px] sm:text-xs font-bold rounded-xl hover:bg-brand-hover transition-colors cursor-pointer"
+                    className="shrink-0 flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 min-h-9 bg-brand text-primary-foreground text-[11px] sm:text-xs font-bold rounded-xl hover:bg-brand-hover transition-colors cursor-pointer"
                   >
                     <Play size={11} className="fill-white" /> <span className="hidden xs:inline sm:inline">Start</span>
                   </button>
@@ -373,7 +373,7 @@ export default function MagicTodoModule({
                   title={speech.listening ? "Stop dictation" : "Dictate, or say 'add <task>'"}
                   className={`absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-xl border-2 transition-all cursor-pointer select-none ${
                     speech.listening
-                      ? "bg-brand text-white border-brand animate-pulse"
+                      ? "bg-brand text-primary-foreground border-brand animate-pulse"
                       : "bg-surface  border-edge-soft  text-ink-muted  hover:text-brand"
                   }`}
                 >
@@ -410,7 +410,7 @@ export default function MagicTodoModule({
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 justify-between">
             {formError ? (
-              <div id="todo-form-error" className="flex items-center gap-1.5 text-xs text-red-600 font-semibold">
+              <div id="todo-form-error" className="flex items-center gap-1.5 text-xs text-danger font-semibold">
                 <AlertCircle size={14} /> {formError}
               </div>
             ) : (
@@ -421,7 +421,7 @@ export default function MagicTodoModule({
                 {newTitle.trim() && (
                   <div className="text-[11px] sm:text-xs font-bold text-brand flex items-center gap-1.5 flex-wrap">
                     <Sparkles size={12} className="animate-pulse text-brand shrink-0" />
-                    <span>Auto Estimate: <strong className="font-mono bg-orange-50 text-orange-900 border border-orange-100 px-1.5 py-0.5 rounded-md">{estimateTaskDuration(newTitle)}m</strong></span>
+                    <span>Auto Estimate: <strong className="font-mono bg-orange-50 text-brand border border-orange-100 px-1.5 py-0.5 rounded-md">{estimateTaskDuration(newTitle)}m</strong></span>
                   </div>
                 )}
               </div>
@@ -430,7 +430,7 @@ export default function MagicTodoModule({
             <button
               id="add-todo-btn"
               type="submit"
-              className="w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 min-h-11 bg-brand hover:bg-brand-hover text-white font-bold rounded-xl shadow hover:shadow-lg transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer select-none"
+              className="w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 min-h-11 bg-brand hover:bg-brand-hover text-primary-foreground font-bold rounded-xl shadow hover:shadow-lg transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer select-none"
             >
               <Plus size={18} /> Add Mission
             </button>
@@ -465,7 +465,7 @@ export default function MagicTodoModule({
                 }}
                 className={`px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                   listFilter === "date"
-                    ? "bg-brand text-white shadow-sm"
+                    ? "bg-brand text-primary-foreground shadow-sm"
                     : "text-ink-muted  hover:text-ink "
                 }`}
               >
@@ -480,7 +480,7 @@ export default function MagicTodoModule({
                 }}
                 className={`px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                   listFilter === "all"
-                    ? "bg-brand text-white shadow-sm"
+                    ? "bg-brand text-primary-foreground shadow-sm"
                     : "text-ink-muted  hover:text-ink "
                 }`}
               >
@@ -495,7 +495,7 @@ export default function MagicTodoModule({
                 }}
                 className={`px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                   listFilter === "someday"
-                    ? "bg-brand text-white shadow-sm"
+                    ? "bg-brand text-primary-foreground shadow-sm"
                     : "text-ink-muted  hover:text-ink "
                 }`}
               >
@@ -531,7 +531,7 @@ export default function MagicTodoModule({
                   onGubbyMessage("Cleaned away your completed quests! Sparkling tidy now! ✨", "happy");
                   pushToast({ icon: "🧹", message: "Completed quests swept away", tone: "info" });
                 }}
-                className="text-xs text-ink-muted hover:text-red-500 font-bold transition-colors border-2 border-edge hover:border-red-100 px-3 py-1.5 rounded-xl bg-surface cursor-pointer"
+                className="text-xs text-ink-muted hover:text-danger font-bold transition-colors border-2 border-edge hover:border-red-100 px-3 py-1.5 rounded-xl bg-surface cursor-pointer"
               >
                 Sweep Completed Quests
               </button>
@@ -570,7 +570,7 @@ export default function MagicTodoModule({
                       "excited"
                     );
                   }}
-                  className="px-4 py-2 bg-brand hover:bg-brand-hover text-white font-bold rounded-xl text-xs shadow transition-all cursor-pointer"
+                  className="px-4 py-2 bg-brand hover:bg-brand-hover text-primary-foreground font-bold rounded-xl text-xs shadow transition-all cursor-pointer"
                 >
                   {listFilter === "date" ? `Create Quest for ${activeDate} 🌟` : "Create New Quest 🌟"}
                 </button>
@@ -594,10 +594,10 @@ export default function MagicTodoModule({
                     task.completed
                       ? "from-surface to-surface border-edge-soft   opacity-60"
                       : task.priority === "high"
-                      ? "from-surface-sunken to-surface border-orange-200/70 hover:border-orange-300"
+                      ? "from-surface-sunken to-surface border-brand/30 hover:border-brand/40"
                       : task.priority === "medium"
-                      ? "from-surface-sunken to-surface border-edge   hover:border-emerald-300"
-                      : "from-surface-sunken to-surface border-edge   hover:border-emerald-300"
+                      ? "from-surface-sunken to-surface border-edge   hover:border-success/40"
+                      : "from-surface-sunken to-surface border-edge   hover:border-success/40"
                   }`}
                 >
                   {/* Task Card Header Area */}
@@ -613,7 +613,7 @@ export default function MagicTodoModule({
                         onClick={() => onToggleTask(task.id)}
                         className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-colors cursor-pointer shrink-0 mt-0.5 ${
                           task.completed
-                            ? "bg-brand border-brand text-white"
+                            ? "bg-brand border-brand text-primary-foreground"
                             : "border-brand bg-surface  hover:bg-orange-50"
                         }`}
                       >
@@ -840,7 +840,7 @@ export default function MagicTodoModule({
                                         e.stopPropagation();
                                         setOpenClockPickerId(null);
                                       }}
-                                      className="w-full py-1.5 bg-brand hover:bg-brand-hover text-white font-bold text-[10px] rounded-xl transition-all cursor-pointer text-center"
+                                      className="w-full py-1.5 bg-brand hover:bg-brand-hover text-primary-foreground font-bold text-[10px] rounded-xl transition-all cursor-pointer text-center"
                                     >
                                       Done
                                     </button>
@@ -865,7 +865,7 @@ export default function MagicTodoModule({
                             if (onFocusAndSwitch) onFocusAndSwitch(task.title, task.id);
                             onGubbyMessage(`Loading "${task.title}" into Focus Timer!`, "focused");
                           }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-success hover:bg-success text-primary-foreground text-xs font-bold rounded-xl transition-all cursor-pointer"
                         >
                           <Play size={11} className="fill-white" /> Focus
                         </button>
@@ -907,7 +907,7 @@ export default function MagicTodoModule({
                         </button>
 
                         {/* Tooltip on Hover */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-primary-foreground text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
                           <span className="capitalize">{task.priority} Priority</span> - Click to change
                           <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-900"></div>
                         </div>
@@ -966,7 +966,7 @@ export default function MagicTodoModule({
                           </button>
 
                           {/* Tooltip on Hover */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-primary-foreground text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
                             {breakingDownTaskIds[task.id] ? "Slicing tasks..." : "Break down into subtasks 🪄"}
                             <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-900"></div>
                           </div>
@@ -980,13 +980,13 @@ export default function MagicTodoModule({
                             id={`focus-btn-${task.id}`}
                             aria-label={`Start focus session for "${task.title}"`}
                             onClick={() => onFocusTask(task.title, undefined, task.id)}
-                            className="w-9 h-9 rounded-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer select-none shadow-sm"
+                            className="w-9 h-9 rounded-full bg-success hover:bg-success text-primary-foreground flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer select-none shadow-sm"
                           >
                             <Play size={14} className="fill-current ml-0.5" />
                           </button>
 
                           {/* Tooltip on Hover */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-primary-foreground text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
                             Focus Session 🎯
                             <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-900"></div>
                           </div>
@@ -1007,7 +1007,7 @@ export default function MagicTodoModule({
                         </button>
 
                         {/* Tooltip on Hover */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-primary-foreground text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
                           Schedule on Calendar 📅
                           <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-900"></div>
                         </div>
@@ -1048,7 +1048,7 @@ export default function MagicTodoModule({
                           onDeleteTask(task.id);
                           onGubbyMessage("Goblin quest banished! Begone, task clutter!", "cozy");
                         }}
-                        className="p-1.5 text-ink-muted hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-100 rounded-xl transition-all"
+                        className="p-1.5 text-ink-muted hover:text-danger hover:bg-red-50 border border-transparent hover:border-red-100 rounded-xl transition-all"
                         title="Delete quest completely"
                       >
                         <Trash2 size={14} />
@@ -1109,8 +1109,8 @@ export default function MagicTodoModule({
                                     onClick={() => handleToggleSubtask(task.id, sub.id)}
                                     className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${
                                       sub.completed
-                                        ? "bg-emerald-600 border-emerald-600 text-white"
-                                        : "border-edge-strong  bg-surface  hover:border-emerald-600"
+                                        ? "bg-success border-success text-primary-foreground"
+                                        : "border-edge-strong  bg-surface  hover:border-success"
                                     }`}
                                   >
                                     {sub.completed && <Check size={12} strokeWidth={3} />}
@@ -1128,7 +1128,7 @@ export default function MagicTodoModule({
                                     id={`delete-subtask-btn-${sub.id}`}
                                     aria-label={`Delete micro-step "${sub.title}"`}
                                     onClick={() => handleDeleteSubtask(task.id, sub.id)}
-                                    className="p-1 text-ink-muted hover:text-red-500 rounded-lg"
+                                    className="p-1 text-ink-muted hover:text-danger rounded-lg"
                                   >
                                     <Trash2 size={12} />
                                   </button>
@@ -1153,7 +1153,7 @@ export default function MagicTodoModule({
                             <button
                               id={`add-manual-subtask-btn-${task.id}`}
                               onClick={() => handleAddManualSubtask(task.id)}
-                              className="p-1.5 bg-brand hover:bg-brand-hover text-white rounded-lg transition-colors"
+                              className="p-1.5 bg-brand hover:bg-brand-hover text-primary-foreground rounded-lg transition-colors"
                             >
                               <Plus size={14} />
                             </button>
@@ -1205,7 +1205,7 @@ export default function MagicTodoModule({
                     className="w-full p-2.5 rounded-xl border-2 border-edge-soft outline-none focus:border-brand font-semibold"
                   />
                   {scheduleError && (
-                    <div className="flex items-center gap-1.5 text-xs text-red-600 font-semibold">
+                    <div className="flex items-center gap-1.5 text-xs text-danger font-semibold">
                       <AlertCircle size={14} /> {scheduleError}
                     </div>
                   )}
@@ -1234,7 +1234,7 @@ export default function MagicTodoModule({
                 <button
                   id="save-schedule-btn"
                   onClick={handleSaveSchedule}
-                  className="flex-1 py-2.5 bg-brand hover:bg-brand-hover text-white font-bold rounded-xl transition-colors text-sm"
+                  className="flex-1 py-2.5 bg-brand hover:bg-brand-hover text-primary-foreground font-bold rounded-xl transition-colors text-sm"
                 >
                   Lock It In!
                 </button>
