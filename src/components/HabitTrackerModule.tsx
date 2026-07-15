@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Plus, Trash2, Flame, X, Leaf, Check } from "lucide-react";
+import { Plus, Trash2, Flame, X, Leaf, Check, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import type { Habit, HabitLog, HabitDayStatus } from "../types";
 import { toLocalDateKey } from "../lib/constants";
@@ -33,12 +33,14 @@ interface HabitTrackerModuleProps {
   onGubbyMessage: (msg: string, mood: "happy" | "thoughtful" | "focused" | "cozy" | "excited") => void;
 }
 
-function getLastNDays(n: number): string[] {
+function getNDaysEndingAt(n: number, endOffsetDays: number): string[] {
   const days: string[] = [];
   const today = new Date();
+  const end = new Date(today);
+  end.setDate(today.getDate() + endOffsetDays);
   for (let i = n - 1; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
+    const d = new Date(end);
+    d.setDate(end.getDate() - i);
     days.push(toLocalDateKey(d));
   }
   return days;
@@ -103,7 +105,22 @@ export default function HabitTrackerModule({
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; name: string } | null>(null);
 
   const isMobile = useIsMobile();
-  const days = useMemo(() => getLastNDays(isMobile ? 7 : 14), [isMobile]);
+  const windowSize = isMobile ? 7 : 14;
+  const [offset, setOffset] = useState(0); // days shift from today (end of window)
+  const days = useMemo(
+    () => getNDaysEndingAt(windowSize, offset),
+    [windowSize, offset]
+  );
+  const rangeLabel = useMemo(() => {
+    if (days.length === 0) return "";
+    const first = new Date(days[0] + "T00:00:00");
+    const last = new Date(days[days.length - 1] + "T00:00:00");
+    const sameMonth = first.getMonth() === last.getMonth() && first.getFullYear() === last.getFullYear();
+    if (sameMonth) {
+      return last.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    }
+    return `${first.toLocaleDateString("en-US", { month: "short" })} – ${last.toLocaleDateString("en-US", { month: "short", year: "numeric" })}`;
+  }, [days]);
 
   const statsByHabit = useMemo(() => {
     const map: Record<string, { streak: number; total: number }> = {};
@@ -277,6 +294,46 @@ export default function HabitTrackerModule({
           className="rounded-[2rem] border p-4 sm:p-6 overflow-x-auto"
           style={{ backgroundColor: SAGE.surface, borderColor: SAGE.muted }}
         >
+          {/* Toolbar: range label + Today / prev / next */}
+          <div className="flex items-center justify-between gap-2 mb-4">
+            <div
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold"
+              style={{ ...headerFont, color: SAGE.ink, backgroundColor: SAGE.bg }}
+            >
+              {rangeLabel}
+              <ChevronDown size={14} style={{ color: SAGE.inkMuted }} aria-hidden />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setOffset(0)}
+                disabled={offset === 0}
+                className="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors disabled:opacity-40"
+                style={{ borderColor: SAGE.muted, color: SAGE.ink, backgroundColor: SAGE.surface }}
+              >
+                Today
+              </button>
+              <button
+                type="button"
+                onClick={() => setOffset((o) => o - windowSize)}
+                aria-label="Previous period"
+                className="p-1.5 rounded-full border transition-colors hover:bg-[color:var(--h)]"
+                style={{ borderColor: SAGE.muted, color: SAGE.ink, ["--h" as any]: SAGE.bg }}
+              >
+                <ChevronLeft size={14} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setOffset((o) => Math.min(0, o + windowSize))}
+                disabled={offset === 0}
+                aria-label="Next period"
+                className="p-1.5 rounded-full border transition-colors hover:bg-[color:var(--h)] disabled:opacity-40"
+                style={{ borderColor: SAGE.muted, color: SAGE.ink, ["--h" as any]: SAGE.bg }}
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          </div>
           <div className="min-w-max" style={{ minWidth: isMobile ? "100%" : 720 }}>
             {/* Column headers (dates on top) */}
             <div
@@ -286,7 +343,7 @@ export default function HabitTrackerModule({
               <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: SAGE.inkMuted }}>
                 Habit
               </div>
-              {days.map((date) => {
+              {days.map((date: string) => {
                 const today = isToday(date);
                 const weekday = new Date(date + "T00:00:00")
                   .toLocaleDateString("en-US", { weekday: "short" })
@@ -362,7 +419,7 @@ export default function HabitTrackerModule({
                     </div>
 
                     {/* Day cells */}
-                    {days.map((date) => {
+                    {days.map((date: string) => {
                       const status = getStatus(habit.id, date);
                       const today = isToday(date);
                       const done = status === "done";
