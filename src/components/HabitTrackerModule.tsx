@@ -11,18 +11,17 @@ const SAGE = {
   muted: "#dce5d4",
   mid: "#a8c0a0",
   deep: "#7d9b76",
-  deepHover: "#6a8464",
   ink: "#1a2018",
   inkMuted: "#5a6b57",
 };
 
 const HABIT_COLORS = [
-  "#7d9b76", // deep sage (default)
-  "#a8c0a0", // mid sage
-  "#c9a84c", // gold
-  "#6BA3D6", // sky
-  "#D47BC2", // pink
-  "#E06B6B", // coral
+  "#7d9b76",
+  "#a8c0a0",
+  "#c9a84c",
+  "#6BA3D6",
+  "#D47BC2",
+  "#E06B6B",
 ];
 
 interface HabitTrackerModuleProps {
@@ -50,6 +49,9 @@ function dayLetter(dateStr: string): string {
 }
 function dayNum(dateStr: string): string {
   return new Date(dateStr + "T00:00:00").getDate().toString();
+}
+function monthLabel(dateStr: string): string {
+  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", { month: "short" });
 }
 function isToday(dateStr: string): boolean {
   return dateStr === toLocalDateKey();
@@ -125,6 +127,9 @@ export default function HabitTrackerModule({
   const headerFont = { fontFamily: "'Sora', ui-sans-serif, system-ui" };
   const bodyFont = { fontFamily: "'Manrope', ui-sans-serif, system-ui" };
 
+  // Grid template: [ name | day1 ... dayN | streak | total ]
+  const gridCols = `minmax(150px, 1.6fr) repeat(${days.length}, minmax(36px, 1fr)) 60px 56px`;
+
   const addFormBlock = (
     <AnimatePresence mode="wait">
       {showAddForm ? (
@@ -133,7 +138,7 @@ export default function HabitTrackerModule({
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -4 }}
-          className="rounded-3xl p-5 sm:p-6 border"
+          className="rounded-3xl p-5 border"
           style={{ backgroundColor: SAGE.surface, borderColor: SAGE.muted }}
         >
           <div className="flex flex-col gap-4">
@@ -163,12 +168,7 @@ export default function HabitTrackerModule({
                 placeholder="e.g. Drink water, Stretch, Read..."
                 autoFocus
                 className="flex-1 min-w-0 px-4 py-3 rounded-2xl text-sm border focus:outline-none"
-                style={{
-                  backgroundColor: SAGE.bg,
-                  borderColor: SAGE.muted,
-                  color: SAGE.ink,
-                  ...bodyFont,
-                }}
+                style={{ backgroundColor: SAGE.bg, borderColor: SAGE.muted, color: SAGE.ink, ...bodyFont }}
               />
               <div className="flex gap-2">
                 <button
@@ -200,7 +200,7 @@ export default function HabitTrackerModule({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           onClick={() => setShowAddForm(true)}
-          className="w-full flex items-center justify-center gap-2 rounded-3xl border-2 border-dashed py-5 text-sm font-bold transition-colors hover:bg-white/40"
+          className="w-full flex items-center justify-center gap-2 rounded-3xl border-2 border-dashed py-4 text-sm font-bold transition-colors hover:bg-white/40"
           style={{ borderColor: SAGE.mid, color: SAGE.deep, ...bodyFont }}
         >
           <Plus size={16} />
@@ -213,7 +213,7 @@ export default function HabitTrackerModule({
   // Empty state
   if (habits.length === 0 && !showAddForm) {
     return (
-      <div className="w-full min-h-full pb-24" style={{ backgroundColor: "transparent", ...bodyFont }}>
+      <div className="w-full min-h-full pb-24" style={bodyFont}>
         <div className="max-w-3xl mx-auto px-4 py-10">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -244,7 +244,7 @@ export default function HabitTrackerModule({
 
   return (
     <div className="w-full pb-24" style={bodyFont}>
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6">
         {/* Header */}
         <motion.header
           initial={{ opacity: 0, y: 8 }}
@@ -253,16 +253,10 @@ export default function HabitTrackerModule({
           style={{ borderColor: SAGE.muted }}
         >
           <div className="min-w-0">
-            <h1
-              className="text-3xl sm:text-4xl font-extrabold tracking-tight truncate"
-              style={{ ...headerFont, color: SAGE.ink }}
-            >
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight truncate" style={{ ...headerFont, color: SAGE.ink }}>
               Habit Tracker
             </h1>
-            <p
-              className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em]"
-              style={{ color: SAGE.deep }}
-            >
+            <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: SAGE.deep }}>
               Don't break the chain
             </p>
           </div>
@@ -277,135 +271,199 @@ export default function HabitTrackerModule({
           </button>
         </motion.header>
 
-        {/* Feed */}
-        <div className="space-y-4">
-          <AnimatePresence>
-            {habits.map((habit) => {
-              const { streak, total } = statsByHabit[habit.id] ?? { streak: 0, total: 0 };
-              return (
-                <motion.article
-                  key={habit.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, x: -12, height: 0 }}
-                  transition={{ duration: 0.22 }}
-                  className="group rounded-[2rem] p-5 sm:p-6 border transition-all hover:-translate-y-0.5"
-                  style={{
-                    backgroundColor: SAGE.muted,
-                    borderColor: `${SAGE.mid}55`,
-                  }}
-                >
-                  {/* Card header */}
-                  <div className="flex items-start justify-between gap-3 mb-5">
-                    <div className="min-w-0 flex items-center gap-3">
+        {/* Matrix: habits × days */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-[2rem] border p-4 sm:p-6 overflow-x-auto"
+          style={{ backgroundColor: SAGE.surface, borderColor: SAGE.muted }}
+        >
+          <div className="min-w-max" style={{ minWidth: isMobile ? "100%" : 720 }}>
+            {/* Column headers (dates on top) */}
+            <div
+              className="grid items-end gap-1 pb-3 mb-2 border-b"
+              style={{ gridTemplateColumns: gridCols, borderColor: SAGE.muted }}
+            >
+              <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: SAGE.inkMuted }}>
+                Habit
+              </div>
+              {days.map((date, i) => {
+                const showMonth = i === 0 || monthLabel(date) !== monthLabel(days[i - 1]);
+                const today = isToday(date);
+                return (
+                  <div key={date} className="flex flex-col items-center gap-0.5">
+                    {showMonth ? (
+                      <span className="text-[9px] font-bold uppercase" style={{ color: SAGE.deep }}>
+                        {monthLabel(date)}
+                      </span>
+                    ) : (
+                      <span className="h-[11px]" />
+                    )}
+                    <span
+                      className="text-[11px] font-bold tabular-nums leading-none"
+                      style={{ color: today ? SAGE.deep : SAGE.ink }}
+                    >
+                      {dayNum(date)}
+                    </span>
+                    <span
+                      className="text-[9px] font-semibold uppercase leading-none"
+                      style={{ color: today ? SAGE.deep : `${SAGE.ink}66` }}
+                    >
+                      {today ? "Now" : dayLetter(date)}
+                    </span>
+                  </div>
+                );
+              })}
+              <div className="flex flex-col items-center gap-0.5" style={{ color: SAGE.inkMuted }}>
+                <Flame size={12} aria-hidden />
+                <span className="text-[9px] font-bold uppercase tracking-wider">Streak</span>
+              </div>
+              <div className="flex flex-col items-center gap-0.5" style={{ color: SAGE.inkMuted }}>
+                <span className="text-xs font-bold leading-none" aria-hidden>∑</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider">Total</span>
+              </div>
+            </div>
+
+            {/* Rows (one habit per row) */}
+            <AnimatePresence>
+              {habits.map((habit, rowIdx) => {
+                const { streak, total } = statsByHabit[habit.id] ?? { streak: 0, total: 0 };
+                return (
+                  <motion.div
+                    key={habit.id}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -8, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="grid items-center gap-1 py-2 group rounded-xl transition-colors hover:bg-[color:var(--row-hover)]"
+                    style={{
+                      gridTemplateColumns: gridCols,
+                      borderTop: rowIdx === 0 ? "none" : `1px solid ${SAGE.muted}55`,
+                      // @ts-expect-error CSS custom prop
+                      "--row-hover": `${SAGE.bg}`,
+                    }}
+                  >
+                    {/* Habit name cell */}
+                    <div className="flex items-center gap-2 min-w-0 pr-3">
                       <span
-                        className="w-4 h-4 rounded-full shrink-0"
-                        style={{
-                          backgroundColor: habit.color,
-                          boxShadow: `0 0 0 4px ${habit.color}22`,
-                        }}
+                        className="w-3 h-3 rounded-full shrink-0"
+                        style={{ backgroundColor: habit.color, boxShadow: `0 0 0 3px ${habit.color}22` }}
                         aria-hidden
                       />
-                      <div className="min-w-0">
-                        <h2
-                          className="text-lg sm:text-xl font-bold truncate"
-                          style={{ ...headerFont, color: SAGE.ink }}
-                        >
-                          {habit.name}
-                        </h2>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span
-                            className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider"
-                            style={{ color: SAGE.deep }}
-                            aria-label={`${streak} day streak`}
-                          >
-                            <Flame size={12} className={streak >= 3 ? "animate-pulse" : ""} aria-hidden />
-                            {streak} day{streak === 1 ? "" : "s"}
-                          </span>
-                          <span className="w-1 h-1 rounded-full" style={{ backgroundColor: SAGE.mid }} aria-hidden />
-                          <span
-                            className="text-[11px] font-semibold tabular-nums"
-                            style={{ color: `${SAGE.ink}99` }}
-                          >
-                            {total} total
-                          </span>
-                        </div>
-                      </div>
+                      <span
+                        className="text-sm font-bold truncate"
+                        style={{ ...headerFont, color: SAGE.ink }}
+                      >
+                        {habit.name}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmDelete({ id: habit.id, name: habit.name })}
+                        aria-label={`Delete habit ${habit.name}`}
+                        className="ml-auto p-1.5 rounded-lg transition-all opacity-0 group-hover:opacity-100 hover:bg-white/60"
+                        style={{ color: SAGE.inkMuted }}
+                      >
+                        <Trash2 size={13} />
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setConfirmDelete({ id: habit.id, name: habit.name })}
-                      aria-label={`Delete habit ${habit.name}`}
-                      className="p-2 rounded-lg transition-colors opacity-60 hover:opacity-100 hover:bg-white/50"
-                      style={{ color: SAGE.inkMuted }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
 
-                  {/* 14-day (or 7-day) strip */}
-                  <div className="flex justify-between items-end gap-1.5">
+                    {/* Day cells */}
                     {days.map((date) => {
                       const status = getStatus(habit.id, date);
                       const today = isToday(date);
                       const done = status === "done";
                       const skip = status === "skip";
                       return (
-                        <button
-                          key={date}
-                          type="button"
-                          onClick={() => onToggleDay(habit.id, date)}
-                          aria-label={`${habit.name} on ${date} — ${done ? "done" : skip ? "skipped" : "not done"}`}
-                          aria-pressed={done}
-                          className="flex flex-col items-center gap-1.5 flex-1 min-w-0 group/cell"
-                        >
-                          <span
-                            className="text-[10px] font-bold uppercase leading-none"
-                            style={{ color: today ? SAGE.deep : `${SAGE.ink}55` }}
-                          >
-                            {today ? "Now" : dayLetter(date)}
-                          </span>
-                          <motion.span
+                        <div key={date} className="flex justify-center">
+                          <motion.button
+                            type="button"
                             whileTap={{ scale: 0.85 }}
-                            className="w-full aspect-[3/4] rounded-xl flex items-center justify-center text-white text-[11px] font-bold transition-colors"
+                            onClick={() => onToggleDay(habit.id, date)}
+                            aria-label={`${habit.name} on ${date} — ${done ? "done" : skip ? "skipped" : "not done"}`}
+                            aria-pressed={done}
+                            className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
                             style={{
                               backgroundColor: done
                                 ? habit.color
                                 : skip
                                 ? "#FEF3C7"
                                 : today
-                                ? SAGE.surface
-                                : `${SAGE.surface}80`,
-                              border: today && !done
-                                ? `2px solid ${SAGE.deep}`
+                                ? SAGE.bg
+                                : "transparent",
+                              border: done
+                                ? "2px solid transparent"
                                 : skip
                                 ? "2px dashed #D97706"
-                                : done
-                                ? "2px solid transparent"
-                                : `1px solid ${SAGE.mid}66`,
-                              color: done ? "#fff" : skip ? "#D97706" : `${SAGE.ink}88`,
+                                : today
+                                ? `2px solid ${SAGE.deep}`
+                                : `1.5px solid ${SAGE.mid}66`,
                               boxShadow: done ? `0 2px 6px -2px ${habit.color}88` : "none",
+                              color: done ? "#fff" : skip ? "#D97706" : "transparent",
                             }}
                           >
                             {done ? (
                               <Check size={14} strokeWidth={3} aria-hidden />
                             ) : skip ? (
                               <Leaf size={12} aria-hidden />
-                            ) : (
-                              <span className="tabular-nums">{dayNum(date)}</span>
-                            )}
-                          </motion.span>
-                        </button>
+                            ) : null}
+                          </motion.button>
+                        </div>
                       );
                     })}
-                  </div>
-                </motion.article>
-              );
-            })}
-          </AnimatePresence>
 
-          {addFormBlock}
-        </div>
+                    {/* Streak */}
+                    <div className="flex items-center justify-center gap-1">
+                      {streak > 0 && <Flame size={12} className={streak >= 3 ? "animate-pulse" : ""} style={{ color: SAGE.deep }} aria-hidden />}
+                      <span
+                        className="text-xs font-bold tabular-nums"
+                        style={{ color: streak > 0 ? SAGE.deep : SAGE.inkMuted }}
+                      >
+                        {streak}
+                      </span>
+                    </div>
+
+                    {/* Total */}
+                    <div className="text-center">
+                      <span className="text-xs font-bold tabular-nums" style={{ color: SAGE.ink }}>
+                        {total}
+                      </span>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+
+            {/* Daily summary row */}
+            {habits.length > 0 && (
+              <div
+                className="grid items-center gap-1 pt-3 mt-2 border-t"
+                style={{ gridTemplateColumns: gridCols, borderColor: SAGE.muted }}
+              >
+                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: SAGE.inkMuted }}>
+                  Daily
+                </span>
+                {days.map((date) => {
+                  const doneCount = habits.filter((h) => getStatus(h.id, date) === "done").length;
+                  const allDone = doneCount === habits.length && habits.length > 0;
+                  return (
+                    <div key={date} className="text-center">
+                      <span
+                        className="text-[11px] font-bold tabular-nums"
+                        style={{ color: allDone ? SAGE.deep : `${SAGE.ink}66` }}
+                      >
+                        {doneCount > 0 ? doneCount : "·"}
+                      </span>
+                    </div>
+                  );
+                })}
+                <div />
+                <div />
+              </div>
+            )}
+          </div>
+        </motion.div>
+
+        {addFormBlock}
 
         {habits.length > 0 && habits.length < 3 && (
           <p className="text-center text-[11px] px-2" style={{ color: SAGE.inkMuted }}>
