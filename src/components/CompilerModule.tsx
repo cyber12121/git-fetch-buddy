@@ -61,16 +61,19 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
       const data = await compileBrainDump({ data: { rawText } });
       type RawCompiledTask = { title?: unknown; priority?: unknown; notes?: unknown };
       const rawList: RawCompiledTask[] = Array.isArray(data.tasks) ? (data.tasks as RawCompiledTask[]) : [];
-      const formatted = rawList.map((t) => ({
-        id: crypto.randomUUID(),
-        title: typeof t.title === "string" && t.title ? t.title : "Untitled Task",
-        priority:
+      const formatted = rawList.map((t) => {
+        const priority: "low" | "medium" | "high" =
           t.priority === "low" || t.priority === "medium" || t.priority === "high"
             ? t.priority
-            : ("medium" as const),
-        notes: typeof t.notes === "string" ? t.notes : "",
-        selected: true,
-      }));
+            : "medium";
+        return {
+          id: crypto.randomUUID() as string,
+          title: typeof t.title === "string" && t.title ? t.title : "Untitled Task",
+          priority,
+          notes: typeof t.notes === "string" ? t.notes : "",
+          selected: true,
+        };
+      });
 
       setTempTasks(formatted);
 

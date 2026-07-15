@@ -1,6 +1,14 @@
 import { CalendarEvent } from "../types";
 import { toLocalDateKey } from "./constants";
 
+/** Minimal shape of a Google Calendar API event we consume. */
+interface GoogleCalendarApiItem {
+  id: string;
+  summary?: string;
+  start?: { dateTime?: string; date?: string };
+  end?: { dateTime?: string; date?: string };
+}
+
 /**
  * Fetch events from the primary Google Calendar for a date range.
  * Converts Google Calendar API events into our application's CalendarEvent type.
