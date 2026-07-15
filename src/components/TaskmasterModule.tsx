@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Play, Pause, RotateCcw, AlertCircle, CheckCircle, Volume2, VolumeX, Plus, Award, Flame, Wind, Coffee, Target, Timer } from "lucide-react";
+import { Play, Pause, RotateCcw, AlertCircle, CheckCircle, Volume2, VolumeX, Plus, Award, Flame, Wind, Coffee, Target, Timer, Settings as SettingsIcon, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Task } from "../types";
 import BreathingOverlay from "./BreathingOverlay";
@@ -23,9 +23,44 @@ interface TaskmasterModuleProps {
 type PendingAction = { type: "quest" | "quick_focus"; value: string };
 type TimerMode = "focus" | "pomodoro" | "break";
 
-const POMODORO_FOCUS_SECS = 25 * 60;
-const POMODORO_BREAK_SECS = 5 * 60;
-const BREAK_SECS = 5 * 60;
+type DurationSettings = {
+  focusMinutes: number;
+  breakMinutes: number;
+  pomoFocusMinutes: number;
+  pomoBreakMinutes: number;
+};
+
+const DEFAULT_SETTINGS: DurationSettings = {
+  focusMinutes: 50,
+  breakMinutes: 5,
+  pomoFocusMinutes: 25,
+  pomoBreakMinutes: 5,
+};
+
+const SETTINGS_KEY = "goblin_focus_settings_v1";
+
+const loadSettings = (): DurationSettings => {
+  if (typeof window === "undefined") return DEFAULT_SETTINGS;
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (!raw) return DEFAULT_SETTINGS;
+    const parsed = JSON.parse(raw);
+    return {
+      focusMinutes: clampMin(parsed.focusMinutes, 1, 180, DEFAULT_SETTINGS.focusMinutes),
+      breakMinutes: clampMin(parsed.breakMinutes, 1, 60, DEFAULT_SETTINGS.breakMinutes),
+      pomoFocusMinutes: clampMin(parsed.pomoFocusMinutes, 5, 90, DEFAULT_SETTINGS.pomoFocusMinutes),
+      pomoBreakMinutes: clampMin(parsed.pomoBreakMinutes, 1, 30, DEFAULT_SETTINGS.pomoBreakMinutes),
+    };
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
+};
+
+function clampMin(v: unknown, min: number, max: number, fallback: number) {
+  const n = typeof v === "number" ? v : parseInt(String(v), 10);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(min, Math.min(max, Math.round(n)));
+}
 
 
 export default function TaskmasterModule({
@@ -36,9 +71,16 @@ export default function TaskmasterModule({
   onCompleteActiveTask,
   onGubbyMessage
 }: TaskmasterModuleProps) {
-  // Configurable duration (in seconds). Defaults to 50:00 (3000s)
-  const [duration, setDuration] = useState(3000);
-  const [timeLeft, setTimeLeft] = useState(3000);
+  // Configurable duration presets (persisted)
+  const [settings, setSettings] = useState<DurationSettings>(() => loadSettings());
+  const [showSettings, setShowSettings] = useState(false);
+  const POMODORO_FOCUS_SECS = settings.pomoFocusMinutes * 60;
+  const POMODORO_BREAK_SECS = settings.pomoBreakMinutes * 60;
+  const BREAK_SECS = settings.breakMinutes * 60;
+
+  // Configurable duration (in seconds). Defaults to focus preset.
+  const [duration, setDuration] = useState(() => loadSettings().focusMinutes * 60);
+  const [timeLeft, setTimeLeft] = useState(() => loadSettings().focusMinutes * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [pacingEnabled, setPacingEnabled] = useState(false); // subtle body-double ticking sound
@@ -115,6 +157,26 @@ export default function TaskmasterModule({
     const key = `goblin_focus_completed_${getTodayKey()}`;
     localStorage.setItem(key, JSON.stringify(completedMissions));
   }, [completedMissions]);
+
+  // Persist duration settings, and if the timer is idle for the current mode,
+  // reflect the new preset immediately.
+  useEffect(() => {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    if (!isRunning) {
+      const nextDur =
+        mode === "break"
+          ? settings.breakMinutes * 60
+          : mode === "pomodoro"
+          ? (pomoPhase === "break" ? settings.pomoBreakMinutes : settings.pomoFocusMinutes) * 60
+          : settings.focusMinutes * 60;
+      // Only reset if timer hasn't been touched (avoid clobbering task-specific durations mid-session)
+      if (timeLeft === duration) {
+        setDuration(nextDur);
+        setTimeLeft(nextDur);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings]);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -331,7 +393,7 @@ export default function TaskmasterModule({
     setMode(next);
     setPomoPhase("focus");
     setPomoRound(1);
-    const dur = next === "break" ? BREAK_SECS : next === "pomodoro" ? POMODORO_FOCUS_SECS : 3000;
+    const dur = next === "break" ? BREAK_SECS : next === "pomodoro" ? POMODORO_FOCUS_SECS : settings.focusMinutes * 60;
     setDuration(dur);
     setTimeLeft(dur);
     setActiveSessionSeconds(0);
@@ -636,11 +698,106 @@ export default function TaskmasterModule({
             monoFont={monoFont}
             onClose={() => setShowBreathing(false)}
             onComplete={(secs) => {
-              logSession("breathe", "3-2-1 breathing", secs);
+              logSession("breathe", "4-7-8 breathing", secs);
               setShowBreathing(false);
               onGubbyMessage("Breathing complete. Nervous system, downshifted. 🌬️", "cozy");
             }}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Settings modal — customize timer durations */}
+      <AnimatePresence>
+        {showSettings && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-canvas/85 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowSettings(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 12, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.98 }}
+              onClick={(e) => e.stopPropagation()}
+              className="max-w-md w-full bg-surface-sunken border border-edge rounded-2xl p-6 space-y-5"
+              style={{ fontFamily: bodyFont }}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-ink-muted" style={{ fontFamily: monoFont }}>
+                    Timer settings
+                  </div>
+                  <h3 className="text-lg font-bold text-ink mt-0.5">Durations</h3>
+                </div>
+                <button
+                  onClick={() => setShowSettings(false)}
+                  className="h-8 w-8 flex items-center justify-center rounded-full text-ink-muted hover:text-ink hover:bg-surface-raised cursor-pointer"
+                  aria-label="Close settings"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {([
+                { key: "focusMinutes" as const, label: "Focus", min: 1, max: 180, hint: "Classic deep work" },
+                { key: "pomoFocusMinutes" as const, label: "Pomodoro focus", min: 5, max: 90, hint: "One tomato" },
+                { key: "pomoBreakMinutes" as const, label: "Pomodoro break", min: 1, max: 30, hint: "Between tomatoes" },
+                { key: "breakMinutes" as const, label: "Standalone break", min: 1, max: 60, hint: "Solo pause" },
+              ]).map(({ key, label, min, max, hint }) => (
+                <div key={key} className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor={`setting-${key}`} className="text-xs font-bold text-ink">{label}</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        id={`setting-${key}`}
+                        type="number"
+                        min={min}
+                        max={max}
+                        value={settings[key]}
+                        onChange={(e) =>
+                          setSettings((s) => ({
+                            ...s,
+                            [key]: clampMin(e.target.value, min, max, s[key]),
+                          }))
+                        }
+                        className="w-16 h-8 bg-canvas border border-edge rounded-md text-center text-sm font-bold text-ink tabular-nums focus:border-brand outline-none"
+                        style={{ fontFamily: monoFont }}
+                      />
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-ink-muted" style={{ fontFamily: monoFont }}>min</span>
+                    </div>
+                  </div>
+                  <input
+                    type="range"
+                    min={min}
+                    max={max}
+                    value={settings[key]}
+                    onChange={(e) => setSettings((s) => ({ ...s, [key]: parseInt(e.target.value, 10) }))}
+                    className="w-full accent-[var(--color-brand)] cursor-pointer"
+                    aria-label={label}
+                  />
+                  <div className="text-[10px] text-ink-muted" style={{ fontFamily: monoFont }}>{hint} · {min}–{max}m</div>
+                </div>
+              ))}
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={() => setSettings(DEFAULT_SETTINGS)}
+                  className="flex-1 h-10 bg-transparent hover:bg-surface-raised border border-edge text-ink-muted font-bold text-xs rounded-lg cursor-pointer"
+                >
+                  Reset defaults
+                </button>
+                <button
+                  onClick={() => setShowSettings(false)}
+                  className="flex-1 h-10 bg-brand hover:bg-brand-hover text-primary-foreground font-bold text-xs rounded-lg cursor-pointer"
+                  style={{ boxShadow: "var(--theme-glow)" }}
+                >
+                  Done
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -673,6 +830,15 @@ export default function TaskmasterModule({
             className="text-[11px] font-bold text-ink-muted hover:text-ink flex items-center gap-1.5 cursor-pointer transition-colors"
           >
             <Award size={12} /> Recap
+          </button>
+          <button
+            id="timer-settings-btn"
+            onClick={() => setShowSettings(true)}
+            className="text-ink-muted hover:text-ink cursor-pointer transition-colors"
+            aria-label="Timer settings"
+            title="Timer settings"
+          >
+            <SettingsIcon size={13} />
           </button>
         </div>
       </div>
