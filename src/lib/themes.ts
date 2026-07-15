@@ -1,6 +1,8 @@
 // Theme system — swap the whole palette + typography by writing CSS vars
 // onto :root. Themes are opt-in and persist in localStorage.
 
+import { useEffect, useState } from "react";
+
 export type ThemeId = "cozy-goblin" | "kinetic-dark";
 
 export interface ThemeDef {
