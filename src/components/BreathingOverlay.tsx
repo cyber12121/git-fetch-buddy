@@ -8,28 +8,30 @@ interface BreathingOverlayProps {
   monoFont: string;
 }
 
-// 3-2-1 breathing: inhale 3s → hold 2s → exhale 1s. Repeat for N cycles.
-// Small, non-frightening, ADHD-friendly regulation micro-tool.
-const CYCLES = 6;
+// Slow calming breath: inhale 4s → hold 7s → exhale 8s (classic 4-7-8).
+// ADHD-friendly, downshifts the nervous system.
+const CYCLES = 4;
 const PHASES: { label: string; seconds: number }[] = [
-  { label: "inhale", seconds: 3 },
-  { label: "hold", seconds: 2 },
-  { label: "exhale", seconds: 1 },
+  { label: "inhale", seconds: 4 },
+  { label: "hold", seconds: 7 },
+  { label: "exhale", seconds: 8 },
 ];
+const TICK_MS = 100; // smooth sub-second countdown for slow phases
 
 export default function BreathingOverlay({ onClose, onComplete, monoFont }: BreathingOverlayProps) {
   const [cycle, setCycle] = useState(0);
   const [phaseIndex, setPhaseIndex] = useState(0);
-  const [tick, setTick] = useState(0);
+  const [elapsedMs, setElapsedMs] = useState(0);
   const [startedAt] = useState(() => Date.now());
 
   const phase = PHASES[phaseIndex];
+  const remaining = Math.max(0, phase.seconds - Math.floor(elapsedMs / 1000));
 
   useEffect(() => {
     const id = setInterval(() => {
-      setTick((t) => {
-        const next = t + 1;
-        if (next >= phase.seconds) {
+      setElapsedMs((ms) => {
+        const next = ms + TICK_MS;
+        if (next >= phase.seconds * 1000) {
           setPhaseIndex((pi) => {
             const nextPi = pi + 1;
             if (nextPi >= PHASES.length) {
@@ -42,7 +44,7 @@ export default function BreathingOverlay({ onClose, onComplete, monoFont }: Brea
         }
         return next;
       });
-    }, 1000);
+    }, TICK_MS);
     return () => clearInterval(id);
   }, [phase.seconds]);
 
@@ -73,7 +75,7 @@ export default function BreathingOverlay({ onClose, onComplete, monoFont }: Brea
         className="text-[10px] font-bold uppercase tracking-[0.3em] text-ink-muted mb-2"
         style={{ fontFamily: monoFont }}
       >
-        3 · 2 · 1 breathing
+        4 · 7 · 8 breathing
       </div>
       <div className="text-[10px] text-ink-muted mb-10" style={{ fontFamily: monoFont }}>
         cycle {Math.min(cycle + 1, CYCLES)} / {CYCLES}
@@ -103,13 +105,13 @@ export default function BreathingOverlay({ onClose, onComplete, monoFont }: Brea
             className="text-6xl font-bold text-brand tabular-nums mt-2"
             style={{ fontFamily: monoFont }}
           >
-            {phase.seconds - tick}
+            {remaining}
           </div>
         </div>
       </div>
 
       <p className="mt-10 text-xs text-ink-muted text-center max-w-xs">
-        Breathe in for 3, hold for 2, release for 1. Slow your nervous system down.
+        Breathe in for 4, hold for 7, release for 8. Slow, deep, calming.
       </p>
     </motion.div>
   );
