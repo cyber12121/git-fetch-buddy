@@ -148,9 +148,12 @@ export default function BreathingOverlay({ onClose, onComplete, monoFont }: Brea
 
           <div className="relative w-72 h-72 flex items-center justify-center">
             <motion.div
-              key={phase.label + "-" + cycle}
               animate={{ scale }}
-              transition={{ duration: phase.seconds, ease: "easeInOut" }}
+              transition={
+                phase.label === "hold"
+                  ? { duration: 0 }
+                  : { duration: phase.seconds, ease: "easeInOut" }
+              }
               className="absolute w-56 h-56 rounded-full bg-brand/20 border border-brand/40"
             />
             <div className="relative z-10 text-center">
