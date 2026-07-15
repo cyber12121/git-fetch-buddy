@@ -296,882 +296,480 @@ export default function MagicTodoModule({
       .slice(0, 3);
   }, [tasks, todayStr2]);
 
+  // Header stats
+  const totalActive = tasks.filter(t => !t.completed).length;
+  const doneToday = tasks.filter(t => t.completed && t.scheduledDate === todayStr2).length;
+  const todayTotal = tasks.filter(t => t.scheduledDate === todayStr2).length;
+  const todayPct = todayTotal > 0 ? Math.round((doneToday / todayTotal) * 100) : 0;
+  const hero = top3Today[0];
+
   return (
-    <div id="magic-todo-module" className="max-w-4xl mx-auto space-y-4 sm:space-y-6 px-1 sm:px-0">
+    <div id="magic-todo-module" className="max-w-5xl mx-auto px-1 sm:px-0 pb-8">
 
-
-      {/* 0. Today's Top 3 — "What should I do right now?" */}
-      <AnimatePresence>
-        {top3Today.length > 0 && (
+      {/* ── HEADER STRIP: identity + today's progress bar ─────────── */}
+      <div className="mb-5 sm:mb-6">
+        <div className="flex items-end justify-between gap-4 mb-2">
+          <div className="min-w-0">
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-ink-muted">Today · {todayStr2}</div>
+            <h1 className="text-2xl sm:text-3xl font-fredoka font-bold text-ink truncate">Quest Log</h1>
+          </div>
+          <div className="text-right shrink-0">
+            <div className="font-mono text-2xl sm:text-3xl font-bold text-brand tabular-nums leading-none">{todayPct}<span className="text-sm text-ink-muted">%</span></div>
+            <div className="text-[10px] font-bold uppercase tracking-widest text-ink-muted mt-1">{doneToday}/{todayTotal} done</div>
+          </div>
+        </div>
+        <div className="h-1.5 w-full bg-surface-sunken rounded-full overflow-hidden border border-edge-soft">
           <motion.div
-            key="top3"
-            initial={{ opacity: 0, y: -8 }}
+            initial={{ width: 0 }}
+            animate={{ width: `${todayPct}%` }}
+            transition={{ type: "spring", stiffness: 90, damping: 20 }}
+            className="h-full bg-gradient-to-r from-brand to-brand-hover rounded-full"
+            style={{ boxShadow: "var(--theme-glow)" }}
+          />
+        </div>
+      </div>
+
+      {/* ── HERO: what to do RIGHT NOW ───────────────────────────── */}
+      <AnimatePresence mode="wait">
+        {hero && (
+          <motion.div
+            key={hero.id}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="bg-surface-sunken border-2 border-brand/20 rounded-2xl p-3 sm:p-4 card-shadow"
+            exit={{ opacity: 0, y: -12 }}
+            className="relative overflow-hidden bg-surface-sunken border border-edge rounded-2xl p-5 sm:p-6 mb-5 card-shadow"
+            style={{ boxShadow: "var(--theme-glow)" }}
           >
-            <div className="flex items-center gap-2 mb-2.5 sm:mb-3">
-              <span className="text-base">🎯</span>
-              <h3 className="font-bold text-ink font-fredoka text-sm">What to do right now?</h3>
-              <span className="text-[11px] sm:text-xs text-ink-muted ml-auto">Top {top3Today.length}</span>
+            <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-brand to-brand-hover" />
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-brand mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" /> Next Up
             </div>
-            <div className="flex flex-col gap-2">
-              {top3Today.map((task, i) => (
-                <div key={task.id} className="flex items-center gap-2 sm:gap-3 bg-surface/70 rounded-xl px-2.5 sm:px-3 py-2 sm:py-2.5 border border-brand/10 min-w-0">
-                  <span className="text-xs sm:text-sm font-bold text-brand/60 w-4 shrink-0">#{i + 1}</span>
-                  <span className="text-[13px] sm:text-sm font-semibold text-ink flex-1 truncate min-w-0">
-                    {task.priority === "high" ? "🔴" : task.priority === "medium" ? "🟡" : "🟢"} {task.title}
-                  </span>
-                  <button
-                    onClick={() => {
-                      onFocusTask(task.title, undefined, task.id);
-                      if (onFocusAndSwitch) onFocusAndSwitch(task.title, task.id);
-                      onGubbyMessage(`Starting "${task.title}"! You've got this 🎯`, "focused");
-                    }}
-                    className="shrink-0 flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 min-h-9 bg-brand text-white text-[11px] sm:text-xs font-bold rounded-xl hover:bg-brand-hover transition-colors cursor-pointer"
-                  >
-                    <Play size={11} className="fill-white" /> <span className="hidden xs:inline sm:inline">Start</span>
-                  </button>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="text-lg sm:text-xl font-fredoka font-bold text-ink leading-tight break-words">
+                  {hero.title}
                 </div>
-              ))}
+                <div className="mt-2 flex items-center gap-3 text-xs text-ink-muted font-semibold">
+                  <span className="flex items-center gap-1"><Clock size={12} />{hero.estimatedMinutes ?? estimateTaskDuration(hero.title)}m</span>
+                  <span>·</span>
+                  <span className="capitalize">{getPriorityLabel(hero.priority)} {hero.priority}</span>
+                  {top3Today.length > 1 && <><span>·</span><span>+{top3Today.length - 1} queued</span></>}
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  onFocusTask(hero.title, undefined, hero.id);
+                  if (onFocusAndSwitch) onFocusAndSwitch(hero.title, hero.id);
+                  onGubbyMessage(`Starting "${hero.title}"! You've got this 🎯`, "focused");
+                }}
+                className="shrink-0 flex items-center justify-center gap-2 px-5 py-3 bg-brand hover:bg-brand-hover text-primary-foreground font-bold rounded-xl transition-all active:scale-95 cursor-pointer"
+                style={{ boxShadow: "var(--theme-glow)" }}
+              >
+                <Play size={14} className="fill-current" /> Start focus
+              </button>
             </div>
-          </motion.div>
-        )}
-        {top3Today.length === 0 && tasks.filter(t => !t.completed && t.scheduledDate === todayStr2).length === 0 && tasks.filter(t => !t.completed).length > 0 && (
-          <motion.div key="no-today" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-3 text-xs text-ink-muted font-semibold">
-            📅 No tasks scheduled for today — add one below or schedule from your backlog!
+            {top3Today.length > 1 && (
+              <div className="mt-4 pt-3 border-t border-edge-soft flex flex-wrap gap-2">
+                {top3Today.slice(1).map((t, i) => (
+                  <button
+                    key={t.id}
+                    onClick={() => {
+                      onFocusTask(t.title, undefined, t.id);
+                      if (onFocusAndSwitch) onFocusAndSwitch(t.title, t.id);
+                    }}
+                    className="text-xs font-semibold text-ink-muted hover:text-ink bg-surface border border-edge-soft hover:border-brand/40 rounded-lg px-2.5 py-1 transition-all cursor-pointer truncate max-w-[240px]"
+                    title={`#${i + 2}: ${t.title}`}
+                  >
+                    <span className="text-brand mr-1 font-bold">#{i + 2}</span>{t.title}
+                  </button>
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* 1. Add Task Form */}
-      <div className="bg-surface p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-edge card-shadow">
-        <h3 className="text-base sm:text-lg font-bold text-ink mb-3 sm:mb-4 font-fredoka flex items-center gap-2">
-          What feels too big right now?
-        </h3>
-
-        <form onSubmit={handleAddTaskSubmit} className="space-y-3 sm:space-y-4">
-          <div className="flex flex-col md:flex-row gap-3 sm:gap-4 items-stretch">
-            {/* Title field */}
-            <div className="flex-1 relative min-w-0">
-              <input
-                id="todo-title-input"
-                type="text"
-                value={newTitle}
-                onChange={(e) => {
-                  setNewTitle(e.target.value);
-                  if (formError) setFormError(null);
-                }}
-                placeholder="E.g., clean the study, write the report..."
-                className="w-full p-3 sm:p-4 pr-11 sm:pr-12 rounded-2xl bg-surface-sunken border-2 border-edge-soft focus:border-brand focus:bg-surface outline-none font-nunito text-ink-2 placeholder-stone-400 font-bold transition-all text-base"
-              />
-              {speech.supported && (
-                <button
-                  type="button"
-                  id="todo-mic-btn"
-                  onClick={() => (speech.listening ? speech.stop() : speech.start())}
-                  title={speech.listening ? "Stop dictation" : "Dictate, or say 'add <task>'"}
-                  className={`absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-xl border-2 transition-all cursor-pointer select-none ${
-                    speech.listening
-                      ? "bg-brand text-white border-brand animate-pulse"
-                      : "bg-surface  border-edge-soft  text-ink-muted  hover:text-brand"
-                  }`}
-                >
-                  {speech.listening ? <Square size={16} /> : <Mic size={16} />}
-                </button>
-              )}
-            </div>
-
-            {/* Priority Interactive Slider */}
-            <div className="bg-surface-sunken border-2 border-edge-soft p-2.5 sm:p-3 rounded-2xl flex flex-col justify-center md:min-w-[200px] gap-1">
-              <label htmlFor="priority-slider" className="text-[11px] sm:text-xs font-bold text-ink-muted uppercase tracking-wider flex items-center gap-1">
-                <Plus size={12} className="text-brand" /> Priority: {priorityVal === 1 ? "🟢" : priorityVal === 2 ? "🟡" : "🔴"}
-              </label>
-              
-              <div className="flex items-center gap-3">
-                <input
-                  id="priority-slider"
-                  type="range"
-                  min="1"
-                  max="3"
-                  step="1"
-                  value={priorityVal}
-                  onChange={(e) => handlePriorityChange(parseInt(e.target.value, 10))}
-                  className="flex-1 accent-brand cursor-pointer h-1.5 bg-surface-raised2 rounded-lg appearance-none"
-                />
-                <span className="text-xl select-none shrink-0 font-fredoka">
-                  {priorityVal === 1 && "🟢"}
-                  {priorityVal === 2 && "🟡"}
-                  {priorityVal === 3 && "🔴"}
-                </span>
-              </div>
-            </div>
+      {/* ── COMPOSER: inline pill row ─────────────────────────────── */}
+      <form onSubmit={handleAddTaskSubmit} className="mb-5">
+        <div className="group flex items-stretch gap-0 bg-surface-sunken border border-edge rounded-2xl overflow-hidden focus-within:border-brand transition-colors">
+          <div className="flex items-center pl-4 text-ink-muted">
+            <Plus size={18} />
           </div>
-
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 justify-between">
-            {formError ? (
-              <div id="todo-form-error" className="flex items-center gap-1.5 text-xs text-danger font-semibold">
-                <AlertCircle size={14} /> {formError}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1.5 min-w-0">
-                <div className="text-[11px] sm:text-xs text-ink-muted font-semibold italic">
-                  ✨ Sprig will help you slice this quest down!
-                </div>
-                {newTitle.trim() && (
-                  <div className="text-[11px] sm:text-xs font-bold text-brand flex items-center gap-1.5 flex-wrap">
-                    <Sparkles size={12} className="animate-pulse text-brand shrink-0" />
-                    <span>Auto Estimate: <strong className="font-mono bg-brand-soft/30 text-brand border border-brand/30 px-1.5 py-0.5 rounded-md">{estimateTaskDuration(newTitle)}m</strong></span>
-                  </div>
-                )}
-              </div>
-            )}
-
+          <input
+            id="todo-title-input"
+            type="text"
+            value={newTitle}
+            onChange={(e) => { setNewTitle(e.target.value); if (formError) setFormError(null); }}
+            placeholder="Add a quest… what feels too big?"
+            className="flex-1 min-w-0 px-3 py-3.5 bg-transparent outline-none font-nunito text-ink placeholder:text-ink-muted/70 text-base"
+          />
+          {/* priority pills */}
+          <div className="hidden sm:flex items-center gap-1 px-2 border-l border-edge-soft">
+            {[1, 2, 3].map(v => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => handlePriorityChange(v)}
+                className={`w-8 h-8 rounded-lg text-base transition-all cursor-pointer ${priorityVal === v ? "bg-brand-soft scale-110" : "hover:bg-surface"}`}
+                title={v === 1 ? "Low" : v === 2 ? "Medium" : "High"}
+              >
+                {v === 1 ? "🟢" : v === 2 ? "🟡" : "🔴"}
+              </button>
+            ))}
+          </div>
+          {speech.supported && (
             <button
-              id="add-todo-btn"
-              type="submit"
-              className="w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 min-h-11 bg-brand hover:bg-brand-hover text-white font-bold rounded-xl shadow hover:shadow-lg transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer select-none"
+              type="button"
+              id="todo-mic-btn"
+              onClick={() => (speech.listening ? speech.stop() : speech.start())}
+              className={`px-3 border-l border-edge-soft transition-colors cursor-pointer ${speech.listening ? "bg-brand text-primary-foreground animate-pulse" : "text-ink-muted hover:text-brand"}`}
+              title={speech.listening ? "Stop dictation" : "Dictate"}
             >
-              <Plus size={18} /> Add Mission
+              {speech.listening ? <Square size={16} /> : <Mic size={16} />}
             </button>
+          )}
+          <button
+            id="add-todo-btn"
+            type="submit"
+            className="px-5 bg-brand hover:bg-brand-hover text-primary-foreground font-bold text-sm transition-colors cursor-pointer"
+          >
+            Add
+          </button>
+        </div>
+        {/* mobile priority row */}
+        <div className="sm:hidden mt-2 flex items-center gap-1">
+          {[1, 2, 3].map(v => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => handlePriorityChange(v)}
+              className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer border ${priorityVal === v ? "bg-brand-soft border-brand/40 text-ink" : "border-edge-soft text-ink-muted"}`}
+            >
+              {v === 1 ? "🟢 Low" : v === 2 ? "🟡 Med" : "🔴 High"}
+            </button>
+          ))}
+        </div>
+        {formError ? (
+          <div className="mt-2 flex items-center gap-1.5 text-xs text-danger font-semibold">
+            <AlertCircle size={14} /> {formError}
           </div>
-        </form>
-      </div>
-
-
-
-      {/* 2. Tasks Master List */}
-      <div className="space-y-4">
-        <div className="flex flex-col gap-3 border-b-2 border-edge pb-3 sm:pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex flex-col min-w-0">
-              <h2 className="text-base sm:text-lg font-bold text-ink font-fredoka flex items-center gap-2 truncate">
-                My Goblin Quests ({filteredTasks.length})
-              </h2>
-              <p className="text-[11px] sm:text-xs text-ink-muted font-semibold truncate">
-                {listFilter === "date" && `Viewing date: ${activeDate}`}
-                {listFilter === "all" && "Viewing all active quests"}
-                {listFilter === "someday" && "Viewing unscheduled backlog"}
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-3 sm:flex sm:items-center gap-1 sm:gap-1.5 bg-surface-sunken p-1 rounded-xl border border-edge w-full sm:w-auto">
-              <button
-                id="filter-date-btn"
-                type="button"
-                onClick={() => {
-                  setListFilter("date");
-                  onGubbyMessage(`Focusing on quests for ${activeDate}! 📅`, "cozy");
-                }}
-                className={`px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
-                  listFilter === "date"
-                    ? "bg-brand text-white shadow-sm"
-                    : "text-ink-muted  hover:text-ink "
-                }`}
-              >
-                Date
-              </button>
-              <button
-                id="filter-all-btn"
-                type="button"
-                onClick={() => {
-                  setListFilter("all");
-                  onGubbyMessage("Viewing your entire quest board! 🌟", "happy");
-                }}
-                className={`px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
-                  listFilter === "all"
-                    ? "bg-brand text-white shadow-sm"
-                    : "text-ink-muted  hover:text-ink "
-                }`}
-              >
-                All
-              </button>
-              <button
-                id="filter-someday-btn"
-                type="button"
-                onClick={() => {
-                  setListFilter("someday");
-                  onGubbyMessage("Viewing unscheduled background ideas! 🍂", "cozy");
-                }}
-                className={`px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
-                  listFilter === "someday"
-                    ? "bg-brand text-white shadow-sm"
-                    : "text-ink-muted  hover:text-ink "
-                }`}
-              >
-                Someday
-              </button>
-            </div>
+        ) : newTitle.trim() && (
+          <div className="mt-2 text-[11px] text-ink-muted font-semibold flex items-center gap-1.5">
+            <Sparkles size={11} className="text-brand" /> Auto-estimate: <span className="font-mono text-brand">{estimateTaskDuration(newTitle)}m</span>
           </div>
+        )}
+      </form>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
-            {listFilter === "date" ? (
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-ink-muted">Change Date:</span>
-                <input
-                  id="magic-todo-date-picker"
-                  type="date"
-                  value={activeDate}
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      onSelectDate(e.target.value);
-                      onGubbyMessage(`Shifted active date to ${e.target.value}! 📅`, "happy");
-                    }
-                  }}
-                  className="px-2.5 py-1 text-xs font-bold rounded-lg border-2 border-edge bg-surface text-ink-2 outline-none focus:border-brand cursor-pointer"
-                />
-              </div>
-            ) : <div />}
-
-            {tasks.filter(t => t.completed).length > 0 && (
-              <button
-                id="clear-completed-todo-btn"
-                onClick={() => {
-                  tasks.filter(t => t.completed).forEach(t => onDeleteTask(t.id));
-                  onGubbyMessage("Cleaned away your completed quests! Sparkling tidy now! ✨", "happy");
-                  pushToast({ icon: "🧹", message: "Completed quests swept away", tone: "info" });
-                }}
-                className="text-xs text-ink-muted hover:text-danger font-bold transition-colors border-2 border-edge hover:border-danger/30 px-3 py-1.5 rounded-xl bg-surface cursor-pointer"
-              >
-                Sweep Completed Quests
-              </button>
-            )}
-          </div>
+      {/* ── FILTER BAR: segmented + date + sweep ─────────────────── */}
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <div className="inline-flex bg-surface-sunken border border-edge rounded-xl p-0.5">
+          {([
+            { k: "date", label: "Date" },
+            { k: "all", label: "All" },
+            { k: "someday", label: "Someday" },
+          ] as const).map(({ k, label }) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setListFilter(k)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${listFilter === k ? "bg-brand text-primary-foreground" : "text-ink-muted hover:text-ink"}`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
-        {filteredTasks.length === 0 ? (
-          tasks.length === 0 ? (
-            <div className="bg-surface border-2 border-dashed border-edge p-12 rounded-3xl text-center space-y-3">
-              <p className="text-ink-muted font-bold text-lg font-fredoka">No active quests on your board!</p>
-              <p className="text-ink-muted text-sm max-w-sm mx-auto">
-                You are completely clean! Brainstorm some missions in the <strong>Brain Dump Compiler</strong> or type one above to start.
-              </p>
-            </div>
-          ) : (
-            <div className="bg-surface border-2 border-dashed border-edge p-10 rounded-3xl text-center space-y-4">
-              <p className="text-ink-muted font-bold text-lg font-fredoka">
-                {listFilter === "date" ? `No quests scheduled for ${activeDate}!` : "No quests match your filter!"}
-              </p>
-              <p className="text-ink-muted text-sm max-w-md mx-auto">
-                {listFilter === "date"
-                  ? `You have active quests in your backlog, but none are pinned to ${activeDate} yet.`
-                  : "You have active quests, but none match this view mode."}
-              </p>
-              <div className="flex justify-center gap-3">
-                <button
-                  id="quick-add-for-today"
-                  onClick={() => {
-                    const el = document.getElementById("todo-title-input");
-                    if (el) el.focus();
-                    onGubbyMessage(
-                      listFilter === "date"
-                        ? `Type a new quest above, and I'll auto-schedule it for ${activeDate}!`
-                        : "Type a new quest above, and I'll add it for you!",
-                      "excited"
-                    );
-                  }}
-                  className="px-4 py-2 bg-brand hover:bg-brand-hover text-white font-bold rounded-xl text-xs shadow transition-all cursor-pointer"
-                >
-                  {listFilter === "date" ? `Create Quest for ${activeDate} 🌟` : "Create New Quest 🌟"}
-                </button>
-              </div>
-            </div>
-          )
-        ) : (
-          <div className="space-y-4">
-            {filteredTasks.map((task) => {
-              const completedSubs = task.subtasks.filter(s => s.completed).length;
-              const totalSubs = task.subtasks.length;
-              const subPercent = totalSubs > 0 ? Math.round((completedSubs / totalSubs) * 100) : 0;
-              const isExpanded = !!expandedTaskIds[task.id];
+        {listFilter === "date" && (
+          <input
+            id="magic-todo-date-picker"
+            type="date"
+            value={activeDate}
+            onChange={(e) => e.target.value && onSelectDate(e.target.value)}
+            className="px-3 py-1.5 text-xs font-bold rounded-xl border border-edge bg-surface-sunken text-ink outline-none focus:border-brand cursor-pointer"
+          />
+        )}
 
-              const controlsExpanded = !!expandedControlIds[task.id];
+        <div className="ml-auto flex items-center gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-widest text-ink-muted">
+            {filteredTasks.length} · {totalActive} active
+          </span>
+          {tasks.filter(t => t.completed).length > 0 && (
+            <button
+              id="clear-completed-todo-btn"
+              onClick={() => {
+                tasks.filter(t => t.completed).forEach(t => onDeleteTask(t.id));
+                pushToast({ icon: "🧹", message: "Completed quests swept away", tone: "info" });
+              }}
+              className="text-[11px] text-ink-muted hover:text-danger font-bold border border-edge hover:border-danger/40 px-2.5 py-1.5 rounded-xl transition-all cursor-pointer"
+            >
+              Sweep done
+            </button>
+          )}
+        </div>
+      </div>
 
-              return (
-                <div
-                  key={task.id}
-                  className={`bg-gradient-to-br rounded-2xl border-2 transition-all card-shadow ${
-                    task.completed
-                      ? "from-surface to-surface border-edge-soft   opacity-60"
-                      : task.priority === "high"
-                      ? "from-surface-sunken to-surface border-brand/30 hover:border-brand/40"
-                      : task.priority === "medium"
-                      ? "from-surface-sunken to-surface border-edge   hover:border-success/40"
-                      : "from-surface-sunken to-surface border-edge   hover:border-success/40"
-                  }`}
-                >
-                  {/* Task Card Header Area */}
-                  <div className="p-3 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
-                    
-                    {/* Left: Checkbox + Title */}
-                    <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
+      {/* ── TASK LIST: slim rows w/ accent stripe ────────────────── */}
+      {filteredTasks.length === 0 ? (
+        <div className="bg-surface-sunken border border-dashed border-edge rounded-2xl py-14 text-center">
+          <div className="text-4xl mb-2 opacity-60">🌿</div>
+          <p className="text-ink font-fredoka font-bold text-base">
+            {tasks.length === 0 ? "Your quest board is clear" : listFilter === "date" ? `Nothing scheduled for ${activeDate}` : "No quests match this view"}
+          </p>
+          <p className="text-ink-muted text-xs mt-1 font-semibold">Type above to add your first mission ✨</p>
+        </div>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {filteredTasks.map((task) => {
+            const completedSubs = task.subtasks.filter(s => s.completed).length;
+            const totalSubs = task.subtasks.length;
+            const subPercent = totalSubs > 0 ? Math.round((completedSubs / totalSubs) * 100) : 0;
+            const isExpanded = !!expandedTaskIds[task.id];
+            const controlsExpanded = !!expandedControlIds[task.id];
+            const estMin = task.estimatedMinutes ?? estimateTaskDuration(task.title);
+            const stripe = task.completed ? "bg-edge-soft" : task.priority === "high" ? "bg-danger" : task.priority === "medium" ? "bg-warn" : "bg-success";
+
+            return (
+              <motion.li
+                key={task.id}
+                layout
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`relative bg-surface-sunken border border-edge rounded-xl overflow-hidden transition-all hover:border-brand/40 ${task.completed ? "opacity-60" : ""}`}
+              >
+                <span className={`absolute inset-y-0 left-0 w-1 ${stripe}`} />
+
+                {/* Row */}
+                <div className="pl-4 pr-2 sm:pr-3 py-3 flex items-center gap-3">
+                  <button
+                    id={`todo-checkbox-${task.id}`}
+                    role="checkbox"
+                    aria-checked={task.completed}
+                    aria-label={`Toggle "${task.title}"`}
+                    onClick={() => onToggleTask(task.id)}
+                    className={`w-6 h-6 rounded-md border-2 flex items-center justify-center shrink-0 transition-all cursor-pointer ${task.completed ? "bg-brand border-brand text-primary-foreground" : "border-edge-strong hover:border-brand bg-surface"}`}
+                  >
+                    {task.completed && <Check size={14} strokeWidth={3} />}
+                  </button>
+
+                  <div className="flex-1 min-w-0">
+                    <div className={`text-sm sm:text-[15px] font-semibold text-ink font-fredoka leading-snug truncate ${task.completed ? "line-through" : ""}`}>
+                      {task.title}
+                    </div>
+                    <div className="mt-1 flex items-center gap-2 text-[11px] text-ink-muted font-semibold">
+                      <span className="font-mono">{estMin}m</span>
+                      {task.scheduledTime && <><span>·</span><span>@ {task.scheduledTime}</span></>}
+                      {totalSubs > 0 && <><span>·</span><span className="text-brand">{completedSubs}/{totalSubs} steps</span></>}
+                      {task.scheduledDate && listFilter !== "date" && <><span>·</span><span>{task.scheduledDate}</span></>}
+                    </div>
+                    {totalSubs > 0 && (
+                      <div className="mt-1.5 h-1 w-full bg-surface rounded-full overflow-hidden">
+                        <div className="h-full bg-brand transition-all" style={{ width: `${subPercent}%` }} />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1 shrink-0">
+                    {!task.completed && (
                       <button
-                        id={`todo-checkbox-${task.id}`}
-                        role="checkbox"
-                        aria-checked={task.completed}
-                        aria-label={`Mark "${task.title}" as ${task.completed ? "not completed" : "completed"}`}
-                        onClick={() => onToggleTask(task.id)}
-                        className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-colors cursor-pointer shrink-0 mt-0.5 ${
-                          task.completed
-                            ? "bg-brand border-brand text-white"
-                            : "border-brand bg-surface  hover:bg-brand-soft/30"
-                        }`}
+                        id={`focus-btn-quick-${task.id}`}
+                        onClick={() => {
+                          onFocusTask(task.title, undefined, task.id);
+                          if (onFocusAndSwitch) onFocusAndSwitch(task.title, task.id);
+                          onGubbyMessage(`Loading "${task.title}" into Focus Timer!`, "focused");
+                        }}
+                        className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 bg-brand hover:bg-brand-hover text-primary-foreground text-xs font-bold rounded-lg transition-all active:scale-95 cursor-pointer"
                       >
-                        {task.completed && <Check size={16} strokeWidth={3} />}
+                        <Play size={11} className="fill-current" /> Focus
                       </button>
+                    )}
+                    <button
+                      onClick={() => handleToggleExpand(task.id)}
+                      className="p-1.5 rounded-lg text-ink-muted hover:text-ink hover:bg-surface transition-colors cursor-pointer"
+                      title="Steps"
+                    >
+                      {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </button>
+                    <button
+                      onClick={() => toggleControls(task.id)}
+                      className={`p-1.5 rounded-lg transition-colors cursor-pointer ${controlsExpanded ? "text-brand bg-brand-soft/30" : "text-ink-muted hover:text-ink hover:bg-surface"}`}
+                      title="More"
+                    >
+                      <span className="text-sm font-bold leading-none">···</span>
+                    </button>
+                  </div>
+                </div>
 
-                      <div className="space-y-1 min-w-0 flex-1">
-                        <span className={`text-sm sm:text-base font-bold text-ink block leading-snug font-fredoka break-words ${task.completed ? "line-through text-ink-muted" : ""}`}>
-                          {task.title}
-                        </span>
-
-                        {/* Task size meter + scary-task shrinker */}
-                        {!task.completed && (() => {
-                          const size = getTaskSize(task);
-                          const segments = size === "large" ? 3 : size === "medium" ? 2 : 1;
-                          const segColor = size === "large" ? "bg-rose-400" : size === "medium" ? "bg-amber-400" : "bg-emerald-400";
-                          return (
-                            <div className="flex items-center gap-2">
-                              <div className="flex items-center gap-0.5" title={`This quest feels ${size}`} aria-label={`Task size: ${size}`}>
-                                {[1, 2, 3].map((seg) => (
-                                  <span
-                                    key={seg}
-                                    className={`w-4 h-1.5 rounded-full ${seg <= segments ? segColor : "bg-edge-soft"}`}
-                                  />
+                {/* Extra controls row */}
+                <AnimatePresence>
+                  {controlsExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden border-t border-edge-soft"
+                    >
+                      <div className="pl-4 pr-3 py-2.5 flex flex-wrap items-center gap-2 bg-surface/30">
+                        {/* priority menu */}
+                        <div className="relative">
+                          <button
+                            id={`priority-btn-${task.id}`}
+                            onClick={(e) => { e.stopPropagation(); setOpenPriorityMenuId(openPriorityMenuId === task.id ? null : task.id); }}
+                            className={`px-2.5 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${getBadgeClass(task.priority)}`}
+                          >
+                            {getPriorityLabel(task.priority)} <span className="capitalize">{task.priority}</span>
+                          </button>
+                          {openPriorityMenuId === task.id && (
+                            <>
+                              <div className="fixed inset-0 z-40" onClick={() => setOpenPriorityMenuId(null)} />
+                              <div className="absolute left-0 top-full mt-1 bg-surface border border-edge rounded-xl shadow-xl z-50 p-1 min-w-[130px]">
+                                {(["low", "medium", "high"] as const).map(lvl => (
+                                  <button
+                                    key={lvl}
+                                    onClick={() => { onUpdateTask(task.id, { priority: lvl }); setOpenPriorityMenuId(null); }}
+                                    className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors ${task.priority === lvl ? "bg-brand-soft/40 text-ink" : "text-ink-muted hover:bg-surface-sunken"}`}
+                                  >
+                                    {getPriorityLabel(lvl)} <span className="capitalize">{lvl}</span>
+                                  </button>
                                 ))}
                               </div>
-                              {size === "large" && totalSubs === 0 && (
-                                <button
-                                  type="button"
-                                  onClick={() => handleBreakItDown(task)}
-                                  disabled={breakingDownTaskIds[task.id]}
-                                  className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 hover:bg-rose-100 px-2 py-0.5 rounded-full transition-all cursor-pointer flex items-center gap-1"
-                                  title="Shrink this scary quest into tiny steps"
-                                >
-                                  {breakingDownTaskIds[task.id] ? "…" : "😱 Too big — break it down"}
-                                </button>
-                              )}
-                            </div>
-                          );
-                        })()}
-
-                        <div className="flex flex-wrap items-center gap-2 pt-1">
-                          {/* Scheduled Time info if exists */}
-                          {task.scheduledTime && (
-                            <div className="flex items-center gap-1.5 text-xs font-semibold text-brand bg-brand-soft/20 px-2.5 py-1 rounded-lg w-fit border border-brand/30">
-                              <Clock size={12} />
-                              <span>Scheduled @ {task.scheduledTime}</span>
-                            </div>
+                            </>
                           )}
+                        </div>
 
-                          {/* Automatic Estimate Timer with adjustment buttons and a beautiful clock popover (ADHD-friendly goblin.tools style) */}
-                          <div className="relative flex items-center gap-1.5 bg-surface-sunken border border-edge-soft px-2.5 py-1 rounded-xl w-fit shadow-sm">
-                            <Clock size={11} className="text-brand shrink-0" />
-                            <span className="text-[10px] font-bold text-ink-muted">Estimate:</span>
-                            
-                            <div className="flex items-center gap-1 bg-surface border border-edge-soft rounded-lg px-1 py-0.5">
-                              {/* Decrement Button */}
-                              <button
-                                id={`dec-estimate-btn-${task.id}`}
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const currentEst = task.estimatedMinutes !== undefined ? task.estimatedMinutes : estimateTaskDuration(task.title);
-                                  const nextEst = Math.max(5, currentEst - 5);
-                                  onUpdateTask(task.id, { estimatedMinutes: nextEst });
-                                  onGubbyMessage(`Decreased estimate for "${task.title}" to ${nextEst}m! ⏱️`, "cozy");
-                                }}
-                                className="text-xs font-extrabold text-brand hover:bg-brand-soft/30 w-4 h-4 rounded flex items-center justify-center transition-colors cursor-pointer select-none"
-                                title="Decrease estimate by 5 mins"
-                              >
-                                -
-                              </button>
-
-                              {/* Interactive Clock Trigger button showing Hours & Minutes */}
-                              <button
-                                id={`clock-picker-trigger-${task.id}`}
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setOpenClockPickerId(openClockPickerId === task.id ? null : task.id);
-                                }}
-                                className="px-1 text-xs font-extrabold text-ink font-mono hover:text-brand transition-colors cursor-pointer select-none"
-                                title="Click to open hours & minutes clock picker"
-                              >
-                                {(() => {
-                                  const totalMins = task.estimatedMinutes !== undefined ? task.estimatedMinutes : estimateTaskDuration(task.title);
-                                  const h = Math.floor(totalMins / 60);
-                                  const m = totalMins % 60;
-                                  return h > 0 ? `${h}h ${m}m` : `${m}m`;
-                                })()} ⏱️
-                              </button>
-
-                              {/* Increment Button */}
-                              <button
-                                id={`inc-estimate-btn-${task.id}`}
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const currentEst = task.estimatedMinutes !== undefined ? task.estimatedMinutes : estimateTaskDuration(task.title);
-                                  const nextEst = currentEst + 5;
-                                  onUpdateTask(task.id, { estimatedMinutes: nextEst });
-                                  onGubbyMessage(`Increased estimate for "${task.title}" to ${nextEst}m! ⏱️`, "happy");
-                                }}
-                                className="text-xs font-extrabold text-brand hover:bg-brand-soft/30 w-4 h-4 rounded flex items-center justify-center transition-colors cursor-pointer select-none"
-                                title="Increase estimate by 5 mins"
-                              >
-                                +
-                              </button>
-                            </div>
-
-                            {/* Magic Re-estimate button */}
-                            <button
-                              id={`reestimate-btn-${task.id}`}
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const est = estimateTaskDuration(task.title);
-                                onUpdateTask(task.id, { estimatedMinutes: est });
-                                onGubbyMessage(`Sprig magic-estimated "${task.title}" at ${est}m! 🪄🦉`, "excited");
-                              }}
-                              className="p-1 text-brand hover:bg-surface rounded-lg border border-transparent hover:border-edge-soft transition-all cursor-pointer flex items-center justify-center"
-                              title="Recalculate Magic Estimate"
-                            >
-                              <Sparkles size={11} className="animate-pulse text-brand" />
-                            </button>
-
-                            {/* Clock Hours & Minutes Selection Popover */}
+                        {/* estimate stepper */}
+                        <div className="inline-flex items-center bg-surface border border-edge-soft rounded-lg">
+                          <button
+                            onClick={() => { const n = Math.max(5, estMin - 5); onUpdateTask(task.id, { estimatedMinutes: n }); }}
+                            className="px-2 py-1 text-brand font-bold hover:bg-brand-soft/30 rounded-l-lg cursor-pointer"
+                          >−</button>
+                          <button
+                            onClick={() => setOpenClockPickerId(openClockPickerId === task.id ? null : task.id)}
+                            className="px-2 py-1 text-xs font-bold font-mono text-ink hover:text-brand cursor-pointer relative"
+                          >
+                            {Math.floor(estMin / 60) > 0 ? `${Math.floor(estMin / 60)}h ${estMin % 60}m` : `${estMin}m`}
                             {openClockPickerId === task.id && (
                               <>
-                                {/* Click outside overlay to close picker */}
-                                <div 
-                                  className="fixed inset-0 z-40 cursor-default"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenClockPickerId(null);
-                                  }}
-                                />
-                                <div className="absolute left-0 top-full mt-2 bg-surface border-2 border-edge p-3.5 rounded-2xl shadow-xl z-50 min-w-[240px] text-left space-y-3">
-                                  <div className="flex items-center justify-between border-b border-edge pb-1.5">
-                                    <span className="text-xs font-extrabold text-ink font-fredoka flex items-center gap-1.5">
-                                      ⏰ Custom Quest Timer
-                                    </span>
-                                    <span className="text-[9px] font-bold text-brand bg-brand-soft/30 px-1.5 py-0.5 rounded-full border border-brand/30">
-                                      {task.estimatedMinutes !== undefined ? task.estimatedMinutes : estimateTaskDuration(task.title)}m total
-                                    </span>
-                                  </div>
-
-                                  {/* Custom Clock Hours & Minutes Dropdown Controls */}
-                                  <div className="grid grid-cols-2 gap-2.5">
-                                    {/* Hours dropdown */}
-                                    <div className="flex flex-col gap-1">
-                                      <label htmlFor={`hours-select-${task.id}`} className="text-[10px] font-bold text-ink-muted uppercase tracking-wider">Hours</label>
-                                      <select
-                                        id={`hours-select-${task.id}`}
-                                        value={Math.floor((task.estimatedMinutes !== undefined ? task.estimatedMinutes : estimateTaskDuration(task.title)) / 60)}
-                                        onChange={(e) => {
-                                          e.stopPropagation();
-                                          const currentMinutes = task.estimatedMinutes !== undefined ? task.estimatedMinutes : estimateTaskDuration(task.title);
-                                          const currentMins = currentMinutes % 60;
-                                          const nextHours = parseInt(e.target.value, 10);
-                                          const total = nextHours * 60 + currentMins;
-                                          onUpdateTask(task.id, { estimatedMinutes: total });
-                                          onGubbyMessage(`Set hours to ${nextHours}h! total: ${total}m. 🦉`, "happy");
-                                        }}
-                                        className="w-full bg-surface border border-edge rounded-xl px-2.5 py-1.5 text-xs font-extrabold text-ink font-mono focus:outline-none focus:border-brand"
-                                      >
-                                        {Array.from({ length: 24 }).map((_, i) => (
-                                          <option key={i} value={i}>{i}h</option>
-                                        ))}
-                                      </select>
-                                    </div>
-
-                                    {/* Minutes dropdown */}
-                                    <div className="flex flex-col gap-1">
-                                      <label htmlFor={`minutes-select-${task.id}`} className="text-[10px] font-bold text-ink-muted uppercase tracking-wider">Minutes</label>
-                                      <select
-                                        id={`minutes-select-${task.id}`}
-                                        value={(task.estimatedMinutes !== undefined ? task.estimatedMinutes : estimateTaskDuration(task.title)) % 60}
-                                        onChange={(e) => {
-                                          e.stopPropagation();
-                                          const currentMinutes = task.estimatedMinutes !== undefined ? task.estimatedMinutes : estimateTaskDuration(task.title);
-                                          const currentHours = Math.floor(currentMinutes / 60);
-                                          const nextMins = parseInt(e.target.value, 10);
-                                          const total = currentHours * 60 + nextMins;
-                                          onUpdateTask(task.id, { estimatedMinutes: total });
-                                          onGubbyMessage(`Set minutes to ${nextMins}m! total: ${total}m. 🦉`, "happy");
-                                        }}
-                                        className="w-full bg-surface border border-edge rounded-xl px-2.5 py-1.5 text-xs font-extrabold text-ink font-mono focus:outline-none focus:border-brand"
-                                      >
-                                        {Array.from({ length: 60 }).map((_, i) => (
-                                          <option key={i} value={i}>{i < 10 ? `0${i}` : i}m</option>
-                                        ))}
-                                      </select>
-                                    </div>
-                                  </div>
-
-                                  {/* Presets Grid */}
-                                  <div className="space-y-1">
-                                    <span className="text-[9px] font-bold text-ink-muted uppercase tracking-widest block">Presets</span>
-                                    <div className="grid grid-cols-3 gap-1.5">
-                                      {[15, 25, 45, 60, 90, 120].map((preset) => (
-                                        <button
-                                          key={preset}
-                                          id={`preset-btn-${task.id}-${preset}`}
-                                          type="button"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            onUpdateTask(task.id, { estimatedMinutes: preset });
-                                            onGubbyMessage(`Instant set task estimate to ${preset} minutes! Let's conquer it!`, "happy");
-                                          }}
-                                          className="text-[10px] font-bold text-ink-muted hover:text-ink bg-surface-sunken border border-edge-soft hover:bg-brand-soft/20 hover:border-brand/20 px-1 py-1 rounded-lg transition-colors cursor-pointer"
-                                        >
-                                          {preset >= 60 ? `${Math.floor(preset / 60)}h${preset % 60 > 0 ? ` ${preset % 60}m` : ""}` : `${preset}m`}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  </div>
-
-                                  <div className="flex gap-2 pt-1 border-t border-stone-50">
-                                    <button
-                                      id={`clock-picker-ok-${task.id}`}
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setOpenClockPickerId(null);
-                                      }}
-                                      className="w-full py-1.5 bg-brand hover:bg-brand-hover text-white font-bold text-[10px] rounded-xl transition-all cursor-pointer text-center"
-                                    >
-                                      Done
-                                    </button>
+                                <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenClockPickerId(null); }} />
+                                <div className="absolute left-0 top-full mt-2 bg-surface border border-edge p-3 rounded-2xl shadow-xl z-50 min-w-[220px] text-left space-y-2">
+                                  <div className="text-[10px] font-bold uppercase tracking-widest text-ink-muted">Presets</div>
+                                  <div className="grid grid-cols-3 gap-1.5">
+                                    {[15, 25, 45, 60, 90, 120].map(p => (
+                                      <button
+                                        key={p}
+                                        onClick={(e) => { e.stopPropagation(); onUpdateTask(task.id, { estimatedMinutes: p }); }}
+                                        className="text-[11px] font-bold text-ink-muted hover:text-ink bg-surface-sunken hover:bg-brand-soft/30 border border-edge-soft rounded-lg py-1 cursor-pointer"
+                                      >{p >= 60 ? `${Math.floor(p / 60)}h${p % 60 ? ` ${p % 60}m` : ""}` : `${p}m`}</button>
+                                    ))}
                                   </div>
                                 </div>
                               </>
                             )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right: Action buttons — minimal by default, expanded on toggle */}
-                    <div className="flex flex-wrap items-center gap-2 self-start md:self-center pl-10 sm:pl-11 md:pl-0">
-
-                      {/* Always-visible: Focus button */}
-                      {!task.completed && !controlsExpanded && (
-                        <button
-                          id={`focus-btn-quick-${task.id}`}
-                          onClick={() => {
-                            onFocusTask(task.title, undefined, task.id);
-                            if (onFocusAndSwitch) onFocusAndSwitch(task.title, task.id);
-                            onGubbyMessage(`Loading "${task.title}" into Focus Timer!`, "focused");
-                          }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-success hover:bg-success text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
-                        >
-                          <Play size={11} className="fill-white" /> Focus
-                        </button>
-                      )}
-
-                      {/* Expand/collapse controls toggle */}
-                      <button
-                        id={`expand-controls-${task.id}`}
-                        onClick={() => toggleControls(task.id)}
-                        className="flex items-center gap-1 px-2.5 py-1.5 text-ink-muted hover:text-ink hover:bg-surface-raised rounded-xl text-xs font-bold transition-all cursor-pointer border border-edge-soft"
-                        title={controlsExpanded ? "Hide controls" : "More options"}
-                      >
-                        {controlsExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                        <span className="text-[10px]">{controlsExpanded ? "Less" : "···"}</span>
-                      </button>
-
-                      {/* Full controls — visible only when expanded */}
-                      <AnimatePresence>
-                        {controlsExpanded && (
-                          <motion.div
-                            initial={{ opacity: 0, width: 0 }}
-                            animate={{ opacity: 1, width: "auto" }}
-                            exit={{ opacity: 0, width: 0 }}
-                            className="flex flex-wrap items-center gap-2 overflow-visible"
-                          >
-                      {/* Interactive Priority icon button with tooltip & select menu */}
-                      <div className="relative group/tooltip">
-                        <button
-                          id={`priority-btn-${task.id}`}
-                          type="button"
-                          aria-label={`Change priority for "${task.title}" (currently ${task.priority})`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setOpenPriorityMenuId(openPriorityMenuId === task.id ? null : task.id);
-                          }}
-                          className={`w-9 h-9 rounded-full border flex items-center justify-center text-sm transition-all hover:scale-105 active:scale-95 cursor-pointer select-none shadow-sm ${getBadgeClass(task.priority)}`}
-                        >
-                          {getPriorityLabel(task.priority)}
-                        </button>
-
-                        {/* Tooltip on Hover */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
-                          <span className="capitalize">{task.priority} Priority</span> - Click to change
-                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-900"></div>
+                          </button>
+                          <button
+                            onClick={() => onUpdateTask(task.id, { estimatedMinutes: estMin + 5 })}
+                            className="px-2 py-1 text-brand font-bold hover:bg-brand-soft/30 rounded-r-lg cursor-pointer"
+                          >+</button>
                         </div>
 
-                        {/* Dropdown Menu for Priority Selection */}
-                        {openPriorityMenuId === task.id && (
-                          <>
-                            {/* Overlay to detect click outside */}
-                            <div 
-                              className="fixed inset-0 z-40 cursor-default"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenPriorityMenuId(null);
-                              }}
-                            />
-                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 bg-surface border-2 border-edge p-1.5 rounded-2xl shadow-xl z-50 flex flex-col gap-1 min-w-[130px]">
-                              {(["low", "medium", "high"] as const).map((lvl) => (
-                                <button
-                                  key={lvl}
-                                  id={`priority-opt-${task.id}-${lvl}`}
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onUpdateTask(task.id, { priority: lvl });
-                                    setOpenPriorityMenuId(null);
-                                    onGubbyMessage(`Adjusted priority of "${task.title}" to ${lvl}! 🎯`, "happy");
-                                  }}
-                                  className={`flex items-center gap-2.5 px-3 py-1.5 text-xs font-bold rounded-xl text-left transition-colors cursor-pointer w-full hover:bg-surface  ${
-                                    task.priority === lvl ? "bg-surface-raised  text-ink " : "text-ink-muted"
-                                  }`}
-                                >
-                                  <span>{getPriorityLabel(lvl)}</span>
-                                  <span className="capitalize">{lvl}</span>
-                                </button>
-                              ))}
-                            </div>
-                          </>
-                        )}
-                      </div>
+                        <button
+                          onClick={() => { const est = estimateTaskDuration(task.title); onUpdateTask(task.id, { estimatedMinutes: est }); }}
+                          className="p-1.5 rounded-lg text-brand hover:bg-brand-soft/30 cursor-pointer"
+                          title="Magic re-estimate"
+                        >
+                          <Sparkles size={13} />
+                        </button>
 
-                      {/* Break it down button */}
-                      {totalSubs === 0 && !task.completed && (
-                        <div className="relative group/tooltip">
+                        {totalSubs === 0 && !task.completed && (
                           <button
                             id={`breakdown-btn-${task.id}`}
-                            aria-label={`Break "${task.title}" down into subtasks`}
                             onClick={() => handleBreakItDown(task)}
                             disabled={breakingDownTaskIds[task.id]}
-                            className="w-9 h-9 rounded-full bg-brand-soft text-brand border border-brand/30 hover:bg-brand-soft/80 flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer select-none disabled:bg-surface-disabled shadow-sm"
+                            className="px-2.5 py-1.5 text-xs font-bold text-brand bg-brand-soft/30 border border-brand/30 hover:bg-brand-soft/50 rounded-lg flex items-center gap-1.5 cursor-pointer transition-all"
                           >
                             {breakingDownTaskIds[task.id] ? (
-                              <div className="w-4 h-4 border-2 border-brand border-t-transparent rounded-full animate-spin"></div>
-                            ) : (
-                              <Sparkles size={14} />
-                            )}
+                              <div className="w-3 h-3 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+                            ) : <Sparkles size={12} />}
+                            Break down
                           </button>
+                        )}
 
-                          {/* Tooltip on Hover */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
-                            {breakingDownTaskIds[task.id] ? "Slicing tasks..." : "Break down into subtasks 🪄"}
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-900"></div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Focus Button */}
-                      {!task.completed && (
-                        <div className="relative group/tooltip">
-                          <button
-                            id={`focus-btn-${task.id}`}
-                            aria-label={`Start focus session for "${task.title}"`}
-                            onClick={() => onFocusTask(task.title, undefined, task.id)}
-                            className="w-9 h-9 rounded-full bg-success hover:bg-success text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer select-none shadow-sm"
-                          >
-                            <Play size={14} className="fill-current ml-0.5" />
-                          </button>
-
-                          {/* Tooltip on Hover */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
-                            Focus Session 🎯
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-900"></div>
-                          </div>
-                        </div>
-                      )}
-
-
-
-                      {/* Schedule pop-up triggers */}
-                      <div className="relative group/tooltip">
                         <button
                           id={`schedule-btn-${task.id}`}
-                          aria-label={`Schedule "${task.title}" on calendar`}
                           onClick={() => handleOpenSchedule(task.id)}
-                          className="w-9 h-9 rounded-full border-2 border-edge bg-surface text-ink-muted hover:text-ink hover:bg-surface flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer select-none shadow-sm"
+                          className="p-1.5 rounded-lg text-ink-muted hover:text-ink hover:bg-surface cursor-pointer"
+                          title="Schedule"
                         >
                           <Calendar size={14} />
                         </button>
 
-                        {/* Tooltip on Hover */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block bg-ink text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-md">
-                          Schedule on Calendar 📅
-                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-900"></div>
-                        </div>
+                        <button
+                          id={`delete-task-btn-${task.id}`}
+                          onClick={() => { onDeleteTask(task.id); onGubbyMessage("Quest banished!", "cozy"); }}
+                          className="ml-auto p-1.5 rounded-lg text-ink-muted hover:text-danger hover:bg-danger-soft cursor-pointer"
+                          title="Delete"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-                      {/* Toggle Subtasks view / Add micro-step — always reachable, even for 0-subtask tasks.
-                          Without this, fresh tasks had no way to open the panel and add subtasks manually. */}
-                      <button
-                        id={`toggle-subtasks-btn-${task.id}`}
-                        onClick={() => handleToggleExpand(task.id)}
-                        className="px-2.5 py-1.5 border-2 border-edge text-ink-muted rounded-xl hover:bg-surface font-bold text-xs flex items-center gap-1.5"
-                        title={totalSubs > 0 ? "Show / hide micro-steps" : "Add micro-steps to break this quest down"}
-                      >
-                        {totalSubs === 0 ? (
-                          isExpanded ? (
-                            <><ChevronUp size={12} /> Hide</>
-                          ) : (
-                            <><Plus size={12} /> Add steps</>
-                          )
-                        ) : (
-                          <>
-                            <div className="flex gap-0.5 mr-1">
-                              {Array.from({ length: Math.min(totalSubs, 8) }).map((_, i) => (
-                                <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < completedSubs ? "bg-brand" : "bg-surface "}`} />
-                              ))}
-                              {totalSubs > 8 && <span className="text-[8px] leading-[6px] ml-0.5 opacity-50 text-ink-muted">+{totalSubs - 8}</span>}
-                            </div>
-                            {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                          </>
-                        )}
-                      </button>
-
-                      {/* Delete */}
-                      <button
-                        id={`delete-task-btn-${task.id}`}
-                        aria-label={`Delete quest "${task.title}"`}
-                        onClick={() => {
-                          onDeleteTask(task.id);
-                          onGubbyMessage("Goblin quest banished! Begone, task clutter!", "cozy");
-                        }}
-                        className="p-1.5 text-ink-muted hover:text-danger hover:bg-danger-soft border border-transparent hover:border-danger/30 rounded-xl transition-all"
-                        title="Delete quest completely"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-
-                  </div>
-
-                  {/* Nested Subtask Content Panel */}
-                  <AnimatePresence>
-                    {(isExpanded || breakingDownTaskIds[task.id]) && (
-                      <motion.div
-                        key={task.id}
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden border-t-2 border-edge bg-surface rounded-b-2xl"
-                      >
-                        <div className="p-3 sm:p-4 pl-3 sm:pl-12 space-y-3 sm:space-y-4">
-                          
-                          {/* Subtask Progress bar */}
-                          {totalSubs > 0 && (
-                            <div className="space-y-1">
-                              <div className="flex justify-between text-xs text-ink-muted font-bold">
-                                <span>Quest Progress: {subPercent}%</span>
-                                <span className="flex gap-1 mt-0.5">
-                                  {Array.from({ length: Math.min(totalSubs, 12) }).map((_, i) => (
-                                    <div key={i} className={`w-2 h-2 rounded-full transition-colors ${i < completedSubs ? "bg-brand" : "bg-brand-soft/40"}`} />
-                                  ))}
-                                  {totalSubs > 12 && <span className="text-[10px] ml-1 opacity-70">+{totalSubs - 12}</span>}
-                                </span>
-                              </div>
-                              <div className="w-full h-2.5 bg-surface-sunken rounded-full overflow-hidden border-2 border-edge-soft">
-                                <div
-                                  className="h-full bg-brand rounded-full transition-all duration-300"
-                                  style={{ width: `${subPercent}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Individual subtask checklist */}
-                          <div className="space-y-2.5">
-                            {task.subtasks.map((sub) => (
-                              <div
-                                key={sub.id}
-                                className="flex items-center justify-between gap-3 bg-surface-sunken p-2.5 rounded-xl border border-edge-soft"
-                              >
-                                <div className="flex items-center gap-3 flex-1">
-                                  <button
-                                    id={`subtask-checkbox-${sub.id}`}
-                                    role="checkbox"
-                                    aria-checked={sub.completed}
-                                    aria-label={`Mark "${sub.title}" as ${sub.completed ? "not completed" : "completed"}`}
-                                    onClick={() => handleToggleSubtask(task.id, sub.id)}
-                                    className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${
-                                      sub.completed
-                                        ? "bg-success border-success text-white"
-                                        : "border-edge-strong  bg-surface  hover:border-success"
-                                    }`}
-                                  >
-                                    {sub.completed && <Check size={12} strokeWidth={3} />}
-                                  </button>
-                                  <span className={`text-sm font-semibold text-ink-2  leading-snug ${sub.completed ? "line-through text-ink-muted" : ""}`}>
-                                    {sub.title}
-                                  </span>
-                                </div>
-
-                                <div className="flex items-center gap-1 shrink-0">
-
-                                  
-                                  {/* Delete subtask */}
-                                  <button
-                                    id={`delete-subtask-btn-${sub.id}`}
-                                    aria-label={`Delete micro-step "${sub.title}"`}
-                                    onClick={() => handleDeleteSubtask(task.id, sub.id)}
-                                    className="p-1 text-ink-muted hover:text-danger rounded-lg"
-                                  >
-                                    <Trash2 size={12} />
-                                  </button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Quick manual subtask input */}
-                          <div className="flex items-center gap-2 pt-2 border-t border-edge-soft">
-                            <input
-                              id={`manual-subtask-input-${task.id}`}
-                              type="text"
-                              value={manualSubtaskInputs[task.id] || ""}
-                              onChange={(e) => setManualSubtaskInputs(prev => ({ ...prev, [task.id]: e.target.value }))}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") handleAddManualSubtask(task.id);
-                              }}
-                              placeholder="Add another micro-step..."
-                              className="flex-1 px-3 py-1.5 rounded-lg bg-surface-sunken border-2 border-edge-soft text-xs font-semibold text-ink-2 outline-none focus:border-brand"
-                            />
+                {/* Subtasks panel */}
+                <AnimatePresence>
+                  {(isExpanded || breakingDownTaskIds[task.id]) && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden border-t border-edge-soft bg-surface/40"
+                    >
+                      <div className="pl-4 pr-3 py-3 space-y-2">
+                        {task.subtasks.map(sub => (
+                          <div key={sub.id} className="flex items-center gap-2.5 group">
                             <button
-                              id={`add-manual-subtask-btn-${task.id}`}
-                              onClick={() => handleAddManualSubtask(task.id)}
-                              className="p-1.5 bg-brand hover:bg-brand-hover text-white rounded-lg transition-colors"
+                              onClick={() => handleToggleSubtask(task.id, sub.id)}
+                              className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 cursor-pointer transition-colors ${sub.completed ? "bg-success border-success text-white" : "border-edge-strong hover:border-success bg-surface"}`}
                             >
-                              <Plus size={14} />
+                              {sub.completed && <Check size={10} strokeWidth={3} />}
+                            </button>
+                            <span className={`text-xs font-semibold text-ink flex-1 ${sub.completed ? "line-through text-ink-muted" : ""}`}>{sub.title}</span>
+                            <button
+                              onClick={() => handleDeleteSubtask(task.id, sub.id)}
+                              className="opacity-0 group-hover:opacity-100 p-1 text-ink-muted hover:text-danger transition-opacity cursor-pointer"
+                            >
+                              <Trash2 size={11} />
                             </button>
                           </div>
-
+                        ))}
+                        <div className="flex items-center gap-2 pt-1">
+                          <input
+                            id={`manual-subtask-input-${task.id}`}
+                            type="text"
+                            value={manualSubtaskInputs[task.id] || ""}
+                            onChange={(e) => setManualSubtaskInputs(prev => ({ ...prev, [task.id]: e.target.value }))}
+                            onKeyDown={(e) => { if (e.key === "Enter") handleAddManualSubtask(task.id); }}
+                            placeholder="+ micro-step"
+                            className="flex-1 px-2.5 py-1.5 rounded-lg bg-surface-sunken border border-edge-soft text-xs font-semibold text-ink outline-none focus:border-brand"
+                          />
+                          <button
+                            onClick={() => handleAddManualSubtask(task.id)}
+                            className="p-1.5 bg-brand hover:bg-brand-hover text-primary-foreground rounded-lg cursor-pointer"
+                          >
+                            <Plus size={12} />
+                          </button>
                         </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.li>
+            );
+          })}
+        </ul>
+      )}
 
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* 3. Scheduling Popup Modal */}
+      {/* ── SCHEDULE MODAL ───────────────────────────────────────── */}
       <AnimatePresence>
         {schedulingTaskId && (
           <div className="fixed inset-0 bg-ink/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -1179,71 +777,59 @@ export default function MagicTodoModule({
               ref={scheduleDialogRef}
               role="dialog"
               aria-modal="true"
-              aria-label="Schedule your quest"
               tabIndex={-1}
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-surface p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-edge max-w-md w-full shadow-2xl space-y-4"
+              className="bg-surface p-6 rounded-2xl border border-edge max-w-md w-full shadow-2xl space-y-4"
             >
-              <h3 className="text-xl font-bold text-ink font-fredoka flex items-center gap-2">
-                <Calendar size={22} className="text-brand" /> Schedule Your Quest
+              <h3 className="text-lg font-bold text-ink font-fredoka flex items-center gap-2">
+                <Calendar size={18} className="text-brand" /> Schedule Quest
               </h3>
-              
-              <div className="space-y-3 font-nunito">
-                <p className="text-sm font-semibold text-ink-2">
-                  Target Mission: <strong className="text-ink">"{tasks.find(t => t.id === schedulingTaskId)?.title}"</strong>
-                </p>
-
-                <div className="space-y-1">
-                  <label htmlFor="schedule-date-input" className="text-xs font-bold text-ink-muted uppercase">Select Date:</label>
-                  <input
-                    id="schedule-date-input"
-                    type="date"
-                    value={scheduleDate}
-                    onChange={(e) => setScheduleDate(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border-2 border-edge-soft outline-none focus:border-brand font-semibold"
-                  />
-                  {scheduleError && (
-                    <div className="flex items-center gap-1.5 text-xs text-danger font-semibold">
-                      <AlertCircle size={14} /> {scheduleError}
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-1">
-                  <label htmlFor="schedule-time-input" className="text-xs font-bold text-ink-muted uppercase">Select Time (Optional):</label>
-                  <input
-                    id="schedule-time-input"
-                    type="time"
-                    value={scheduleTime}
-                    onChange={(e) => setScheduleTime(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border-2 border-edge-soft outline-none focus:border-brand font-semibold"
-                  />
-                </div>
+              <p className="text-sm text-ink-muted">
+                "<strong className="text-ink">{tasks.find(t => t.id === schedulingTaskId)?.title}</strong>"
+              </p>
+              <div className="space-y-1">
+                <label htmlFor="schedule-date-input" className="text-[10px] font-bold uppercase tracking-widest text-ink-muted">Date</label>
+                <input
+                  id="schedule-date-input"
+                  type="date"
+                  value={scheduleDate}
+                  onChange={(e) => setScheduleDate(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-edge bg-surface-sunken text-ink outline-none focus:border-brand font-semibold"
+                />
+                {scheduleError && (
+                  <div className="flex items-center gap-1.5 text-xs text-danger font-semibold">
+                    <AlertCircle size={14} /> {scheduleError}
+                  </div>
+                )}
               </div>
-
-              <div className="flex items-center gap-3 pt-2">
+              <div className="space-y-1">
+                <label htmlFor="schedule-time-input" className="text-[10px] font-bold uppercase tracking-widest text-ink-muted">Time (optional)</label>
+                <input
+                  id="schedule-time-input"
+                  type="time"
+                  value={scheduleTime}
+                  onChange={(e) => setScheduleTime(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-edge bg-surface-sunken text-ink outline-none focus:border-brand font-semibold"
+                />
+              </div>
+              <div className="flex gap-2 pt-2">
                 <button
                   id="cancel-schedule-btn"
                   onClick={() => setSchedulingTaskId(null)}
-                  className="flex-1 py-2.5 bg-surface-raised hover:bg-surface-raised2 text-ink-muted font-bold rounded-xl transition-colors text-sm"
-                >
-                  Cancel
-                </button>
+                  className="flex-1 py-2.5 bg-surface-sunken hover:bg-surface-raised text-ink-muted font-bold rounded-xl text-sm cursor-pointer"
+                >Cancel</button>
                 <button
                   id="save-schedule-btn"
                   onClick={handleSaveSchedule}
-                  className="flex-1 py-2.5 bg-brand hover:bg-brand-hover text-white font-bold rounded-xl transition-colors text-sm"
-                >
-                  Lock It In!
-                </button>
+                  className="flex-1 py-2.5 bg-brand hover:bg-brand-hover text-primary-foreground font-bold rounded-xl text-sm cursor-pointer"
+                >Lock it in</button>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
-
     </div>
   );
 }
