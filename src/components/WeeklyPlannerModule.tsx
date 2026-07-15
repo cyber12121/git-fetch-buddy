@@ -269,7 +269,23 @@ export default function WeeklyPlannerModule({
     localStorage.setItem("goblin_weekly_time_blocks", String(showTimeBlocks));
   }, [showTimeBlocks]);
 
-  useEffect(() => { if (addingDate && addRef.current) addRef.current.focus(); }, [addingDate]);
+  useEffect(() => { if ((addingDate || addingBlockKey) && addRef.current) addRef.current.focus(); }, [addingDate, addingBlockKey]);
+
+  const addTaskWithTime = useCallback((title: string, dateStr: string, time?: string) => {
+    const newTask: Task = {
+      id: (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : `t_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+      title,
+      priority: "medium",
+      notes: "Added in Weekly Planner",
+      completed: false,
+      subtasks: [],
+      scheduledDate: dateStr,
+      scheduledTime: time,
+      createdAt: new Date().toISOString(),
+    };
+    onUpdateTasksList([...tasks, newTask]);
+  }, [tasks, onUpdateTasksList]);
+
   useEffect(() => { if (editingId && editRef.current) editRef.current.focus(); }, [editingId]);
 
   const monday = getMonday(refDate);
