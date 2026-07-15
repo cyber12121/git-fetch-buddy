@@ -75,7 +75,7 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
                 primary switcher there; on do-tabs it complements the SideNav). */}
             <nav
               aria-label="Primary"
-              className="hidden lg:flex items-center gap-1 order-3 lg:order-none w-full lg:w-auto justify-center lg:justify-start mt-2 lg:mt-0"
+              className="hidden md:flex items-center gap-1 order-3 md:order-none w-full md:w-auto justify-center md:justify-start mt-2 md:mt-0"
             >
               {TABS.map((tab) => {
                 const isActive = activeTab === tab.id;
@@ -128,7 +128,7 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
                 </span>
               </div>
 
-              <div className="hidden lg:flex items-center gap-1.5 bg-surface-sunken/80 border border-edge rounded-full px-3 py-1.5 shadow-sm">
+              <div className="hidden md:flex items-center gap-1.5 bg-surface-sunken/80 border border-edge rounded-full px-3 py-1.5 shadow-sm">
                 <span aria-hidden="true" className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                 <span className="text-[11px] font-bold text-ink-muted">Sprig online</span>
               </div>
@@ -140,7 +140,7 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
       {/* ============ MOBILE BOTTOM TAB BAR ============ */}
       <nav
         aria-label="Primary"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-edge/70 bg-secondary/95 backdrop-blur-md shadow-[0_-4px_16px_-8px_rgba(45,58,45,0.15)]"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-edge/70 bg-secondary/95 backdrop-blur-md shadow-[0_-4px_16px_-8px_rgba(45,58,45,0.15)]"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
 
