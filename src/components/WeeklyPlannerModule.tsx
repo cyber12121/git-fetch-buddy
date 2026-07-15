@@ -364,8 +364,8 @@ export default function WeeklyPlannerModule({
     const isAdding = addingDate === dateStr;
     const dayTasks = isSomeday ? somedayTasks() : tasksFor(dateStr);
     const dayEvents = isSomeday ? [] : eventsFor(dateStr);
-    const rendered = dayEvents.length + dayTasks.length + (isAdding ? 1 : 0);
-    const empty = Math.max(0, lines - rendered);
+    const emptyLines = Math.max(0, lines - dayEvents.length - dayTasks.length - (isAdding ? 1 : 0));
+
     const morningTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "morning");
     const afternoonTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "afternoon");
     const eveningTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "evening");
@@ -378,11 +378,12 @@ export default function WeeklyPlannerModule({
         onDrop={e => { if (!showTimeBlocks) onDrop(e, isSomeday ? undefined : dateStr); }}
         onClick={() => { setAddingDate(dateStr); setNewTitle(""); setEditingId(null); }}>
 
-        {/* Header */}
-        <div className={`flex items-baseline justify-between pb-1.5 select-none border-b-2 ${today ? "border-brand" : "border-edge"}`}>
-          <span className={`text-[15px] font-semibold ${today ? "text-brand" : "text-ink"}`} style={{ fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>{label}</span>
-          <span className={`text-[11px] font-medium uppercase tracking-wider ${today ? "text-brand" : "text-ink-muted"}`}>{sublabel}</span>
+        {/* Header — tweek.so style: bold date left, muted weekday right, thin underline */}
+        <div className={`flex items-baseline justify-between pb-2 select-none border-b-2 ${today ? "border-brand" : "border-ink"}`}>
+          <span className={`text-[17px] font-bold tracking-tight ${today ? "text-brand" : "text-ink"}`}>{label}</span>
+          <span className={`text-[13px] font-medium ${today ? "text-brand/70" : "text-ink-muted/60"}`}>{sublabel}</span>
         </div>
+
 
 
         {/* Content */}
@@ -520,12 +521,12 @@ export default function WeeklyPlannerModule({
                 onBlur={() => commitAdd(dateStr)}
               />
             )}
-            {/* Ghost hint when empty */}
-            {dayTasks.length === 0 && dayEvents.length === 0 && !isAdding && (
-              <div className="text-[11px] italic text-ink-muted/40 py-3 text-center select-none">
-                +
-              </div>
-            )}
+            {/* Ruled empty lines */}
+            {Array.from({ length: emptyLines }).map((_, i) => (
+              <div key={`empty-${i}`} className="border-b border-edge/60" style={{ minHeight: 36 }} />
+            ))}
+
+
 
           </div>
         )}
@@ -538,15 +539,14 @@ export default function WeeklyPlannerModule({
   const fmtSub = (d: Date) => DAYS_S[d.getDay()];
 
   return (
-    <div className="min-h-screen bg-canvas text-ink" style={{ fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>
+    <div className="min-h-screen bg-canvas text-ink" style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}>
 
-      {/* Top Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-5 border-b border-edge">
-        <h1 className="text-3xl font-bold tracking-tight leading-none select-none text-ink" style={{ fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>
+      {/* Top Bar — minimal */}
+      <div className="flex items-center justify-between gap-3 px-6 md:px-10 pt-8 pb-6">
+        <h1 className="text-2xl md:text-[28px] font-bold tracking-tight leading-none select-none text-ink">
           {headerLabel()}
         </h1>
         <div className="flex items-center gap-3">
-          {/* Toggle Time Blocks */}
           <button
             onClick={() => {
               setShowTimeBlocks(prev => !prev);
@@ -555,25 +555,24 @@ export default function WeeklyPlannerModule({
                 "cozy"
               );
             }}
-            className={`px-3 py-1.5 rounded-full font-bold text-xs cursor-pointer transition-all border ${
+            className={`px-3 py-1.5 rounded-full font-semibold text-[11px] cursor-pointer transition-colors ${
               showTimeBlocks
-                ? "bg-brand text-primary-foreground border-brand"
-                : "bg-surface-sunken text-ink-muted border-edge hover:text-ink hover:border-edge/80"
+                ? "bg-brand text-primary-foreground"
+                : "text-ink-muted hover:text-ink"
             }`}
-            style={showTimeBlocks ? { boxShadow: "var(--theme-glow)" } : undefined}
           >
-            ⏱️ Time Blocks: {showTimeBlocks ? "ON" : "OFF"}
+            ⏱ Time Blocks: {showTimeBlocks ? "ON" : "OFF"}
           </button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <button id="prev-week-btn" type="button"
               onClick={() => { const d = new Date(refDate); d.setDate(d.getDate()-7); setRefDate(d); onGubbyMessage("Back a week! 🕰️","thoughtful"); }}
-              className="w-9 h-9 rounded-full flex items-center justify-center bg-surface-sunken border border-edge text-ink hover:bg-surface-raised transition-colors cursor-pointer">
+              className="w-8 h-8 rounded-full flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-sunken transition-colors cursor-pointer">
               <ChevronLeft size={16} />
             </button>
             <button id="next-week-btn" type="button"
               onClick={() => { const d = new Date(refDate); d.setDate(d.getDate()+7); setRefDate(d); onGubbyMessage("Forward a week! 🚀","happy"); }}
-              className="w-9 h-9 rounded-full flex items-center justify-center bg-brand text-primary-foreground hover:bg-brand-hover transition-colors cursor-pointer">
+              className="w-8 h-8 rounded-full flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-sunken transition-colors cursor-pointer">
               <ChevronRight size={16} />
             </button>
           </div>
@@ -581,68 +580,69 @@ export default function WeeklyPlannerModule({
       </div>
 
 
-      {/* Desktop: 7-column grid with subtle dividers */}
-      <div className="hidden lg:flex divide-x divide-edge/60">
+      {/* Desktop: 6 columns, Sat+Sun stacked, generous whitespace, no dividers */}
+      <div className="hidden lg:flex gap-8 px-8">
         {[mon, tue, wed, thu, fri].map((d) => (
-          <div key={toLocalDateKey(d)} className="flex-1 min-w-0 px-3 pt-4 pb-3">
+          <div key={toLocalDateKey(d)} className="flex-1 min-w-0">
             {renderColumn({ label: fmtLabel(d), sublabel: fmtSub(d), dateStr: toLocalDateKey(d), today: isToday(d), lines: 12 })}
           </div>
         ))}
         {/* Sat + Sun stacked in last column */}
-        <div className="flex-1 min-w-0 flex flex-col divide-y divide-edge/60">
-          <div className="px-3 pt-4 pb-3 flex-1">
+        <div className="flex-1 min-w-0 flex flex-col gap-6">
+          <div className="flex-1">
             {renderColumn({ label: fmtLabel(sat), sublabel: fmtSub(sat), dateStr: toLocalDateKey(sat), today: isToday(sat), lines: 5 })}
           </div>
-          <div className="px-3 pt-4 pb-3 flex-1">
+          <div className="flex-1">
             {renderColumn({ label: fmtLabel(sun), sublabel: fmtSub(sun), dateStr: toLocalDateKey(sun), today: isToday(sun), lines: 5 })}
           </div>
         </div>
       </div>
 
-      {/* Desktop: Someday strip */}
-      <div className="hidden lg:block mt-4 mx-4 mb-8 rounded-2xl border border-edge bg-surface-sunken/40"
-        onDragOver={e => onDragOver(e, "someday")}
-        onDragLeave={onDragLeaveHandler}
-        onDrop={e => onDrop(e, undefined)}
-        onClick={() => { setAddingDate("someday"); setNewTitle(""); setEditingId(null); }}>
-        <div className="px-4 pt-3 pb-2 flex items-center gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-ink-muted select-none">Someday</span>
-          <span className="text-[10px] text-ink-muted/60">·</span>
-          <span className="text-[10px] text-ink-muted/60">unscheduled backlog</span>
-        </div>
-        <div className="px-4 pb-4">
-          {somedayTasks().map(task => <TaskRow key={task.id} task={task} dateStr={undefined} {...commonTaskProps} />)}
-          {addingDate === "someday" && (
-            <AddInput addRef={addRef} value={newTitle} onChange={setNewTitle}
-              onKeyDown={e => {
-                if (e.key === "Enter") { e.preventDefault(); if (newTitle.trim()) { onAddTask(newTitle.trim(),"medium","Added in Weekly Planner",undefined); setNewTitle(""); onGubbyMessage("Task added! 📝","happy"); } else setAddingDate(null); }
-                else if (e.key === "Escape") { setAddingDate(null); setNewTitle(""); }
-              }}
-              onBlur={() => commitAdd("someday")} />
-          )}
-          {somedayTasks().length === 0 && addingDate !== "someday" && (
-            <div className="text-[11px] italic text-ink-muted/50 py-3 text-center select-none">
-              Click to add something for later
-            </div>
-          )}
+      {/* Desktop: Someday — bottom-left, muted, no card */}
+      <div className="hidden lg:block px-8 pt-10 pb-12">
+        <div className="max-w-[16%]"
+          onDragOver={e => onDragOver(e, "someday")}
+          onDragLeave={onDragLeaveHandler}
+          onDrop={e => onDrop(e, undefined)}
+          onClick={() => { setAddingDate("someday"); setNewTitle(""); setEditingId(null); }}>
+          <div className="pb-2 border-b-2 border-ink-muted/30 select-none">
+            <span className="text-[17px] font-bold tracking-tight text-ink-muted/70">Someday</span>
+          </div>
+          <div className="pt-1">
+            {somedayTasks().map(task => <TaskRow key={task.id} task={task} dateStr={undefined} {...commonTaskProps} />)}
+            {addingDate === "someday" && (
+              <AddInput addRef={addRef} value={newTitle} onChange={setNewTitle}
+                onKeyDown={e => {
+                  if (e.key === "Enter") { e.preventDefault(); if (newTitle.trim()) { onAddTask(newTitle.trim(),"medium","Added in Weekly Planner",undefined); setNewTitle(""); onGubbyMessage("Task added! 📝","happy"); } else setAddingDate(null); }
+                  else if (e.key === "Escape") { setAddingDate(null); setNewTitle(""); }
+                }}
+                onBlur={() => commitAdd("someday")} />
+            )}
+            {somedayTasks().length === 0 && addingDate !== "someday" && (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="border-b border-edge/60" style={{ minHeight: 36 }} />
+              ))
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Mobile: stacked cards */}
-      <div className="flex flex-col lg:hidden px-4 py-4 gap-4">
+      {/* Mobile: stacked, minimal */}
+      <div className="flex flex-col lg:hidden px-5 py-4 gap-6">
         {weekDays.map((d) => {
           const ds = toLocalDateKey(d);
           return (
-            <div key={ds} className="bg-surface-sunken/40 rounded-2xl border border-edge p-4">
+            <div key={ds}>
               {renderColumn({ label: fmtLabel(d), sublabel: fmtSub(d), dateStr: ds, today: isToday(d), lines: 5 })}
             </div>
           );
         })}
-        <div className="bg-surface-sunken/40 rounded-2xl border border-edge p-4">
-          {renderColumn({ label: "Someday", sublabel: "Backlog", dateStr: "someday", today: false, lines: 5 })}
+        <div>
+          {renderColumn({ label: "Someday", sublabel: "", dateStr: "someday", today: false, lines: 5 })}
         </div>
       </div>
 
     </div>
   );
 }
+
