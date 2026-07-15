@@ -1,7 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw, AlertCircle, CheckCircle, Volume2, VolumeX, Plus, Award } from "lucide-react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { Play, Pause, RotateCcw, AlertCircle, CheckCircle, Volume2, VolumeX, Plus, Award, Flame, Wind, Coffee, Target, Timer } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Task } from "../types";
+import BreathingOverlay from "./BreathingOverlay";
+import {
+  appendSession,
+  computeStats,
+  formatDuration as fmtHistoryDuration,
+  loadHistory,
+  type SessionRecord,
+} from "../lib/focusHistory";
 
 interface TaskmasterModuleProps {
   activeTaskTitle: string | null;
@@ -13,6 +21,12 @@ interface TaskmasterModuleProps {
 }
 
 type PendingAction = { type: "quest" | "quick_focus"; value: string };
+type TimerMode = "focus" | "pomodoro" | "break";
+
+const POMODORO_FOCUS_SECS = 25 * 60;
+const POMODORO_BREAK_SECS = 5 * 60;
+const BREAK_SECS = 5 * 60;
+
 
 export default function TaskmasterModule({
   activeTaskTitle,
