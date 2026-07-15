@@ -422,101 +422,85 @@ export default function WeeklyPlannerModule({
               </div>
             )}
 
-            {/* Morning */}
-            <div
-              onDragOver={e => { e.preventDefault(); e.stopPropagation(); setDragOverDate(`${dateStr}:morning`); }}
-              onDragLeave={onDragLeaveHandler}
-              onDrop={e => { e.preventDefault(); e.stopPropagation(); onDrop(e, dateStr, "09:00"); }}
-              className={`transition-colors rounded-xl p-1.5 border-2 ${
-                dragOverDate === `${dateStr}:morning` ? "bg-[#FEFCE8] border-[#FEF08A]/80 shadow-sm" : "bg-[#FEFCE8]/45 border-[#FEF08A]/25"
-              }`}
-            >
-              <div className="text-[9px] font-extrabold text-[#A16207] uppercase tracking-wider mb-1 select-none flex items-center gap-1">
-                <span>☀️</span> Morning
-              </div>
-              <div className="space-y-0.5">
-                {morningTasks.map(task => (
-                  <TaskRow key={task.id} task={task} dateStr={dateStr} {...commonTaskProps} onDropOnTask={(e, targetId, date) => onDropOnTask(e, targetId, date, "09:00")} />
-                ))}
-                {morningTasks.length === 0 && (
-                  <div className="text-[8px] italic text-[#A16207]/40 py-1 text-center border border-dashed border-[#FEF08A]/10 rounded-lg select-none">
-                    Empty ☀️
+            {([
+              { key: "morning",   time: "09:00" as string|undefined, label: "Morning",   emoji: "☀️", bg: "#FEFCE8", border: "#FEF08A", text: "#A16207", tasks: morningTasks },
+              { key: "afternoon", time: "13:00" as string|undefined, label: "Afternoon", emoji: "🌤️", bg: "#F0FDF4", border: "#BBF7D0", text: "#15803D", tasks: afternoonTasks },
+              { key: "evening",   time: "18:00" as string|undefined, label: "Evening",   emoji: "🌙", bg: "#FDF4FF", border: "#F5D0FE", text: "#701A75", tasks: eveningTasks },
+              { key: "anytime",   time: undefined,                   label: "Anytime",   emoji: "📅", bg: "",        border: "",        text: "#475569", tasks: anytimeTasks },
+            ]).map(block => {
+              const blockKey = `${dateStr}|${block.time ?? ""}`;
+              const dragKey = `${dateStr}:${block.key}`;
+              const isAddingBlock = addingBlockKey === blockKey;
+              const isAnytime = block.key === "anytime";
+              return (
+                <div
+                  key={block.key}
+                  onDragOver={e => { e.preventDefault(); e.stopPropagation(); setDragOverDate(dragKey); }}
+                  onDragLeave={onDragLeaveHandler}
+                  onDrop={e => { e.preventDefault(); e.stopPropagation(); onDrop(e, dateStr, block.time); }}
+                  onClick={e => { e.stopPropagation(); setAddingBlockKey(blockKey); setAddingDate(null); setNewTitle(""); setEditingId(null); }}
+                  className={`cursor-pointer transition-colors rounded-xl p-1.5 border-2 ${
+                    dragOverDate === dragKey
+                      ? "shadow-sm"
+                      : ""
+                  }`}
+                  style={{
+                    background: isAnytime
+                      ? (dragOverDate === dragKey ? "rgb(248 250 252)" : "color-mix(in oklab, var(--surface-sunken) 40%, transparent)")
+                      : (dragOverDate === dragKey ? block.bg : `color-mix(in oklab, ${block.bg} 45%, transparent)`),
+                    borderColor: isAnytime
+                      ? (dragOverDate === dragKey ? "rgb(226 232 240)" : "var(--edge)")
+                      : (dragOverDate === dragKey ? `color-mix(in oklab, ${block.border} 80%, transparent)` : `color-mix(in oklab, ${block.border} 25%, transparent)`),
+                  }}
+                >
+                  <div className="text-[9px] font-extrabold uppercase tracking-wider mb-1 select-none flex items-center gap-1" style={{ color: block.text }}>
+                    <span>{block.emoji}</span> {block.label}
                   </div>
-                )}
-              </div>
-            </div>
+                  <div className="space-y-0.5">
+                    {block.tasks.map(task => (
+                      <TaskRow key={task.id} task={task} dateStr={dateStr} {...commonTaskProps} onDropOnTask={(e, targetId, date) => onDropOnTask(e, targetId, date, block.time)} />
+                    ))}
+                    {isAddingBlock && (
+                      <AddInput
+                        addRef={addRef}
+                        value={newTitle}
+                        onChange={setNewTitle}
+                        onKeyDown={e => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            if (newTitle.trim()) {
+                              addTaskWithTime(newTitle.trim(), dateStr, block.time);
+                              setNewTitle("");
+                              onGubbyMessage("Task added! 📝", "happy");
+                            } else {
+                              setAddingBlockKey(null);
+                            }
+                          } else if (e.key === "Escape") {
+                            setAddingBlockKey(null);
+                            setNewTitle("");
+                          }
+                        }}
+                        onBlur={() => {
+                          if (newTitle.trim()) {
+                            addTaskWithTime(newTitle.trim(), dateStr, block.time);
+                            onGubbyMessage("Task added! 📝", "happy");
+                          }
+                          setNewTitle("");
+                          setAddingBlockKey(null);
+                        }}
+                      />
+                    )}
+                    {block.tasks.length === 0 && !isAddingBlock && (
+                      <div className="text-[9px] italic py-1 text-center border border-dashed rounded-lg select-none opacity-50" style={{ color: block.text, borderColor: isAnytime ? "var(--edge)" : `color-mix(in oklab, ${block.border} 30%, transparent)` }}>
+                        + add to {block.label.toLowerCase()}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
 
-            {/* Afternoon */}
-            <div
-              onDragOver={e => { e.preventDefault(); e.stopPropagation(); setDragOverDate(`${dateStr}:afternoon`); }}
-              onDragLeave={onDragLeaveHandler}
-              onDrop={e => { e.preventDefault(); e.stopPropagation(); onDrop(e, dateStr, "13:00"); }}
-              className={`transition-colors rounded-xl p-1.5 border-2 ${
-                dragOverDate === `${dateStr}:afternoon` ? "bg-[#F0FDF4] border-[#BBF7D0]/80 shadow-sm" : "bg-[#F0FDF4]/45 border-[#BBF7D0]/25"
-              }`}
-            >
-              <div className="text-[9px] font-extrabold text-[#15803D] uppercase tracking-wider mb-1 select-none flex items-center gap-1">
-                <span>🌤️</span> Afternoon
-              </div>
-              <div className="space-y-0.5">
-                {afternoonTasks.map(task => (
-                  <TaskRow key={task.id} task={task} dateStr={dateStr} {...commonTaskProps} onDropOnTask={(e, targetId, date) => onDropOnTask(e, targetId, date, "13:00")} />
-                ))}
-                {afternoonTasks.length === 0 && (
-                  <div className="text-[8px] italic text-[#15803D]/40 py-1 text-center border border-dashed border-[#BBF7D0]/10 rounded-lg select-none">
-                    Empty 🌤️
-                  </div>
-                )}
-              </div>
-            </div>
 
-            {/* Evening */}
-            <div
-              onDragOver={e => { e.preventDefault(); e.stopPropagation(); setDragOverDate(`${dateStr}:evening`); }}
-              onDragLeave={onDragLeaveHandler}
-              onDrop={e => { e.preventDefault(); e.stopPropagation(); onDrop(e, dateStr, "18:00"); }}
-              className={`transition-colors rounded-xl p-1.5 border-2 ${
-                dragOverDate === `${dateStr}:evening` ? "bg-[#FDF4FF] border-[#F5D0FE]/80 shadow-sm" : "bg-[#FDF4FF]/45 border-[#F5D0FE]/25"
-              }`}
-            >
-              <div className="text-[9px] font-extrabold text-[#701A75] uppercase tracking-wider mb-1 select-none flex items-center gap-1">
-                <span>🌙</span> Evening
-              </div>
-              <div className="space-y-0.5">
-                {eveningTasks.map(task => (
-                  <TaskRow key={task.id} task={task} dateStr={dateStr} {...commonTaskProps} onDropOnTask={(e, targetId, date) => onDropOnTask(e, targetId, date, "18:00")} />
-                ))}
-                {eveningTasks.length === 0 && (
-                  <div className="text-[8px] italic text-[#701A75]/40 py-1 text-center border border-dashed border-[#F5D0FE]/10 rounded-lg select-none">
-                    Empty 🌙
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Anytime */}
-            <div
-              onDragOver={e => { e.preventDefault(); e.stopPropagation(); setDragOverDate(`${dateStr}:anytime`); }}
-              onDragLeave={onDragLeaveHandler}
-              onDrop={e => { e.preventDefault(); e.stopPropagation(); onDrop(e, dateStr, undefined); }}
-              className={`transition-colors rounded-xl p-1.5 border-2 ${
-                dragOverDate === `${dateStr}:anytime` ? "bg-slate-50 border-slate-200 shadow-sm" : "bg-surface-sunken/40 border-edge "
-              }`}
-            >
-              <div className="text-[9px] font-extrabold text-[#475569] uppercase tracking-wider mb-1 select-none flex items-center gap-1">
-                <span>📅</span> Anytime
-              </div>
-              <div className="space-y-0.5">
-                {anytimeTasks.map(task => (
-                  <TaskRow key={task.id} task={task} dateStr={dateStr} {...commonTaskProps} onDropOnTask={(e, targetId, date) => onDropOnTask(e, targetId, date, undefined)} />
-                ))}
-                {anytimeTasks.length === 0 && (
-                  <div className="text-[8px] italic text-[#475569]/30 py-1 text-center border border-dashed border-edge rounded-lg select-none">
-                    Anytime 📅
-                  </div>
-                )}
-              </div>
-            </div>
 
             {isAdding && (
               <AddInput
