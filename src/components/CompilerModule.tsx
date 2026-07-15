@@ -59,12 +59,17 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
 
     try {
       const data = await compileBrainDump({ data: { rawText } });
-      const formatted = (data.tasks || []).map((t: any) => ({
+      type RawCompiledTask = { title?: unknown; priority?: unknown; notes?: unknown };
+      const rawList: RawCompiledTask[] = Array.isArray(data.tasks) ? (data.tasks as RawCompiledTask[]) : [];
+      const formatted = rawList.map((t) => ({
         id: crypto.randomUUID(),
-        title: t.title || "Untitled Task",
-        priority: (t.priority === "low" || t.priority === "medium" || t.priority === "high") ? t.priority : "medium",
-        notes: t.notes || "",
-        selected: true
+        title: typeof t.title === "string" && t.title ? t.title : "Untitled Task",
+        priority:
+          t.priority === "low" || t.priority === "medium" || t.priority === "high"
+            ? t.priority
+            : ("medium" as const),
+        notes: typeof t.notes === "string" ? t.notes : "",
+        selected: true,
       }));
 
       setTempTasks(formatted);
@@ -74,9 +79,10 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
       } else {
         onGubbyMessage("Hmm, we parsed it but didn't find clear tasks. Try adding some action words!", "cozy");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || "Failed to compile. Please check your network connection or try again.");
+      const { errorMessage } = await import("../lib/errors");
+      setError(errorMessage(err, "Failed to compile. Please check your network connection or try again."));
       onGubbyMessage("Oops! My magical sorting hat got tangled in some wires. Let's try again!", "cozy");
     } finally {
       setIsLoading(false);

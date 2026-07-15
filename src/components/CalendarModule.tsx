@@ -299,7 +299,7 @@ export default function CalendarModule({
           }
           await onLoadGoogleEvents(accessToken);
           onGubbyMessage(`Custom Event "${eventTitle.trim()}" successfully saved locally & synchronized to Google Calendar! 📅✨`, "happy");
-        } catch (err: any) {
+        } catch (err: unknown) {
           console.error("Failed to save to Google Calendar", err);
           onGubbyMessage(`Saved event locally, but Google Calendar synchronization failed. 📌`, "thoughtful");
         } finally {
@@ -359,7 +359,7 @@ export default function CalendarModule({
 
         setSelectedEvent(null);
         onGubbyMessage("Google Calendar event deleted successfully! 🗑️", "cozy");
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Failed to delete Google Calendar event", err);
         onGubbyMessage("Oops! Could not delete event from Google Calendar.", "thoughtful");
       } finally {

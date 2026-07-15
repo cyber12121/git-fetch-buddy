@@ -80,7 +80,7 @@ export const signInWithGoogle = async (): Promise<{ user: User; accessToken: str
     storeToken(cachedAccessToken);
 
     return { user: result.user, accessToken: cachedAccessToken };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Firebase Google Sign-in Error:", error);
     throw error;
   }
@@ -109,7 +109,7 @@ export const connectGoogleCalendar = async (): Promise<string> => {
     storeToken(cachedAccessToken);
 
     return cachedAccessToken;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Google Calendar (re)connect error:", error);
     throw error;
   }

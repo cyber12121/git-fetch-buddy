@@ -27,32 +27,38 @@ export async function fetchGoogleCalendarEvents(
       throw new Error(`Google Calendar API error: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json();
-    const items = data.items || [];
+    const data = (await response.json()) as { items?: GoogleCalendarApiItem[] };
+    const items: GoogleCalendarApiItem[] = data.items ?? [];
 
-    return items.map((item: any) => {
-      let eventDate = "";
-      let eventTime: string | undefined = undefined;
+    return items
+      .map<CalendarEvent | null>((item) => {
+        let eventDate = "";
+        let eventTime: string | undefined = undefined;
 
-      if (item.start?.dateTime) {
-        // e.g., "2026-07-01T14:30:00-07:00" -> date "2026-07-01", time "14:30"
-        const dt = item.start.dateTime;
-        eventDate = dt.substring(0, 10);
-        eventTime = dt.substring(11, 16);
-      } else if (item.start?.date) {
-        // All-day event, e.g., "2026-07-01"
-        eventDate = item.start.date;
-      }
+        if (item.start?.dateTime) {
+          // e.g., "2026-07-01T14:30:00-07:00" -> date "2026-07-01", time "14:30"
+          const dt = item.start.dateTime;
+          eventDate = dt.substring(0, 10);
+          eventTime = dt.substring(11, 16);
+        } else if (item.start?.date) {
+          // All-day event, e.g., "2026-07-01"
+          eventDate = item.start.date;
+        } else {
+          // Guard: Google can return items with neither dateTime nor date
+          // (e.g. cancelled recurring instances). Skip instead of crashing.
+          return null;
+        }
 
-      return {
-        id: `google-${item.id}`,
-        title: item.summary || "(No Title)",
-        date: eventDate,
-        time: eventTime,
-        color: "bg-sky-50 text-sky-950 border-sky-200 border-l-2 border-l-sky-500 rounded-md px-1.5 shadow-xs",
-        type: "google"
-      };
-    });
+        return {
+          id: `google-${item.id}`,
+          title: item.summary || "(No Title)",
+          date: eventDate,
+          time: eventTime,
+          color: "bg-sky-50 text-sky-950 border-sky-200 border-l-2 border-l-sky-500 rounded-md px-1.5 shadow-xs",
+          type: "google"
+        };
+      })
+      .filter((evt): evt is CalendarEvent => evt !== null);
   } catch (error) {
     console.error("Failed to fetch Google Calendar events:", error);
     throw error;

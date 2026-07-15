@@ -61,7 +61,7 @@ async function retryWithBackoff<T>(
       setTimeout(() => reject(new Error("Gemini API timed out")), GEMINI_FETCH_TIMEOUT_MS)
     );
     return await Promise.race([fn(), timeout]);
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (retries > 0) {
       await new Promise((resolve) => setTimeout(resolve, delay));
       return retryWithBackoff(fn, retries - 1, delay * 2);
@@ -147,12 +147,12 @@ Raw brain dump text:
       }
       const result = JSON.parse(text);
       return { tasks: (result.tasks || []) as CompiledTask[], isMock: false };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Gemini compilation error, switching to fallback:", error);
       return {
         tasks: heuristicCompile(data.rawText),
         isMock: true,
-        fallbackReason: error.message,
+        fallbackReason: error instanceof Error ? error.message : String(error),
       };
     }
   });
@@ -232,12 +232,12 @@ Rules for the micro-steps:
       }
       const result = JSON.parse(text);
       return { steps: (result.steps || []) as string[], isMock: false };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Gemini breakdown error, switching to fallback:", error);
       return {
         steps: fallbackSteps(data.title),
         isMock: true,
-        fallbackReason: error.message,
+        fallbackReason: error instanceof Error ? error.message : String(error),
       };
     }
   });

@@ -172,7 +172,7 @@ export default function MagicTodoModule({
       // Auto expand to see result
       setExpandedTaskIds(prev => ({ ...prev, [task.id]: true }));
       onGubbyMessage(`Boom! Sliced into ${generatedSteps.length} micro-steps. Take a look!`, "excited");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       onGubbyMessage("Sprig couldn't slice this task automatically. Let's write subtasks manually!", "cozy");
     } finally {
