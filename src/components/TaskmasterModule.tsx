@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw, AlertCircle, CheckCircle, Volume2, VolumeX, Trophy, Plus, Award, Clock, Zap, CheckSquare } from "lucide-react";
+import { Play, Pause, RotateCcw, AlertCircle, CheckCircle, Volume2, VolumeX, Plus, Award } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Task } from "../types";
 
