@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw, AlertCircle, CheckCircle, Volume2, VolumeX, Trophy, Plus, Award, Clock, Zap, CheckSquare } from "lucide-react";
+import { Play, Pause, RotateCcw, AlertCircle, CheckCircle, Volume2, VolumeX, Plus, Award } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Task } from "../types";
 
@@ -429,70 +429,58 @@ export default function TaskmasterModule({
   // ─────────────────── SUMMARY VIEW ───────────────────
   if (showSummary) {
     return (
-      <div id="taskmaster-summary-module" className="max-w-3xl mx-auto px-1 sm:px-0 pb-8">
+      <div id="taskmaster-summary-module" className="max-w-2xl mx-auto px-1 sm:px-0 pb-8">
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-5"
+          className="space-y-6"
         >
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-ink-muted">Session recap</div>
-              <h1 className="text-2xl sm:text-3xl font-fredoka font-bold text-ink">Nice work today</h1>
-            </div>
-            <Award size={28} className="text-brand" />
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-ink-muted">Session recap</div>
+            <h1 className="text-3xl font-fredoka font-bold text-ink mt-1">Nice work.</h1>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="relative bg-surface-sunken border border-edge rounded-2xl p-5 overflow-hidden">
-              <span className="absolute inset-y-0 left-0 w-1 bg-brand" />
+          <div className="grid grid-cols-2 gap-px bg-edge rounded-2xl overflow-hidden border border-edge">
+            <div className="bg-surface-sunken p-6">
               <div className="text-[10px] font-bold uppercase tracking-widest text-ink-muted">Focused</div>
-              <div className="font-mono text-3xl sm:text-4xl font-bold text-ink tabular-nums mt-1">
+              <div style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace" }} className="text-4xl font-bold text-ink tabular-nums mt-2">
                 {formatFocusDuration(sessionFocusSeconds)}
               </div>
             </div>
-            <div className="relative bg-surface-sunken border border-edge rounded-2xl p-5 overflow-hidden">
-              <span className="absolute inset-y-0 left-0 w-1 bg-success" />
+            <div className="bg-surface-sunken p-6">
               <div className="text-[10px] font-bold uppercase tracking-widest text-ink-muted">Cleared</div>
-              <div className="font-mono text-3xl sm:text-4xl font-bold text-ink tabular-nums mt-1">
+              <div style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace" }} className="text-4xl font-bold text-ink tabular-nums mt-2">
                 {completedMissions.length}
               </div>
             </div>
           </div>
 
-          <div className="bg-surface-sunken border border-edge rounded-2xl p-5">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-ink-muted mb-3 flex items-center gap-1.5">
-              <Zap size={11} className="text-brand" /> Completed quests
-            </div>
-            {completedMissions.length > 0 ? (
-              <ul className="space-y-1.5 max-h-56 overflow-y-auto">
-                {completedMissions.map((title, i) => (
-                  <motion.li
-                    key={`${i}-${title}`}
-                    initial={{ opacity: 0, x: -6 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.04 }}
-                    className="flex items-center gap-2 text-sm font-semibold text-ink"
-                  >
-                    <CheckCircle size={14} className="text-success shrink-0" />
-                    <span className="truncate">{title}</span>
-                  </motion.li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-xs text-ink-muted italic">No completions logged — showing up still counts.</p>
-            )}
-          </div>
+          {completedMissions.length > 0 && (
+            <ul className="space-y-2">
+              {completedMissions.map((title, i) => (
+                <motion.li
+                  key={`${i}-${title}`}
+                  initial={{ opacity: 0, x: -6 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                  className="flex items-center gap-2.5 text-sm text-ink"
+                >
+                  <CheckCircle size={14} className="text-success shrink-0" />
+                  <span className="truncate">{title}</span>
+                </motion.li>
+              ))}
+            </ul>
+          )}
 
-          <div className="bg-brand-soft/20 border border-brand/30 rounded-2xl p-4 text-sm text-ink font-semibold leading-relaxed">
-            <span className="text-lg mr-2">🦉</span>{getGubbyResponse(sessionFocusSeconds, completedMissions.length)}
-          </div>
+          <p className="text-sm text-ink-muted leading-relaxed border-l-2 border-brand pl-4">
+            {getGubbyResponse(sessionFocusSeconds, completedMissions.length)}
+          </p>
 
           <div className="flex gap-2">
             <button
               id="summary-back-btn"
               onClick={() => setShowSummary(false)}
-              className="flex-1 py-3 bg-brand hover:bg-brand-hover text-primary-foreground font-bold text-sm rounded-xl transition-all cursor-pointer"
+              className="flex-1 h-12 bg-brand hover:bg-brand-hover text-primary-foreground font-bold text-sm rounded-xl transition-all cursor-pointer"
               style={{ boxShadow: "var(--theme-glow)" }}
             >
               Back to timer
@@ -502,7 +490,7 @@ export default function TaskmasterModule({
               onClick={() => {
                 if (window.confirm("Reset all focus stats for today?")) handleStartNewSession();
               }}
-              className="px-4 py-3 bg-surface-sunken hover:bg-surface-raised text-ink-muted font-bold text-sm rounded-xl border border-edge cursor-pointer"
+              className="px-5 h-12 bg-surface-sunken hover:bg-surface-raised text-ink-muted font-bold text-sm rounded-xl border border-edge cursor-pointer"
             >
               Reset day
             </button>
@@ -512,296 +500,290 @@ export default function TaskmasterModule({
     );
   }
 
-  // ─────────────────── MAIN COCKPIT ───────────────────
+  // ─────────────────── MAIN — MINIMAL ONE-THING VIEW ───────────────────
   const remainingRatio = duration > 0 ? timeLeft / duration : 1;
   const donePct = Math.round((1 - remainingRatio) * 100);
   const zone = remainingRatio <= 0.1 ? "danger" : remainingRatio <= 0.2 ? "warn" : "brand";
   const zoneColor = zone === "danger" ? "var(--color-danger)" : zone === "warn" ? "var(--color-warn)" : "var(--color-brand)";
   const status = isRunning ? "focusing" : timeLeft === duration ? "ready" : "paused";
+  const monoFont = "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
+  const bodyFont = "'Work Sans', system-ui, sans-serif";
+  const openTasks = tasks.filter(t => !t.completed);
 
   return (
-    <div id="taskmaster-module" className="max-w-4xl mx-auto px-1 sm:px-0 pb-8">
-
-      {/* ── HEADER ─────────────────────────────────────────────── */}
-      <div className="flex items-end justify-between gap-4 mb-5">
-        <div className="min-w-0">
-          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-ink-muted">Focus cockpit</div>
-          <h1 className="text-2xl sm:text-3xl font-fredoka font-bold text-ink truncate">
-            {isRunning ? "In flow" : status === "paused" ? "Held" : "Ready"}
-          </h1>
-        </div>
-        <button
-          id="timer-view-summary-btn"
-          onClick={() => { setIsRunning(false); setShowSummary(true); }}
-          className="shrink-0 flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-ink-muted hover:text-ink bg-surface-sunken border border-edge rounded-xl cursor-pointer"
-        >
-          <Award size={13} /> Recap
-        </button>
-      </div>
-
-      {/* ── COCKPIT CARD ───────────────────────────────────────── */}
-      <div className="relative bg-surface-sunken border border-edge rounded-3xl overflow-hidden card-shadow">
-        <AnimatePresence>
-          {pendingAction && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-surface/95 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-6 text-center space-y-4"
-            >
-              <AlertCircle size={28} className="text-warn animate-pulse" />
-              <h3 className="text-lg font-bold text-ink font-fredoka">Reset focus progress?</h3>
-              <p className="text-xs text-ink-muted max-w-sm">Loading a new mission will discard your active countdown.</p>
-              <div className="flex gap-2 w-full max-w-xs">
+    <div
+      id="taskmaster-module"
+      className="max-w-xl mx-auto px-1 sm:px-0 pb-10"
+      style={{ fontFamily: bodyFont }}
+    >
+      {/* Pending-action modal */}
+      <AnimatePresence>
+        {pendingAction && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-canvas/85 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+          >
+            <div className="max-w-sm w-full bg-surface-sunken border border-edge rounded-2xl p-6 text-center space-y-4">
+              <AlertCircle size={24} className="text-warn mx-auto" />
+              <h3 className="text-base font-bold text-ink">Reset focus progress?</h3>
+              <p className="text-xs text-ink-muted">Loading a new mission will discard your active countdown.</p>
+              <div className="flex gap-2">
                 <button
                   id="confirm-action-yes-btn"
                   onClick={() => executeAction(pendingAction)}
-                  className="flex-1 py-2.5 bg-danger text-white font-bold text-xs rounded-xl cursor-pointer"
+                  className="flex-1 h-10 bg-danger text-white font-bold text-xs rounded-lg cursor-pointer"
                 >Yes, switch</button>
                 <button
                   id="confirm-action-no-btn"
                   onClick={() => setPendingAction(null)}
-                  className="flex-1 py-2.5 bg-surface-raised text-ink-muted font-bold text-xs rounded-xl cursor-pointer border border-edge"
+                  className="flex-1 h-10 bg-surface-raised text-ink-muted font-bold text-xs rounded-lg border border-edge cursor-pointer"
                 >Keep going</button>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        {/* mission strip */}
-        <div className="px-5 sm:px-8 pt-6 pb-4 border-b border-edge-soft">
-          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-brand mb-2">
-            <span className={`w-1.5 h-1.5 rounded-full bg-brand ${isRunning ? "animate-pulse" : ""}`} />
-            {isRunning ? "One thing, right now" : "Mission"}
-          </div>
-          <AnimatePresence mode="wait">
-            {currentMission ? (
-              <motion.h2
-                key={currentMission}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                className="text-lg sm:text-2xl font-fredoka font-bold text-ink leading-tight break-words"
-              >
-                {currentMission}
-              </motion.h2>
-            ) : (
-              <motion.form
-                key="quick"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                onSubmit={handleCreateTempMission}
-                className="flex items-center gap-2"
-              >
-                <input
-                  id="quick-focus-input"
-                  type="text"
-                  value={tempFocusTitle}
-                  onChange={(e) => setTempFocusTitle(e.target.value)}
-                  placeholder="What's the one thing?"
-                  className="flex-1 min-w-0 bg-transparent outline-none text-lg sm:text-xl font-fredoka font-bold text-ink placeholder:text-ink-muted/60"
-                />
+      {/* Tiny top row — status pill + recap link */}
+      <div className="flex items-center justify-between mb-10">
+        <div
+          className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-ink-muted"
+          style={{ fontFamily: monoFont }}
+        >
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${
+              isRunning ? "bg-success animate-pulse" : status === "paused" ? "bg-warn" : "bg-ink-muted/50"
+            }`}
+          />
+          {status}
+        </div>
+        <button
+          id="timer-view-summary-btn"
+          onClick={() => { setIsRunning(false); setShowSummary(true); }}
+          className="text-[11px] font-bold text-ink-muted hover:text-ink flex items-center gap-1.5 cursor-pointer transition-colors"
+        >
+          <Award size={12} /> Recap
+        </button>
+      </div>
+
+      {/* Mission — single line, no card */}
+      <div className="mb-8 text-center min-h-[3rem]">
+        <AnimatePresence mode="wait">
+          {currentMission ? (
+            <motion.h2
+              key={currentMission}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              className="text-lg sm:text-xl font-semibold text-ink leading-snug break-words"
+            >
+              {currentMission}
+            </motion.h2>
+          ) : (
+            <motion.form
+              key="quick"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              onSubmit={handleCreateTempMission}
+              className="flex items-center gap-2 max-w-md mx-auto"
+            >
+              <input
+                id="quick-focus-input"
+                type="text"
+                value={tempFocusTitle}
+                onChange={(e) => setTempFocusTitle(e.target.value)}
+                placeholder="One thing. What is it?"
+                className="flex-1 min-w-0 bg-transparent border-b border-edge focus:border-brand outline-none text-center text-base font-semibold text-ink placeholder:text-ink-muted/50 py-2 transition-colors"
+              />
+              {tempFocusTitle.trim() && (
                 <button
                   id="load-quick-focus-btn"
                   type="submit"
-                  className="shrink-0 p-2.5 bg-brand hover:bg-brand-hover text-primary-foreground rounded-xl cursor-pointer"
+                  aria-label="Set mission"
+                  className="shrink-0 p-2 text-brand hover:text-brand-hover cursor-pointer"
                 >
-                  <Plus size={16} />
+                  <Plus size={18} />
                 </button>
-              </motion.form>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* MEGA TIMER: typographic, not a ring */}
-        <div className="px-5 sm:px-8 py-8 sm:py-10 text-center relative">
-          <div
-            role="timer"
-            aria-live="polite"
-            aria-label={`${formatTime(timeLeft)} remaining, ${status}`}
-            className="font-mono font-bold tabular-nums leading-none tracking-tight select-none transition-colors duration-700"
-            style={{
-              fontSize: "clamp(4.5rem, 18vw, 9rem)",
-              color: zoneColor,
-              textShadow: isRunning ? `0 0 40px ${zoneColor}55` : "none",
-            }}
-          >
-            {formatTime(timeLeft)}
-          </div>
-          <div className="mt-3 flex items-center justify-center gap-3 text-[11px] font-bold uppercase tracking-[0.2em] text-ink-muted">
-            <span className="flex items-center gap-1.5">
-              <span className={`w-1.5 h-1.5 rounded-full ${isRunning ? "bg-success animate-pulse" : status === "paused" ? "bg-warn" : "bg-ink-muted"}`} />
-              {status}
-            </span>
-            <span className="text-ink-muted/40">·</span>
-            <span>{donePct}%</span>
-            <span className="text-ink-muted/40">·</span>
-            <span>{Math.floor(duration / 60)}m goal</span>
-          </div>
-        </div>
-
-        {/* THIN LINEAR PROGRESS */}
-        <div className="h-1 w-full bg-surface/50 relative overflow-hidden">
-          <motion.div
-            className="h-full absolute inset-y-0 left-0"
-            style={{ backgroundColor: zoneColor, boxShadow: `0 0 12px ${zoneColor}` }}
-            animate={{ width: `${donePct}%` }}
-            transition={{ duration: 0.6, ease: "linear" }}
-          />
-        </div>
-
-        {/* CONTROL DECK */}
-        <div className="px-5 sm:px-8 py-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-          <button
-            id="timer-play-pause-btn"
-            onClick={handleStartPause}
-            aria-label={isRunning ? "Pause" : "Start"}
-            className={`h-14 min-w-[140px] px-6 flex items-center justify-center gap-2 rounded-2xl font-bold text-sm text-primary-foreground transition-all active:scale-95 cursor-pointer ${
-              isRunning ? "bg-warn hover:opacity-90" : "bg-brand hover:bg-brand-hover"
-            }`}
-            style={{ boxShadow: isRunning ? "none" : "var(--theme-glow)" }}
-          >
-            {isRunning ? <><Pause size={18} className="fill-current" /> Pause</> : <><Play size={18} className="fill-current" /> {status === "paused" ? "Resume" : "Start"}</>}
-          </button>
-
-          <button
-            id="timer-reset-btn"
-            onClick={handleReset}
-            className="h-14 w-14 flex items-center justify-center bg-surface hover:bg-surface-raised border border-edge rounded-2xl text-ink-muted transition-colors cursor-pointer"
-            title="Reset"
-          >
-            <RotateCcw size={16} />
-          </button>
-
-          {currentMission && (
-            <button
-              id="timer-complete-btn"
-              onClick={handleCompleteMission}
-              className="h-14 px-4 flex items-center gap-1.5 bg-success-soft hover:bg-success/20 border border-success/30 text-success font-bold text-xs rounded-2xl transition-colors cursor-pointer"
-              title="Finish mission"
-            >
-              <CheckCircle size={16} /> Done
-            </button>
+              )}
+            </motion.form>
           )}
-        </div>
+        </AnimatePresence>
+      </div>
 
-        {/* SENSORY TOGGLES */}
-        <div className="px-5 sm:px-8 pb-5 flex flex-wrap items-center justify-center gap-2">
-          <button
-            id="sound-fx-toggle"
-            onClick={() => setSoundEnabled(!soundEnabled)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
-              soundEnabled ? "bg-brand-soft/30 border-brand/30 text-ink" : "bg-surface border-edge-soft text-ink-muted hover:text-ink"
-            }`}
-          >
-            {soundEnabled ? <Volume2 size={12} /> : <VolumeX size={12} />} Chimes
-          </button>
-          <button
-            id="body-double-pacing-toggle"
-            onClick={() => setPacingEnabled(!pacingEnabled)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
-              pacingEnabled ? "bg-brand-soft/30 border-brand/30 text-ink" : "bg-surface border-edge-soft text-ink-muted hover:text-ink"
-            }`}
-          >
-            🎯 Body-double tick
-          </button>
+      {/* MEGA TIMER — the hero */}
+      <div className="text-center mb-6">
+        <div
+          role="timer"
+          aria-live="polite"
+          aria-label={`${formatTime(timeLeft)} remaining, ${status}`}
+          className="font-bold tabular-nums leading-none tracking-tight select-none transition-colors duration-700"
+          style={{
+            fontFamily: monoFont,
+            fontSize: "clamp(5rem, 22vw, 11rem)",
+            color: zoneColor,
+            textShadow: isRunning ? `0 0 60px ${zoneColor}44` : "none",
+            letterSpacing: "-0.04em",
+          }}
+        >
+          {formatTime(timeLeft)}
         </div>
       </div>
 
-      {/* ── QUEST PICKER (when no mission) ─────────────────────── */}
-      {!currentMission && tasks.filter(t => !t.completed).length > 0 && (
-        <div className="mt-5 bg-surface-sunken border border-edge rounded-2xl p-4">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-ink-muted mb-2">Or pick a quest</div>
-          <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
-            {tasks.filter(t => !t.completed).map(task => (
-              <button
-                key={task.id}
-                id={`quick-pick-task-${task.id}`}
-                onClick={() => {
-                  const hasProgress = timeLeft < duration && timeLeft > 0;
-                  if (hasProgress) {
-                    setPendingAction({ type: "quest", value: task.title });
-                    setIsRunning(false);
-                  } else {
-                    setCurrentMission(task.title);
-                    setTimeLeft(duration);
-                    setIsRunning(false);
-                    setActiveSessionSeconds(0);
-                    onGubbyMessage(`Loaded task: "${task.title}". Let's crush this!`, "focused");
-                  }
-                }}
-                className="text-xs font-semibold text-ink-muted hover:text-ink bg-surface border border-edge-soft hover:border-brand/40 rounded-lg px-2.5 py-1.5 transition-all cursor-pointer truncate max-w-[240px]"
-              >
-                🎯 {task.title}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* THIN linear progress */}
+      <div className="h-[2px] w-full bg-edge/50 relative overflow-hidden rounded-full mb-10">
+        <motion.div
+          className="h-full absolute inset-y-0 left-0 rounded-full"
+          style={{ backgroundColor: zoneColor, boxShadow: `0 0 10px ${zoneColor}` }}
+          animate={{ width: `${donePct}%` }}
+          transition={{ duration: 0.6, ease: "linear" }}
+        />
+      </div>
 
-      {/* ── TODAY STRIP ────────────────────────────────────────── */}
-      <div className="mt-5 grid grid-cols-2 gap-3">
-        <div className="relative bg-surface-sunken border border-edge rounded-2xl p-4 overflow-hidden">
-          <span className="absolute inset-y-0 left-0 w-1 bg-brand" />
-          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-ink-muted">
-            <Clock size={11} /> Focused today
+      {/* CONTROL DECK — one hero, two whispers */}
+      <div className="flex items-center justify-center gap-3 mb-8">
+        <button
+          id="timer-reset-btn"
+          onClick={handleReset}
+          className="h-12 w-12 flex items-center justify-center bg-transparent hover:bg-surface-sunken border border-edge rounded-full text-ink-muted transition-colors cursor-pointer"
+          title="Reset"
+          aria-label="Reset timer"
+        >
+          <RotateCcw size={15} />
+        </button>
+
+        <button
+          id="timer-play-pause-btn"
+          onClick={handleStartPause}
+          aria-label={isRunning ? "Pause" : "Start"}
+          className={`h-16 w-16 flex items-center justify-center rounded-full text-primary-foreground transition-all active:scale-95 cursor-pointer ${
+            isRunning ? "bg-warn hover:opacity-90" : "bg-brand hover:bg-brand-hover"
+          }`}
+          style={{ boxShadow: isRunning ? "none" : "var(--theme-glow)" }}
+        >
+          {isRunning ? <Pause size={22} className="fill-current" /> : <Play size={22} className="fill-current ml-0.5" />}
+        </button>
+
+        {currentMission ? (
+          <button
+            id="timer-complete-btn"
+            onClick={handleCompleteMission}
+            className="h-12 w-12 flex items-center justify-center bg-transparent hover:bg-success-soft border border-success/40 rounded-full text-success transition-colors cursor-pointer"
+            title="Finish mission"
+            aria-label="Mark mission complete"
+          >
+            <CheckCircle size={15} />
+          </button>
+        ) : (
+          <div className="h-12 w-12" aria-hidden="true" />
+        )}
+      </div>
+
+      {/* Micro meta line — mono, quiet */}
+      <div
+        className="flex items-center justify-center gap-3 text-[10px] font-bold uppercase tracking-[0.25em] text-ink-muted mb-10"
+        style={{ fontFamily: monoFont }}
+      >
+        <span>{donePct}%</span>
+        <span className="text-ink-muted/40">·</span>
+        <span>{Math.floor(duration / 60)}m goal</span>
+        <span className="text-ink-muted/40">·</span>
+        <button
+          id="sound-fx-toggle"
+          onClick={() => setSoundEnabled(!soundEnabled)}
+          aria-label={soundEnabled ? "Mute chimes" : "Enable chimes"}
+          className={`inline-flex items-center hover:text-ink transition-colors cursor-pointer ${soundEnabled ? "text-brand" : ""}`}
+        >
+          {soundEnabled ? <Volume2 size={11} /> : <VolumeX size={11} />}
+        </button>
+        <button
+          id="body-double-pacing-toggle"
+          onClick={() => setPacingEnabled(!pacingEnabled)}
+          aria-label={pacingEnabled ? "Turn off body-double tick" : "Turn on body-double tick"}
+          className={`inline-flex items-center hover:text-ink transition-colors cursor-pointer ${pacingEnabled ? "text-brand" : ""}`}
+        >
+          <span className="text-[10px]">tick</span>
+        </button>
+      </div>
+
+      {/* Today strip — flat, mono, no cards */}
+      <div className="grid grid-cols-2 border-t border-b border-edge">
+        <div className="py-4 px-4 text-center border-r border-edge">
+          <div className="text-[9px] font-bold uppercase tracking-[0.25em] text-ink-muted" style={{ fontFamily: monoFont }}>
+            Focused today
           </div>
-          <div className="font-mono text-2xl sm:text-3xl font-bold text-ink tabular-nums mt-1">
+          <div
+            className="text-2xl font-bold text-ink tabular-nums mt-1"
+            style={{ fontFamily: monoFont }}
+          >
             {formatFocusDuration(sessionFocusSeconds)}
           </div>
-          {activeSessionSeconds > 0 && activeSessionSeconds < 600 && (
-            <div className="text-[10px] font-bold text-brand mt-1">
-              ⏳ Run: {Math.floor(activeSessionSeconds / 60)}m {activeSessionSeconds % 60}s / 10m
-            </div>
-          )}
-          {activeSessionSeconds >= 600 && (
-            <div className="text-[10px] font-bold text-success mt-1">✅ Current run counted</div>
-          )}
         </div>
-        <div className="relative bg-surface-sunken border border-edge rounded-2xl p-4 overflow-hidden">
-          <span className="absolute inset-y-0 left-0 w-1 bg-success" />
-          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-ink-muted">
-            <CheckSquare size={11} /> Cleared today
+        <div className="py-4 px-4 text-center">
+          <div className="text-[9px] font-bold uppercase tracking-[0.25em] text-ink-muted" style={{ fontFamily: monoFont }}>
+            Cleared
           </div>
-          <div className="font-mono text-2xl sm:text-3xl font-bold text-ink tabular-nums mt-1">
+          <div
+            className="text-2xl font-bold text-ink tabular-nums mt-1"
+            style={{ fontFamily: monoFont }}
+          >
             {completedMissions.length}
           </div>
         </div>
       </div>
 
-      {/* ── 10-MIN NOTICE ──────────────────────────────────────── */}
-      <div className="mt-3 text-[10px] text-ink-muted font-semibold flex items-center gap-1.5 px-3 py-2 bg-surface-sunken border border-edge-soft rounded-xl">
-        <span>🦉</span>
-        <span>Only sessions <strong className="text-ink">≥ 10 min</strong> are counted — deep flow gets the credit.</span>
-      </div>
+      {activeSessionSeconds > 0 && activeSessionSeconds < 600 && (
+        <div className="mt-3 text-center text-[10px] font-bold text-brand" style={{ fontFamily: monoFont }}>
+          run {Math.floor(activeSessionSeconds / 60)}m {activeSessionSeconds % 60}s / 10m to count
+        </div>
+      )}
+      {activeSessionSeconds >= 600 && (
+        <div className="mt-3 text-center text-[10px] font-bold text-success" style={{ fontFamily: monoFont }}>
+          this run is counted
+        </div>
+      )}
 
-      {/* ── COMPLETED CHIPS ────────────────────────────────────── */}
-      {completedMissions.length > 0 && (
-        <div className="mt-4">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-ink-muted mb-2">Cleared today</div>
-          <div className="flex flex-wrap gap-1.5">
-            {completedMissions.map((title, i) => (
-              <span
-                key={`${i}-${title}`}
-                className="inline-flex items-center gap-1.5 text-[11px] font-bold bg-success-soft border border-success/30 text-success px-2.5 py-1 rounded-lg"
-              >
-                <CheckCircle size={10} />
-                <span className="truncate max-w-[180px]">{title}</span>
-              </span>
+      {/* Quest picker — collapsible, no visual weight */}
+      {!currentMission && openTasks.length > 0 && (
+        <details className="mt-8 group">
+          <summary className="text-[11px] font-bold uppercase tracking-[0.2em] text-ink-muted hover:text-ink cursor-pointer list-none flex items-center justify-center gap-1.5" style={{ fontFamily: monoFont }}>
+            <span className="group-open:rotate-90 transition-transform inline-block">›</span>
+            or pick from {openTasks.length} open quest{openTasks.length === 1 ? "" : "s"}
+          </summary>
+          <ul className="mt-4 space-y-1 max-h-56 overflow-y-auto">
+            {openTasks.map(task => (
+              <li key={task.id}>
+                <button
+                  id={`quick-pick-task-${task.id}`}
+                  onClick={() => {
+                    const hasProgress = timeLeft < duration && timeLeft > 0;
+                    if (hasProgress) {
+                      setPendingAction({ type: "quest", value: task.title });
+                      setIsRunning(false);
+                    } else {
+                      setCurrentMission(task.title);
+                      setTimeLeft(duration);
+                      setIsRunning(false);
+                      setActiveSessionSeconds(0);
+                      onGubbyMessage(`Loaded task: "${task.title}". Let's crush this!`, "focused");
+                    }
+                  }}
+                  className="w-full text-left text-sm text-ink-muted hover:text-ink hover:bg-surface-sunken rounded-lg px-3 py-2 transition-colors cursor-pointer truncate"
+                >
+                  {task.title}
+                </button>
+              </li>
             ))}
-          </div>
-        </div>
+          </ul>
+        </details>
       )}
 
-      {/* progress-in-mission trophy strip */}
-      {currentMission && (
-        <div className="mt-4 flex items-center gap-2.5 bg-brand-soft/15 border border-brand/20 rounded-xl px-3 py-2.5">
-          <Trophy size={14} className="text-brand shrink-0" />
-          <span className="text-xs font-semibold text-ink">
-            Finish this to auto-clear it from your Quest Log.
-          </span>
-        </div>
-      )}
+      {/* Footnote */}
+      <p className="mt-8 text-center text-[10px] text-ink-muted/70" style={{ fontFamily: monoFont }}>
+        sessions ≥ 10min count · deep flow gets the credit
+      </p>
     </div>
   );
 }
+
