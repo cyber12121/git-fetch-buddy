@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import { ClipboardList, Check, Circle } from "lucide-react";
 import { Task } from "../types";
 import { toLocalDateKey } from "../lib/constants";
@@ -7,15 +8,21 @@ interface TodaysQuestsProps {
   onToggleTask: (id: string) => void;
 }
 
-export default function TodaysQuests({ tasks, onToggleTask }: TodaysQuestsProps) {
-  const today = toLocalDateKey();
-
-  // Show today's scheduled tasks first, otherwise recent active ones.
-  const scheduled = tasks.filter(t => t.scheduledDate === today);
-  const pool = scheduled.length > 0 ? scheduled : tasks;
-  const visible = pool.slice(0, 5);
-
-  const completed = visible.filter(t => t.completed).length;
+/**
+ * Rail card: today's scheduled quests (or the 5 most recent when none are
+ * scheduled). Memoized because App re-renders on every unrelated global
+ * change (XP tick, Sprig message, theme swap) — without `memo` this list
+ * re-renders even when its own tasks haven't changed. The filter + slice
+ * are also memoized so their identity is stable across those renders.
+ */
+function TodaysQuestsImpl({ tasks, onToggleTask }: TodaysQuestsProps) {
+  const { visible, completed } = useMemo(() => {
+    const today = toLocalDateKey();
+    const scheduled = tasks.filter((t) => t.scheduledDate === today);
+    const pool = scheduled.length > 0 ? scheduled : tasks;
+    const v = pool.slice(0, 5);
+    return { visible: v, completed: v.filter((t) => t.completed).length };
+  }, [tasks]);
 
   return (
     <div className="bg-surface-sunken border border-edge rounded-3xl p-4 card-shadow">
@@ -69,3 +76,5 @@ export default function TodaysQuests({ tasks, onToggleTask }: TodaysQuestsProps)
     </div>
   );
 }
+
+export default memo(TodaysQuestsImpl);
