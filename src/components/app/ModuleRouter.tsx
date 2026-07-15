@@ -1,5 +1,6 @@
 import { lazy, memo, Suspense } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import type { User } from "firebase/auth";
 import type { Task, CalendarEvent, Habit, HabitLog } from "../../types";
 import ErrorBoundary from "../ErrorBoundary";
 
