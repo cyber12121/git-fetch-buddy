@@ -629,8 +629,23 @@ export default function TaskmasterModule({
         )}
       </AnimatePresence>
 
-      {/* Tiny top row — status pill + recap link */}
-      <div className="flex items-center justify-between mb-10">
+      {/* Breathing overlay */}
+      <AnimatePresence>
+        {showBreathing && (
+          <BreathingOverlay
+            monoFont={monoFont}
+            onClose={() => setShowBreathing(false)}
+            onComplete={(secs) => {
+              logSession("breathe", "3-2-1 breathing", secs);
+              setShowBreathing(false);
+              onGubbyMessage("Breathing complete. Nervous system, downshifted. 🌬️", "cozy");
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Tiny top row — status pill + streak + recap */}
+      <div className="flex items-center justify-between mb-6">
         <div
           className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-ink-muted"
           style={{ fontFamily: monoFont }}
@@ -640,16 +655,69 @@ export default function TaskmasterModule({
               isRunning ? "bg-success animate-pulse" : status === "paused" ? "bg-warn" : "bg-ink-muted/50"
             }`}
           />
-          {status}
+          {mode === "pomodoro" ? `pomo r${pomoRound} · ${pomoPhase}` : mode} · {status}
         </div>
+        <div className="flex items-center gap-3">
+          {stats.streak > 0 && (
+            <div
+              className="flex items-center gap-1 text-[11px] font-bold text-brand"
+              style={{ fontFamily: monoFont }}
+              title="Consecutive days with a counted focus session"
+            >
+              <Flame size={12} /> {stats.streak}d
+            </div>
+          )}
+          <button
+            id="timer-view-summary-btn"
+            onClick={() => { setIsRunning(false); setShowSummary(true); }}
+            className="text-[11px] font-bold text-ink-muted hover:text-ink flex items-center gap-1.5 cursor-pointer transition-colors"
+          >
+            <Award size={12} /> Recap
+          </button>
+        </div>
+      </div>
+
+      {/* Mode selector — tiny segmented row */}
+      <div
+        className="flex items-center justify-center gap-1 mb-8 p-1 bg-surface-sunken border border-edge rounded-full max-w-md mx-auto"
+        style={{ fontFamily: monoFont }}
+        role="tablist"
+        aria-label="Timer mode"
+      >
+        {([
+          { id: "focus" as const, label: "Focus", Icon: Target },
+          { id: "pomodoro" as const, label: "Pomodoro", Icon: Timer },
+          { id: "break" as const, label: "Break", Icon: Coffee },
+        ]).map(({ id, label, Icon }) => {
+          const active = mode === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => switchMode(id)}
+              className={`flex-1 min-w-0 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors cursor-pointer ${
+                active ? "bg-brand text-primary-foreground" : "text-ink-muted hover:text-ink"
+              }`}
+            >
+              <Icon size={11} />
+              <span className="hidden sm:inline">{label}</span>
+            </button>
+          );
+        })}
         <button
-          id="timer-view-summary-btn"
-          onClick={() => { setIsRunning(false); setShowSummary(true); }}
-          className="text-[11px] font-bold text-ink-muted hover:text-ink flex items-center gap-1.5 cursor-pointer transition-colors"
+          type="button"
+          onClick={() => setShowBreathing(true)}
+          className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest text-ink-muted hover:text-ink cursor-pointer border-l border-edge ml-1"
+          title="3-2-1 breathing"
         >
-          <Award size={12} /> Recap
+          <Wind size={11} />
+          <span className="hidden sm:inline">Breathe</span>
         </button>
       </div>
+
+
 
       {/* Mission — single line, no card */}
       <div className="mb-8 text-center min-h-[3rem]">
