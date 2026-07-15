@@ -146,7 +146,7 @@ export default function HabitTrackerModule({
 
   // Grid template: [ name | day1 ... dayN | streak | total ]
   const gridCols = isMobile
-    ? `minmax(88px, 1.4fr) repeat(${days.length}, minmax(26px, 1fr)) 36px`
+    ? `minmax(120px, 1.6fr) repeat(${days.length}, minmax(28px, 1fr)) 34px`
     : `minmax(150px, 1.6fr) repeat(${days.length}, minmax(36px, 1fr)) 60px 56px`;
 
   const addFormBlock = (
