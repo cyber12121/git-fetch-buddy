@@ -146,7 +146,7 @@ export default function HabitTrackerModule({
 
   // Grid template: [ name | day1 ... dayN | streak | total ]
   const gridCols = isMobile
-    ? `minmax(88px, 1.4fr) repeat(${days.length}, minmax(26px, 1fr)) 36px`
+    ? `minmax(120px, 1.6fr) repeat(${days.length}, minmax(28px, 1fr)) 34px`
     : `minmax(150px, 1.6fr) repeat(${days.length}, minmax(36px, 1fr)) 60px 56px`;
 
   const addFormBlock = (
@@ -336,7 +336,7 @@ export default function HabitTrackerModule({
               </button>
             </div>
           </div>
-          <div className="min-w-max" style={{ minWidth: isMobile ? "100%" : 720 }}>
+          <div style={{ minWidth: isMobile ? "auto" : 720 }}>
             {/* Column headers (dates on top) */}
             <div
               className="grid items-end gap-1 pb-3 mb-2 border-b"
@@ -415,7 +415,7 @@ export default function HabitTrackerModule({
                         type="button"
                         onClick={() => setConfirmDelete({ id: habit.id, name: habit.name })}
                         aria-label={`Delete habit ${habit.name}`}
-                        className="ml-auto p-1.5 rounded-lg transition-all opacity-0 group-hover:opacity-100 hover:bg-white/60"
+                        className="ml-auto p-1.5 rounded-lg transition-all sm:opacity-0 sm:group-hover:opacity-100 hover:bg-white/60 shrink-0"
                         style={{ color: SAGE.inkMuted }}
                       >
                         <Trash2 size={13} />
