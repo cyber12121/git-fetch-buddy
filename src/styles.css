@@ -167,6 +167,15 @@
   --color-brand: #F27D26;
   --color-brand-hover: #D96A1E;
   --color-brand-soft: #FFD4A3;
+
+  /* Status tokens — same hue across themes; soft variants use alpha so they
+     read on both light and dark canvases without a per-theme override. */
+  --color-success: #10b981;
+  --color-success-soft: rgba(16, 185, 129, 0.15);
+  --color-warn: #f59e0b;
+  --color-warn-soft: rgba(245, 158, 11, 0.15);
+  --color-danger: #ef4444;
+  --color-danger-soft: rgba(239, 68, 68, 0.15);
 }
 
 @layer base {
