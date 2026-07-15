@@ -397,7 +397,7 @@ export default function MagicTodoModule({
                   step="1"
                   value={priorityVal}
                   onChange={(e) => handlePriorityChange(parseInt(e.target.value, 10))}
-                  className="flex-1 accent-[#F27D26] cursor-pointer h-1.5 bg-surface-raised2 rounded-lg appearance-none"
+                  className="flex-1 accent-brand cursor-pointer h-1.5 bg-surface-raised2 rounded-lg appearance-none"
                 />
                 <span className="text-xl select-none shrink-0 font-fredoka">
                   {priorityVal === 1 && "🟢"}
@@ -658,7 +658,7 @@ export default function MagicTodoModule({
                         <div className="flex flex-wrap items-center gap-2 pt-1">
                           {/* Scheduled Time info if exists */}
                           {task.scheduledTime && (
-                            <div className="flex items-center gap-1.5 text-xs font-semibold text-brand bg-brand-soft/20 px-2.5 py-1 rounded-lg w-fit border border-[#FFD4A3]/40">
+                            <div className="flex items-center gap-1.5 text-xs font-semibold text-brand bg-brand-soft/20 px-2.5 py-1 rounded-lg w-fit border border-brand/30">
                               <Clock size={12} />
                               <span>Scheduled @ {task.scheduledTime}</span>
                             </div>
@@ -1031,7 +1031,7 @@ export default function MagicTodoModule({
                           <>
                             <div className="flex gap-0.5 mr-1">
                               {Array.from({ length: Math.min(totalSubs, 8) }).map((_, i) => (
-                                <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < completedSubs ? "bg-[#556B55]" : "bg-surface "}`} />
+                                <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < completedSubs ? "bg-brand" : "bg-surface "}`} />
                               ))}
                               {totalSubs > 8 && <span className="text-[8px] leading-[6px] ml-0.5 opacity-50 text-ink-muted">+{totalSubs - 8}</span>}
                             </div>
