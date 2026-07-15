@@ -172,8 +172,13 @@ export function subscribeTheme(cb: (id: ThemeId) => void): () => void {
 }
 
 export function useTheme(): ThemeId {
-  const [id, setId] = useState<ThemeId>(() => readStoredTheme());
-  useEffect(() => subscribeTheme(setId), []);
+  // Start with the default on both server and initial client render to avoid
+  // hydration mismatches, then read the persisted value in an effect.
+  const [id, setId] = useState<ThemeId>(DEFAULT);
+  useEffect(() => {
+    setId(readStoredTheme());
+    return subscribeTheme(setId);
+  }, []);
   return id;
 }
 
