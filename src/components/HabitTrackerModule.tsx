@@ -415,7 +415,7 @@ export default function HabitTrackerModule({
                         type="button"
                         onClick={() => setConfirmDelete({ id: habit.id, name: habit.name })}
                         aria-label={`Delete habit ${habit.name}`}
-                        className="ml-auto p-1.5 rounded-lg transition-all opacity-0 group-hover:opacity-100 hover:bg-white/60"
+                        className="ml-auto p-1.5 rounded-lg transition-all sm:opacity-0 sm:group-hover:opacity-100 hover:bg-white/60 shrink-0"
                         style={{ color: SAGE.inkMuted }}
                       >
                         <Trash2 size={13} />
