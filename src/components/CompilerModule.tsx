@@ -83,22 +83,20 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
     }
   };
 
+  // Immutable per-item updates. Previously these did
+  // `const updated = [...tempTasks]; updated[i].x = ...` which shallow-copies
+  // the array but mutates the shared task object, so any memoized consumer
+  // comparing by object identity would silently skip the update.
   const handleToggleSelect = (index: number) => {
-    const updated = [...tempTasks];
-    updated[index].selected = !updated[index].selected;
-    setTempTasks(updated);
+    setTempTasks(prev => prev.map((t, i) => (i === index ? { ...t, selected: !t.selected } : t)));
   };
 
   const handleUpdateTitle = (index: number, newTitle: string) => {
-    const updated = [...tempTasks];
-    updated[index].title = newTitle;
-    setTempTasks(updated);
+    setTempTasks(prev => prev.map((t, i) => (i === index ? { ...t, title: newTitle } : t)));
   };
 
   const handleUpdatePriority = (index: number, priority: "low" | "medium" | "high") => {
-    const updated = [...tempTasks];
-    updated[index].priority = priority;
-    setTempTasks(updated);
+    setTempTasks(prev => prev.map((t, i) => (i === index ? { ...t, priority } : t)));
   };
 
   const handleDeleteTemp = (index: number) => {
