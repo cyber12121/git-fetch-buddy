@@ -535,11 +535,11 @@ export default function WeeklyPlannerModule({
   const fmtSub = (d: Date) => DAYS_S[d.getDay()];
 
   return (
-    <div className="min-h-screen" style={{ background: "#ffffff", fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>
+    <div className="min-h-screen bg-canvas text-ink" style={{ fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>
 
       {/* Top Bar */}
-      <div className="flex items-center justify-between px-6 py-5">
-        <h1 className="text-3xl font-bold tracking-tight leading-none select-none" style={{ color: "#1A261A", fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>
+      <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-5 border-b border-edge">
+        <h1 className="text-3xl font-bold tracking-tight leading-none select-none text-ink" style={{ fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>
           {headerLabel()}
         </h1>
         <div className="flex items-center gap-3">
@@ -552,11 +552,12 @@ export default function WeeklyPlannerModule({
                 "cozy"
               );
             }}
-            className={`px-3 py-1.5 rounded-xl font-bold text-xs cursor-pointer transition-all ${
+            className={`px-3 py-1.5 rounded-full font-bold text-xs cursor-pointer transition-all border ${
               showTimeBlocks
-                ? "bg-brand text-white shadow-xs border-2 border-brand"
-                : "bg-surface-sunken  text-ink-muted  border-2 border-edge-soft  hover:bg-surface "
+                ? "bg-brand text-primary-foreground border-brand"
+                : "bg-surface-sunken text-ink-muted border-edge hover:text-ink hover:border-edge/80"
             }`}
+            style={showTimeBlocks ? { boxShadow: "var(--theme-glow)" } : undefined}
           >
             ⏱️ Time Blocks: {showTimeBlocks ? "ON" : "OFF"}
           </button>
@@ -564,17 +565,18 @@ export default function WeeklyPlannerModule({
           <div className="flex items-center gap-2">
             <button id="prev-week-btn" type="button"
               onClick={() => { const d = new Date(refDate); d.setDate(d.getDate()-7); setRefDate(d); onGubbyMessage("Back a week! 🕰️","thoughtful"); }}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white hover:opacity-90 transition-colors cursor-pointer" style={{ background: "#2D3A2D" }}>
+              className="w-9 h-9 rounded-full flex items-center justify-center bg-surface-sunken border border-edge text-ink hover:bg-surface-raised transition-colors cursor-pointer">
               <ChevronLeft size={16} />
             </button>
             <button id="next-week-btn" type="button"
               onClick={() => { const d = new Date(refDate); d.setDate(d.getDate()+7); setRefDate(d); onGubbyMessage("Forward a week! 🚀","happy"); }}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white hover:opacity-90 transition-colors cursor-pointer" style={{ background: "#2D3A2D" }}>
+              className="w-9 h-9 rounded-full flex items-center justify-center bg-brand text-primary-foreground hover:bg-brand-hover transition-colors cursor-pointer">
               <ChevronRight size={16} />
             </button>
           </div>
         </div>
       </div>
+
 
       {/* Desktop: 7-column grid — flat, full-width, no vertical borders */}
       <div className="hidden lg:flex">
