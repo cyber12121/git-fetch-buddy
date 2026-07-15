@@ -373,7 +373,7 @@ export default function TaskmasterModule({
     setMode(next);
     setPomoPhase("focus");
     setPomoRound(1);
-    const dur = next === "break" ? BREAK_SECS : next === "pomodoro" ? POMODORO_FOCUS_SECS : 3000;
+    const dur = next === "break" ? BREAK_SECS : next === "pomodoro" ? POMODORO_FOCUS_SECS : settings.focusMinutes * 60;
     setDuration(dur);
     setTimeLeft(dur);
     setActiveSessionSeconds(0);
