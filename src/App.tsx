@@ -603,7 +603,7 @@ export default function App() {
         <div className={`${
           isWide
             ? "block"
-            : "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)_20rem] lg:gap-6 lg:items-start"
+            : "md:grid md:grid-cols-[16rem_minmax(0,1fr)_20rem] md:gap-6 md:items-start"
         }`}>
           {/* LEFT: sidebar nav + tip (desktop only, do-tabs only) */}
           {!isWide && (
