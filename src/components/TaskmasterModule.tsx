@@ -44,10 +44,19 @@ export default function TaskmasterModule({
   const [pacingEnabled, setPacingEnabled] = useState(false); // subtle body-double ticking sound
   const [tempFocusTitle, setTempFocusTitle] = useState("");
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+  const [mode, setMode] = useState<TimerMode>("focus");
+  // For pomodoro: which half of the cycle we're in.
+  const [pomoPhase, setPomoPhase] = useState<"focus" | "break">("focus");
+  const [pomoRound, setPomoRound] = useState(1);
+  const [showBreathing, setShowBreathing] = useState(false);
+  const [history, setHistory] = useState<SessionRecord[]>(() => loadHistory());
+  const [showHistory, setShowHistory] = useState(false);
+  const stats = useMemo(() => computeStats(history), [history]);
 
   // Helper to get today's key format YYYY-MM-DD
   const getTodayKey = () => {
     const d = new Date();
+
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   };
 
