@@ -180,11 +180,12 @@ function TaskRow({ task, dateStr, editingId, editTitle, colorPickerId, draggedId
           onClick={e => { e.stopPropagation(); onToggle(task.id); }}
           className={`mr-1 shrink-0 w-4 h-4 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
             task.completed
-              ? "border-[#556B55] text-ink-muted  opacity-100"
-              : "border-edge  text-transparent opacity-0 group-hover:opacity-60 hover:border-[#556B55]"
+              ? "border-brand text-brand opacity-100"
+              : "border-edge text-transparent opacity-0 group-hover:opacity-60 hover:border-brand"
           }`}>
           <Check size={10} strokeWidth={2} />
         </button>
+
       )}
     </div>
   );
