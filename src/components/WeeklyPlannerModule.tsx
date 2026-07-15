@@ -520,10 +520,13 @@ export default function WeeklyPlannerModule({
                 onBlur={() => commitAdd(dateStr)}
               />
             )}
-            {/* Empty rows */}
-            {Array.from({ length: empty }).map((_, i) => (
-              <div key={i} style={{ minHeight: 36, borderBottom: "1px solid #e6eee6" }} />
-            ))}
+            {/* Ghost hint when empty */}
+            {dayTasks.length === 0 && dayEvents.length === 0 && !isAdding && (
+              <div className="text-[11px] italic text-ink-muted/40 py-3 text-center select-none">
+                +
+              </div>
+            )}
+
           </div>
         )}
       </div>
