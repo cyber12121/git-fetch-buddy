@@ -37,7 +37,7 @@ export default function SideNav({ activeTab, onTabChange, onGubbyMessage, onPref
   const activeLabel = TABS.find(t => t.id === activeTab)?.label ?? "Active";
 
   return (
-    <aside className="hidden md:flex flex-col gap-4 w-64 shrink-0">
+    <aside className="hidden lg:flex flex-col gap-4 w-64 shrink-0">
       {/* Main Focus panel */}
       <div className="bg-surface-sunken border border-edge rounded-3xl p-4 card-shadow">
         <p className="text-[10px] font-bold text-ink-muted uppercase tracking-[0.15em] px-2 pb-3">
