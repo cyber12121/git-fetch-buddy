@@ -18,7 +18,7 @@ import { DEFAULT_TASKS } from "./lib/defaultTasks";
 import { readJSON, writeJSON } from "./lib/safeStorage";
 import { recordReward } from "./lib/rewardHistory";
 import RewardHistory from "./components/RewardHistory";
-import { applyTheme, readStoredTheme } from "./lib/themes";
+import { applyTheme, readStoredTheme, subscribeTheme, type ThemeId } from "./lib/themes";
 import confetti from "canvas-confetti";
 
 // Code-split every workspace module so the initial bundle only carries the
@@ -59,9 +59,18 @@ export default function App() {
   const [activeTab, setActiveTabState] = useState<TabId>("todo");
   const mainRef = useRef<HTMLElement | null>(null);
 
-  // Apply the saved theme as soon as the app mounts so CSS variables reflect
-  // the user's choice before the first paint of interactive content.
-  useEffect(() => { applyTheme(readStoredTheme()); }, []);
+  // Apply the saved theme as soon as the app mounts, and track it so
+  // theme-specific UI (like hiding the Sprig companion in Kinetic Dark)
+  // can react to switches.
+  const [themeId, setThemeId] = useState<ThemeId>("cozy-goblin");
+  useEffect(() => {
+    const t = readStoredTheme();
+    applyTheme(t);
+    setThemeId(t);
+    return subscribeTheme(setThemeId);
+  }, []);
+  const showGubby = themeId !== "kinetic-dark";
+
 
 
   // Move focus to the main region and scroll it into view. Used after
@@ -738,7 +747,7 @@ export default function App() {
           {/* RIGHT: Sprig companion + Today's Quests (desktop only, do-tabs only) */}
           {!isWide && (
             <aside className="hidden lg:flex flex-col gap-4 w-80 shrink-0">
-              {!gubbyHidden ? (
+              {showGubby && (!gubbyHidden ? (
                 <GubbyCompanion
                   mood={gubbyMood}
                   customMessage={gubbyMessage}
@@ -753,7 +762,7 @@ export default function App() {
                 >
                   🦦 Bring Sprig back
                 </button>
-              )}
+              ))}
               <TodaysQuests tasks={tasks} onToggleTask={handleToggleTask} />
               <RewardHistory />
             </aside>
@@ -763,7 +772,8 @@ export default function App() {
 
         {/* Mobile/tablet: inline Sprig + reward log below the module. */}
         <section aria-label="Extras" className="lg:hidden mt-6 space-y-4">
-          {activeTab !== "weekly" && activeTab !== "calendar" && activeTab !== "habits" && !gubbyHidden && (
+          {showGubby && activeTab !== "weekly" && activeTab !== "calendar" && activeTab !== "habits" && !gubbyHidden && (
+
             <GubbyCompanion mood={gubbyMood} customMessage={gubbyMessage} xp={xp} onHide={() => updateGubbyHidden(true)} />
           )}
           <RewardHistory />

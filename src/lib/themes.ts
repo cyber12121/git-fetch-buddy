@@ -156,4 +156,16 @@ export function applyTheme(id: ThemeId) {
   if (id === "kinetic-dark") root.classList.add("dark");
   else root.classList.remove("dark");
   try { window.localStorage.setItem(STORAGE_KEY, id); } catch { /* ignore */ }
+  window.dispatchEvent(new CustomEvent("goblin:theme-change", { detail: id }));
 }
+
+/** Subscribe to theme changes. Returns unsubscribe. */
+export function subscribeTheme(cb: (id: ThemeId) => void): () => void {
+  const handler = (e: Event) => {
+    const id = (e as CustomEvent<ThemeId>).detail;
+    if (id) cb(id);
+  };
+  window.addEventListener("goblin:theme-change", handler);
+  return () => window.removeEventListener("goblin:theme-change", handler);
+}
+
