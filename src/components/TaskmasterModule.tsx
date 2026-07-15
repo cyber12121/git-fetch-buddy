@@ -876,7 +876,7 @@ export default function TaskmasterModule({
           type="button"
           onClick={() => setShowBreathing(true)}
           className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest text-ink-muted hover:text-ink cursor-pointer border-l border-edge ml-1"
-          title="3-2-1 breathing"
+          title="4-2-6 breathing"
         >
           <Wind size={11} />
           <span className="hidden sm:inline">Breathe</span>
