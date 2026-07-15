@@ -247,6 +247,9 @@ export default function WeeklyPlannerModule({
 }: WeeklyPlannerModuleProps) {
   const [refDate, setRefDate] = useState(new Date());
   const [addingDate, setAddingDate] = useState<string|null>(null);
+  // Key format: `${dateStr}|${time|''}` for time-block inline adder
+  const [addingBlockKey, setAddingBlockKey] = useState<string|null>(null);
+
   const [newTitle, setNewTitle] = useState("");
   const [editingId, setEditingId] = useState<string|null>(null);
   const [editTitle, setEditTitle] = useState("");
