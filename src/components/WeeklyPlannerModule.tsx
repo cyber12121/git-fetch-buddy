@@ -213,7 +213,7 @@ function EventRow({ evt, onDelete }: EventRowProps) {
 interface AddInputProps { addRef: React.RefObject<HTMLInputElement | null>; value: string; onChange: (v:string)=>void; onKeyDown: (e:React.KeyboardEvent)=>void; onBlur: ()=>void; }
 function AddInput({ addRef, value, onChange, onKeyDown, onBlur }: AddInputProps) {
   return (
-    <div className="flex items-center px-2" style={{ minHeight: 36, borderBottom: "1px solid #e6eee6" }}
+    <div className="flex items-center px-2 border-b border-edge/60" style={{ minHeight: 36 }}
       onClick={e => e.stopPropagation()}>
       <input
         ref={addRef}
@@ -227,6 +227,7 @@ function AddInput({ addRef, value, onChange, onKeyDown, onBlur }: AddInputProps)
     </div>
   );
 }
+
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 function getTaskTimeBlock(task: Task): "morning" | "afternoon" | "evening" | "anytime" {
