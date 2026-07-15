@@ -260,15 +260,6 @@ export default function HabitTrackerModule({
               Don't break the chain
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowAddForm(true)}
-            className="group flex items-center gap-2 px-5 py-2.5 rounded-full text-white font-bold text-sm shadow-md transition-all hover:brightness-110"
-            style={{ backgroundColor: SAGE.deep, boxShadow: `0 8px 20px -8px ${SAGE.deep}` }}
-          >
-            <Plus size={16} className="transition-transform group-hover:rotate-90" />
-            Add habit
-          </button>
         </motion.header>
 
         {/* Matrix: habits × days */}
