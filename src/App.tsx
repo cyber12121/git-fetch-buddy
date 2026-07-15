@@ -88,6 +88,7 @@ export default function App() {
     syncHabits: data.syncHabits,
     syncHabitLog: data.syncHabitLog,
     setXp,
+    pushToast,
   });
 
   // ── Task / event / habit handlers ────────────────────────────────────

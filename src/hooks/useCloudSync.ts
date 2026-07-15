@@ -32,6 +32,8 @@ interface UseCloudSyncArgs {
   syncHabits: (habits: Habit[]) => void;
   syncHabitLog: (log: HabitLog) => void;
   setXp: (value: number | ((prev: number) => number)) => void;
+  /** Optional toast surface so cloud-sync failures don't die silently. */
+  pushToast?: (t: { icon?: string; tone?: "success" | "warn" | "info"; message: string }) => void;
 }
 
 /**
@@ -55,9 +57,13 @@ export function useCloudSync({
   syncHabits,
   syncHabitLog,
   setXp,
+  pushToast,
 }: UseCloudSyncArgs) {
   const [cloudStatus, setCloudStatus] = useState<"local" | "syncing" | "synced" | "error">("local");
   const cloudReadyRef = useRef(false);
+  // Toast only the FIRST save-failure per run so we don't spam the user
+  // when the debounced writer retries every keystroke against a broken link.
+  const saveErrorNoticedRef = useRef(false);
 
   // Pull (and merge) on sign-in; push initial data if the user is brand new.
   useEffect(() => {
@@ -100,6 +106,11 @@ export function useCloudSync({
         console.warn("Cloud sync unavailable, staying on local storage:", err);
         cloudReadyRef.current = true;
         setCloudStatus("error");
+        pushToast?.({
+          icon: "☁️",
+          tone: "warn",
+          message: "Couldn't reach the cloud — your quests are safe locally.",
+        });
       });
     return () => {
       cancelled = true;
@@ -119,10 +130,21 @@ export function useCloudSync({
         xp: Number(localStorage.getItem("goblin_xp") || "0"),
         updatedAt: Date.now(),
       })
-        .then(() => setCloudStatus("synced"))
+        .then(() => {
+          setCloudStatus("synced");
+          saveErrorNoticedRef.current = false;
+        })
         .catch((err) => {
           console.warn("Cloud save failed:", err);
           setCloudStatus("error");
+          if (!saveErrorNoticedRef.current) {
+            saveErrorNoticedRef.current = true;
+            pushToast?.({
+              icon: "☁️",
+              tone: "warn",
+              message: "Cloud save failed — changes are still saved locally.",
+            });
+          }
         });
     }, 800);
     return () => clearTimeout(handle);

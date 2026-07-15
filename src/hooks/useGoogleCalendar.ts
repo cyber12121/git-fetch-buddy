@@ -98,9 +98,9 @@ export function useGoogleCalendar({ selectedDate, onMessage, setManualEvents }: 
           }
           return filtered;
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error loading Google events:", err);
-        const errMsg = err?.message || "";
+        const errMsg = err instanceof Error ? err.message : String(err);
         if (errMsg.includes("401") || errMsg.includes("403")) {
           // Token expired — drop it but KEEP the account + cloud sync alive.
           clearCalendarToken();
@@ -133,10 +133,10 @@ export function useGoogleCalendar({ selectedDate, onMessage, setManualEvents }: 
       }
       setAccessToken(token);
       onMessage("Connected to Google Calendar! 📅 Let's explore your events together!", "happy");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to connect Google Calendar:", err);
-      const code = err?.code || "";
-      let msg = err?.message || "Google connection failed.";
+      const code = err && typeof err === "object" && "code" in err ? String((err as { code?: unknown }).code ?? "") : "";
+      let msg = err instanceof Error ? err.message : "Google connection failed.";
       if (code === "auth/popup-blocked") msg = "Popup was blocked. Please allow popups for this site and try again.";
       else if (code === "auth/popup-closed-by-user") msg = "Sign-in popup was closed. Please try again.";
       else if (code === "auth/unauthorized-domain") msg = "This domain is not authorized in Firebase. Add it to Firebase Console → Authentication → Authorized Domains.";
