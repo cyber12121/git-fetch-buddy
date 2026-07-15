@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { Check, Trash2 } from "lucide-react";
 import type { Task } from "../../types";
 import { PILL_COLORS } from "./constants";
@@ -13,6 +13,62 @@ interface TaskRowProps extends TaskRowSharedProps {
 }
 
 /**
+ * Uncontrolled inline editor. Holds the live text value locally so every
+ * keystroke stays inside this component — previously the value lived in
+ * usePlannerState and flowed through the shared `taskRowProps` object,
+ * which broke `memo()` on TaskRow and re-rendered every task in the week
+ * on every character.
+ */
+const InlineEditor = memo(function InlineEditor({
+  taskId,
+  initialTitle,
+  dateStr,
+  onCommit,
+  onEnterAdd,
+}: {
+  taskId: string;
+  initialTitle: string;
+  dateStr: string | undefined;
+  onCommit: (id: string, newTitle: string | null, dateStr?: string) => void;
+  onEnterAdd: (dateStr?: string) => void;
+}) {
+  const [value, setValue] = useState(initialTitle);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const committedRef = useRef(false);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+    inputRef.current?.select();
+  }, []);
+
+  const commit = (next: string | null) => {
+    if (committedRef.current) return;
+    committedRef.current = true;
+    onCommit(taskId, next, dateStr);
+  };
+
+  return (
+    <input
+      ref={inputRef}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          commit(value);
+          onEnterAdd(dateStr);
+        } else if (e.key === "Escape") {
+          commit(null);
+        }
+      }}
+      onBlur={() => commit(value)}
+      onClick={(e) => e.stopPropagation()}
+      className="w-full text-sm bg-transparent outline-none text-ink font-normal"
+    />
+  );
+});
+
+/**
  * A single task row: inline-editable title, color pill, drag handle,
  * completion toggle, and delete button.
  *
@@ -21,8 +77,8 @@ interface TaskRowProps extends TaskRowSharedProps {
  */
 function TaskRowImpl({
   task, dateStr,
-  editingId, editTitle, colorPickerId, draggedId, dragOverTaskId, editRef,
-  onStartEdit, onEditChange, onEditKeyDown, onEditBlur, onToggle, onDelete,
+  editingId, colorPickerId, draggedId, dragOverTaskId,
+  onStartEdit, onCommitEdit, onEditEnterAdd, onToggle, onDelete,
   onColorSet, onColorToggle, onDragStart, onDragOver, onDragLeave, onDropOnTask,
 }: TaskRowProps) {
   const pill = PILL_COLORS.find((c) => c.value === task.color);
@@ -48,14 +104,12 @@ function TaskRowImpl({
         onClick={() => { if (!isEditing) onStartEdit(task); }}
       >
         {isEditing ? (
-          <input
-            ref={editRef}
-            value={editTitle}
-            onChange={(e) => onEditChange(e.target.value)}
-            onKeyDown={(e) => onEditKeyDown(e, task.id, dateStr)}
-            onBlur={() => onEditBlur(task.id)}
-            onClick={(e) => e.stopPropagation()}
-            className="w-full text-sm bg-transparent outline-none text-ink font-normal"
+          <InlineEditor
+            taskId={task.id}
+            initialTitle={task.title}
+            dateStr={dateStr}
+            onCommit={onCommitEdit}
+            onEnterAdd={onEditEnterAdd}
           />
         ) : pill && pill.value ? (
           <span

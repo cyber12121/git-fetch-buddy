@@ -6,16 +6,20 @@ import type { Task } from "../../types";
  * Extracted so every row consumer passes exactly one object.
  */
 export interface TaskRowSharedProps {
+  /** ID of the task currently being edited (used to render the inline editor). */
   editingId: string | null;
-  editTitle: string;
   colorPickerId: string | null;
   draggedId: string | null;
   dragOverTaskId: string | null;
-  editRef: React.RefObject<HTMLInputElement | null>;
   onStartEdit: (task: Task) => void;
-  onEditChange: (val: string) => void;
-  onEditKeyDown: (e: React.KeyboardEvent, id: string, dateStr?: string) => void;
-  onEditBlur: (id: string) => void;
+  /**
+   * Commit an inline rename. Pass `null` to cancel/delete-if-empty.
+   * The live keystroke value lives locally inside the row's editor so
+   * unrelated rows don't re-render on every character.
+   */
+  onCommitEdit: (id: string, newTitle: string | null, dateStr?: string) => void;
+  /** Fired when the editor sees Enter — opens a fresh "add" row below. */
+  onEditEnterAdd: (dateStr?: string) => void;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onColorSet: (id: string, val: string) => void;
