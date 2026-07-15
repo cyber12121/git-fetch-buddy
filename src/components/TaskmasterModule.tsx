@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Play, Pause, RotateCcw, AlertCircle, CheckCircle, Volume2, VolumeX, Plus, Award, Flame, Wind, Coffee, Target, Timer, Settings as SettingsIcon, X } from "lucide-react";
+import { Play, Pause, RotateCcw, AlertCircle, CheckCircle, Volume2, VolumeX, Plus, Minus, Award, Flame, Wind, Coffee, Target, Timer, Settings as SettingsIcon, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Task } from "../types";
 import BreathingOverlay from "./BreathingOverlay";
@@ -698,7 +698,7 @@ export default function TaskmasterModule({
             monoFont={monoFont}
             onClose={() => setShowBreathing(false)}
             onComplete={(secs) => {
-              logSession("breathe", "4-7-8 breathing", secs);
+              logSession("breathe", "4-2-6 breathing", secs);
               setShowBreathing(false);
               onGubbyMessage("Breathing complete. Nervous system, downshifted. 🌬️", "cozy");
             }}
@@ -876,12 +876,60 @@ export default function TaskmasterModule({
           type="button"
           onClick={() => setShowBreathing(true)}
           className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest text-ink-muted hover:text-ink cursor-pointer border-l border-edge ml-1"
-          title="3-2-1 breathing"
+          title="4-2-6 breathing"
         >
           <Wind size={11} />
           <span className="hidden sm:inline">Breathe</span>
         </button>
       </div>
+
+      {/* Inline duration adjuster — quick set without opening settings */}
+      {!isRunning && status !== "paused" && (() => {
+        const cfg =
+          mode === "focus"
+            ? { key: "focusMinutes" as const, label: "focus", min: 5, max: 180, step: 5 }
+            : mode === "break"
+            ? { key: "breakMinutes" as const, label: "break", min: 1, max: 60, step: 1 }
+            : pomoPhase === "focus"
+            ? { key: "pomoFocusMinutes" as const, label: "pomo focus", min: 5, max: 90, step: 5 }
+            : { key: "pomoBreakMinutes" as const, label: "pomo break", min: 1, max: 30, step: 1 };
+        const value = settings[cfg.key];
+        const bump = (delta: number) => {
+          const next = clampMin(value + delta, cfg.min, cfg.max, value);
+          setSettings((s) => ({ ...s, [cfg.key]: next }));
+        };
+        return (
+          <div
+            className="flex items-center justify-center gap-3 mb-6"
+            style={{ fontFamily: monoFont }}
+          >
+            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-ink-muted">
+              {cfg.label}
+            </span>
+            <button
+              type="button"
+              onClick={() => bump(-cfg.step)}
+              className="h-7 w-7 flex items-center justify-center rounded-full border border-edge text-ink-muted hover:text-ink hover:bg-surface-sunken cursor-pointer"
+              aria-label={`Decrease ${cfg.label} by ${cfg.step} min`}
+            >
+              <Minus size={12} />
+            </button>
+            <span className="text-sm font-bold text-ink tabular-nums w-14 text-center">
+              {value}m
+            </span>
+            <button
+              type="button"
+              onClick={() => bump(cfg.step)}
+              className="h-7 w-7 flex items-center justify-center rounded-full border border-edge text-ink-muted hover:text-ink hover:bg-surface-sunken cursor-pointer"
+              aria-label={`Increase ${cfg.label} by ${cfg.step} min`}
+            >
+              <Plus size={12} />
+            </button>
+          </div>
+        );
+      })()}
+
+
 
 
 
