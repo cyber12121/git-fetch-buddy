@@ -105,7 +105,7 @@ export default function HabitTrackerModule({
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; name: string } | null>(null);
 
   const isMobile = useIsMobile();
-  const windowSize = isMobile ? 7 : 14;
+  const windowSize = isMobile ? 5 : 14;
   const [offset, setOffset] = useState(0); // days shift from today (end of window)
   const days = useMemo(
     () => getNDaysEndingAt(windowSize, offset),
