@@ -364,8 +364,8 @@ export default function WeeklyPlannerModule({
     const isAdding = addingDate === dateStr;
     const dayTasks = isSomeday ? somedayTasks() : tasksFor(dateStr);
     const dayEvents = isSomeday ? [] : eventsFor(dateStr);
-    const rendered = dayEvents.length + dayTasks.length + (isAdding ? 1 : 0);
-    const empty = Math.max(0, lines - rendered);
+    const emptyLines = Math.max(0, lines - dayEvents.length - dayTasks.length - (isAdding ? 1 : 0));
+
     const morningTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "morning");
     const afternoonTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "afternoon");
     const eveningTasks = dayTasks.filter(t => getTaskTimeBlock(t) === "evening");
