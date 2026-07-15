@@ -294,6 +294,46 @@ export default function HabitTrackerModule({
           className="rounded-[2rem] border p-4 sm:p-6 overflow-x-auto"
           style={{ backgroundColor: SAGE.surface, borderColor: SAGE.muted }}
         >
+          {/* Toolbar: range label + Today / prev / next */}
+          <div className="flex items-center justify-between gap-2 mb-4">
+            <div
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold"
+              style={{ ...headerFont, color: SAGE.ink, backgroundColor: SAGE.bg }}
+            >
+              {rangeLabel}
+              <ChevronDown size={14} style={{ color: SAGE.inkMuted }} aria-hidden />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setOffset(0)}
+                disabled={offset === 0}
+                className="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors disabled:opacity-40"
+                style={{ borderColor: SAGE.muted, color: SAGE.ink, backgroundColor: SAGE.surface }}
+              >
+                Today
+              </button>
+              <button
+                type="button"
+                onClick={() => setOffset((o) => o - windowSize)}
+                aria-label="Previous period"
+                className="p-1.5 rounded-full border transition-colors hover:bg-[color:var(--h)]"
+                style={{ borderColor: SAGE.muted, color: SAGE.ink, ["--h" as any]: SAGE.bg }}
+              >
+                <ChevronLeft size={14} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setOffset((o) => Math.min(0, o + windowSize))}
+                disabled={offset === 0}
+                aria-label="Next period"
+                className="p-1.5 rounded-full border transition-colors hover:bg-[color:var(--h)] disabled:opacity-40"
+                style={{ borderColor: SAGE.muted, color: SAGE.ink, ["--h" as any]: SAGE.bg }}
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          </div>
           <div className="min-w-max" style={{ minWidth: isMobile ? "100%" : 720 }}>
             {/* Column headers (dates on top) */}
             <div
