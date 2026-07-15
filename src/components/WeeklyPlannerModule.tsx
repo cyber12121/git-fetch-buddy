@@ -78,7 +78,7 @@ interface TaskRowProps {
   editRef: React.RefObject<HTMLInputElement | null>;
   onStartEdit: (task: Task) => void;
   onEditChange: (val: string) => void;
-  onEditKeyDown: (e: React.KeyboardEvent, id: string) => void;
+  onEditKeyDown: (e: React.KeyboardEvent, id: string, dateStr?: string) => void;
   onEditBlur: (id: string) => void;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
@@ -132,7 +132,7 @@ function TaskRow({ task, dateStr, editingId, editTitle, colorPickerId, draggedId
             ref={editRef}
             value={editTitle}
             onChange={e => onEditChange(e.target.value)}
-            onKeyDown={e => onEditKeyDown(e, task.id)}
+            onKeyDown={e => onEditKeyDown(e, task.id, dateStr)}
             onBlur={() => onEditBlur(task.id)}
             onClick={e => e.stopPropagation()}
             className="w-full text-sm bg-transparent outline-none text-ink font-normal"
@@ -297,10 +297,17 @@ export default function WeeklyPlannerModule({
 
   const onStartEdit = useCallback((task: Task) => { setEditingId(task.id); setEditTitle(task.title); }, []);
   const onEditChange = useCallback((val: string) => setEditTitle(val), []);
-  const onEditKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Enter") { e.preventDefault(); (e.target as HTMLInputElement).blur(); }
+  const onEditKeyDown = useCallback((e: React.KeyboardEvent, _id: string, dateStr?: string) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      (e.target as HTMLInputElement).blur();
+      // Jump to a new blank line under the same day
+      setAddingDate(dateStr ?? "someday");
+      setNewTitle("");
+    }
     else if (e.key === "Escape") setEditingId(null);
   }, []);
+
   const onEditBlur = useCallback((id: string) => {
     if (editTitle.trim()) onUpdateTask(id, { title: editTitle.trim() }); else onDeleteTask(id); setEditingId(null);
   }, [editTitle, onUpdateTask, onDeleteTask]);
@@ -498,7 +505,7 @@ export default function WeeklyPlannerModule({
                 value={newTitle}
                 onChange={setNewTitle}
                 onKeyDown={e => {
-                  if (e.key === "Enter") { e.preventDefault(); if (newTitle.trim()) { onAddTask(newTitle.trim(), "medium", "Added in Weekly Planner", dateStr); setNewTitle(""); setAddingDate(null); onGubbyMessage("Task added! 📝","happy"); } else setAddingDate(null); }
+                  if (e.key === "Enter") { e.preventDefault(); if (newTitle.trim()) { onAddTask(newTitle.trim(), "medium", "Added in Weekly Planner", dateStr); setNewTitle(""); onGubbyMessage("Task added! 📝","happy"); } else setAddingDate(null); }
                   else if (e.key === "Escape") { setAddingDate(null); setNewTitle(""); }
                 }}
                 onBlur={() => commitAdd(dateStr)}
@@ -515,7 +522,7 @@ export default function WeeklyPlannerModule({
                 value={newTitle}
                 onChange={setNewTitle}
                 onKeyDown={e => {
-                  if (e.key === "Enter") { e.preventDefault(); if (newTitle.trim()) { onAddTask(newTitle.trim(), "medium", "Added in Weekly Planner", isSomeday ? undefined : dateStr); setNewTitle(""); setAddingDate(null); onGubbyMessage("Task added! 📝","happy"); } else setAddingDate(null); }
+                  if (e.key === "Enter") { e.preventDefault(); if (newTitle.trim()) { onAddTask(newTitle.trim(), "medium", "Added in Weekly Planner", isSomeday ? undefined : dateStr); setNewTitle(""); onGubbyMessage("Task added! 📝","happy"); } else setAddingDate(null); }
                   else if (e.key === "Escape") { setAddingDate(null); setNewTitle(""); }
                 }}
                 onBlur={() => commitAdd(dateStr)}
