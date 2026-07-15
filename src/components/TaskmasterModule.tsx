@@ -433,13 +433,13 @@ export default function TaskmasterModule({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-surface p-5 sm:p-8 rounded-2xl sm:rounded-3xl border-2 border-[#FFD4A3] card-shadow text-center space-y-5 sm:space-y-6 relative overflow-hidden"
+          className="bg-surface p-5 sm:p-8 rounded-2xl sm:rounded-3xl border-2 border-brand/30 card-shadow text-center space-y-5 sm:space-y-6 relative overflow-hidden"
         >
           {/* Sparkles / Confetti Background elements */}
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-amber-400 via-[#F27D26] to-orange-600"></div>
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-soft via-brand to-brand-hover"></div>
           
           <div className="space-y-2">
-            <div className="inline-flex p-3 bg-amber-50 rounded-2xl text-brand border border-amber-200">
+            <div className="inline-flex p-3 bg-warn-soft rounded-2xl text-brand border border-warn/30">
               <Award size={32} className="animate-pulse sm:hidden" />
               <Award size={36} className="animate-pulse hidden sm:block" />
             </div>
@@ -462,7 +462,7 @@ export default function TaskmasterModule({
               </span>
             </div>
             <div className="bg-surface-sunken border-2 border-edge-soft p-5 rounded-2xl flex flex-col items-center justify-center space-y-1">
-              <CheckSquare size={20} className="text-green-600" />
+              <CheckSquare size={20} className="text-success" />
               <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">Quests Cleared</span>
               <span className="text-2xl font-extrabold text-ink font-fredoka">
                 {completedMissions.length}
@@ -473,7 +473,7 @@ export default function TaskmasterModule({
           {/* Completed List */}
           <div className="max-w-lg mx-auto bg-surface-sunken border-2 border-edge-soft rounded-2xl p-5 text-left space-y-3">
             <h3 className="text-xs font-bold text-ink-muted uppercase tracking-wider flex items-center gap-1.5 border-b border-edge pb-2">
-              <Zap size={14} className="text-amber-500" /> Completed Quests
+              <Zap size={14} className="text-warn" /> Completed Quests
             </h3>
             {completedMissions.length > 0 ? (
               <ul className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
@@ -485,7 +485,7 @@ export default function TaskmasterModule({
                     transition={{ delay: index * 0.05 }}
                     className="flex items-start gap-2.5 text-sm font-semibold text-ink"
                   >
-                    <CheckCircle size={16} className="text-green-600 shrink-0 mt-0.5" />
+                    <CheckCircle size={16} className="text-success shrink-0 mt-0.5" />
                     <span>{title}</span>
                   </motion.li>
                 ))}
@@ -498,9 +498,9 @@ export default function TaskmasterModule({
           </div>
 
           {/* Sprig Feedback Box */}
-          <div className="max-w-lg mx-auto bg-amber-50/50 border border-amber-100 rounded-2xl p-4 flex gap-3 text-left items-center">
+          <div className="max-w-lg mx-auto bg-warn-soft border border-warn/30 rounded-2xl p-4 flex gap-3 text-left items-center">
             <div className="text-3xl select-none shrink-0">🦉</div>
-            <p className="text-xs font-semibold text-amber-950 font-nunito leading-relaxed">
+            <p className="text-xs font-semibold text-warn font-nunito leading-relaxed">
               <strong>Sprig says:</strong> {getGubbyResponse(sessionFocusSeconds, completedMissions.length)}
             </p>
           </div>
@@ -521,7 +521,7 @@ export default function TaskmasterModule({
                   handleStartNewSession();
                 }
               }}
-              className="w-full sm:w-auto px-6 py-2.5 bg-surface-raised hover:bg-surface-raised2 text-stone-600 font-bold text-sm rounded-xl transition-all active:scale-[0.98] cursor-pointer"
+              className="w-full sm:w-auto px-6 py-2.5 bg-surface-raised hover:bg-surface-raised2 text-ink-muted font-bold text-sm rounded-xl transition-all active:scale-[0.98] cursor-pointer"
             >
               Reset Today's Progress
             </button>
@@ -546,7 +546,7 @@ export default function TaskmasterModule({
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-surface/95 z-30 flex flex-col items-center justify-center p-6 text-center space-y-4"
             >
-              <div className="p-3 bg-amber-50 rounded-2xl text-brand border border-amber-200">
+              <div className="p-3 bg-warn-soft rounded-2xl text-brand border border-warn/30">
                 <AlertCircle size={32} className="animate-bounce" />
               </div>
               <h3 className="text-xl font-extrabold text-ink font-fredoka">
@@ -559,7 +559,7 @@ export default function TaskmasterModule({
                 <button
                   id="confirm-action-yes-btn"
                   onClick={() => executeAction(pendingAction)}
-                  className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all cursor-pointer"
+                  className="flex-1 px-4 py-2.5 bg-danger hover:bg-danger text-white font-bold text-xs rounded-xl shadow-sm transition-all cursor-pointer"
                 >
                   Yes, Reset & Switch
                 </button>
@@ -569,7 +569,7 @@ export default function TaskmasterModule({
                     setPendingAction(null);
                     onGubbyMessage("Decision saved! Let's resume focus. 🦉💪", "focused");
                   }}
-                  className="flex-1 px-4 py-2.5 bg-surface-raised hover:bg-surface-raised2 text-stone-600 font-bold text-xs rounded-xl transition-all cursor-pointer"
+                  className="flex-1 px-4 py-2.5 bg-surface-raised hover:bg-surface-raised2 text-ink-muted font-bold text-xs rounded-xl transition-all cursor-pointer"
                 >
                   No, Keep Going
                 </button>
@@ -579,7 +579,7 @@ export default function TaskmasterModule({
         </AnimatePresence>
 
         {/* Subtle Background Radial Ring */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full border border-[#FFD4A3]/10 pointer-events-none select-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full border border-brand/30/10 pointer-events-none select-none"></div>
 
         <div className="space-y-1">
           <span className="text-xs font-bold text-brand uppercase tracking-widest block">
@@ -684,7 +684,7 @@ export default function TaskmasterModule({
               >
                 <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
                   {/* Background ring */}
-                  <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#E6EEE6" strokeWidth={stroke} />
+                  <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--color-edge)" strokeWidth={stroke} />
                   {/* Progress ring */}
                   <circle
                     cx={size/2} cy={size/2} r={r} fill="none"
@@ -702,7 +702,7 @@ export default function TaskmasterModule({
                   aria-live="polite"
                   aria-label={`${formatTime(timeLeft)} remaining, ${isRunning ? "focusing" : timeLeft === duration ? "ready" : "paused"}`}
                 >
-                  <div className={`text-3xl sm:text-4xl font-extrabold font-fredoka tabular-nums select-none transition-colors duration-1000 ${remaining <= 0.1 ? "text-red-500" : remaining <= 0.2 ? "text-amber-500" : "text-ink "}`}>
+                  <div className={`text-3xl sm:text-4xl font-extrabold font-fredoka tabular-nums select-none transition-colors duration-1000 ${remaining <= 0.1 ? "text-danger" : remaining <= 0.2 ? "text-warn" : "text-ink "}`}>
                     {formatTime(timeLeft)}
                   </div>
                   <div className="text-[10px] font-bold text-ink-muted uppercase tracking-wider">
@@ -729,7 +729,7 @@ export default function TaskmasterModule({
             aria-label={isRunning ? "Pause focus timer" : "Start focus timer"}
             className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white shadow-md hover:shadow-lg transition-all active:scale-[0.95] cursor-pointer ${
               isRunning
-                ? "bg-green-600 hover:bg-green-700"
+                ? "bg-success hover:bg-success"
                 : "bg-brand hover:bg-brand-hover"
             }`}
           >
@@ -742,7 +742,7 @@ export default function TaskmasterModule({
             id="timer-reset-btn"
             onClick={handleReset}
             aria-label="Reset timer"
-            className="w-11 h-11 sm:w-12 sm:h-12 bg-surface-raised hover:bg-surface-raised2 text-stone-600 rounded-full flex items-center justify-center shadow-sm transition-all"
+            className="w-11 h-11 sm:w-12 sm:h-12 bg-surface-raised hover:bg-surface-raised2 text-ink-muted rounded-full flex items-center justify-center shadow-sm transition-all"
             title="Reset Timer"
           >
             <RotateCcw size={18} />
@@ -754,7 +754,7 @@ export default function TaskmasterModule({
               id="timer-complete-btn"
               onClick={handleCompleteMission}
               aria-label="Finish mission"
-              className="w-11 h-11 sm:w-12 sm:h-12 bg-green-50 hover:bg-green-100 text-green-700 rounded-full flex items-center justify-center shadow-sm transition-all cursor-pointer"
+              className="w-11 h-11 sm:w-12 sm:h-12 bg-success-soft hover:bg-success-soft text-success rounded-full flex items-center justify-center shadow-sm transition-all cursor-pointer"
               title="Finish Mission!"
             >
               <CheckCircle size={18} />
@@ -770,7 +770,7 @@ export default function TaskmasterModule({
               onGubbyMessage("Let's review your focus milestones! Celebrate every second of effort! 🏆", "happy");
             }}
             aria-label="View daily milestones"
-            className="w-11 h-11 sm:w-12 sm:h-12 bg-amber-50 hover:bg-amber-100 text-brand rounded-full flex items-center justify-center shadow-sm transition-all cursor-pointer"
+            className="w-11 h-11 sm:w-12 sm:h-12 bg-warn-soft hover:bg-warn-soft text-brand rounded-full flex items-center justify-center shadow-sm transition-all cursor-pointer"
             title="View Daily Milestones"
           >
             <Award size={18} className="text-brand" />
@@ -802,7 +802,7 @@ export default function TaskmasterModule({
             }}
             className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border-2 transition-all ${
               pacingEnabled 
-                ? "bg-brand-soft  text-orange-900 border-brand/30 font-bold" 
+                ? "bg-brand-soft  text-brand border-brand/30 font-bold" 
                 : "hover:text-ink  border-transparent"
             }`}
           >
@@ -814,10 +814,10 @@ export default function TaskmasterModule({
       {/* Completion Trophy Card */}
       {currentMission && (
         <div className="bg-brand-soft/10 border-2 border-edge p-4 rounded-2xl flex items-center gap-3">
-          <div className="p-2.5 bg-brand-soft text-orange-900 rounded-xl">
+          <div className="p-2.5 bg-brand-soft text-brand rounded-xl">
             <Trophy size={20} />
           </div>
-          <div className="flex-1 text-sm font-semibold text-orange-900">
+          <div className="flex-1 text-sm font-semibold text-brand">
             Work in progress! Finish this mission to clear it from your Magic To-Do master list automatically!
           </div>
         </div>
@@ -836,7 +836,7 @@ export default function TaskmasterModule({
               Today's Focus Milestones
             </h3>
           </div>
-          <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-100">
+          <span className="text-xs font-bold text-warn bg-warn-soft px-2.5 py-0.5 rounded-full border border-warn/30">
             Daily Progress
           </span>
         </div>
@@ -855,7 +855,7 @@ export default function TaskmasterModule({
                 </span>
               )}
               {activeSessionSeconds >= 600 && (
-                <span className="text-[9px] font-extrabold text-green-600 mt-0.5">
+                <span className="text-[9px] font-extrabold text-success mt-0.5">
                   ✅ Current run counted!
                 </span>
               )}
@@ -863,7 +863,7 @@ export default function TaskmasterModule({
           </div>
 
           <div className="flex items-center gap-3 bg-surface-sunken p-3 rounded-xl border border-edge">
-            <CheckSquare size={16} className="text-green-600 shrink-0" />
+            <CheckSquare size={16} className="text-success shrink-0" />
             <div className="flex flex-col min-w-0">
               <span className="text-[10px] font-bold text-ink-muted uppercase tracking-wider truncate">Quests Completed Today</span>
               <span className="text-sm font-extrabold text-ink font-fredoka">
@@ -887,9 +887,9 @@ export default function TaskmasterModule({
               {completedMissions.map((title, index) => (
                 <span
                   key={`${index}-${title}`}
-                  className="inline-flex items-center gap-1.5 text-[11px] font-bold bg-[#F0FDF4] text-green-700 border border-green-200/60 px-2.5 py-1 rounded-lg"
+                  className="inline-flex items-center gap-1.5 text-[11px] font-bold bg-success-soft text-success border border-success/30 px-2.5 py-1 rounded-lg"
                 >
-                  <CheckCircle size={10} className="text-green-600" />
+                  <CheckCircle size={10} className="text-success" />
                   <span className="truncate max-w-[150px]">{title}</span>
                 </span>
               ))}

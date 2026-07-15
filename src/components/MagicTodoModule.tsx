@@ -410,7 +410,7 @@ export default function MagicTodoModule({
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 justify-between">
             {formError ? (
-              <div id="todo-form-error" className="flex items-center gap-1.5 text-xs text-red-600 font-semibold">
+              <div id="todo-form-error" className="flex items-center gap-1.5 text-xs text-danger font-semibold">
                 <AlertCircle size={14} /> {formError}
               </div>
             ) : (
@@ -421,7 +421,7 @@ export default function MagicTodoModule({
                 {newTitle.trim() && (
                   <div className="text-[11px] sm:text-xs font-bold text-brand flex items-center gap-1.5 flex-wrap">
                     <Sparkles size={12} className="animate-pulse text-brand shrink-0" />
-                    <span>Auto Estimate: <strong className="font-mono bg-orange-50 text-orange-900 border border-orange-100 px-1.5 py-0.5 rounded-md">{estimateTaskDuration(newTitle)}m</strong></span>
+                    <span>Auto Estimate: <strong className="font-mono bg-brand-soft/30 text-brand border border-brand/30 px-1.5 py-0.5 rounded-md">{estimateTaskDuration(newTitle)}m</strong></span>
                   </div>
                 )}
               </div>
@@ -531,7 +531,7 @@ export default function MagicTodoModule({
                   onGubbyMessage("Cleaned away your completed quests! Sparkling tidy now! ✨", "happy");
                   pushToast({ icon: "🧹", message: "Completed quests swept away", tone: "info" });
                 }}
-                className="text-xs text-ink-muted hover:text-red-500 font-bold transition-colors border-2 border-edge hover:border-red-100 px-3 py-1.5 rounded-xl bg-surface cursor-pointer"
+                className="text-xs text-ink-muted hover:text-danger font-bold transition-colors border-2 border-edge hover:border-danger/30 px-3 py-1.5 rounded-xl bg-surface cursor-pointer"
               >
                 Sweep Completed Quests
               </button>
@@ -594,10 +594,10 @@ export default function MagicTodoModule({
                     task.completed
                       ? "from-surface to-surface border-edge-soft   opacity-60"
                       : task.priority === "high"
-                      ? "from-surface-sunken to-surface border-orange-200/70 hover:border-orange-300"
+                      ? "from-surface-sunken to-surface border-brand/30 hover:border-brand/40"
                       : task.priority === "medium"
-                      ? "from-surface-sunken to-surface border-edge   hover:border-emerald-300"
-                      : "from-surface-sunken to-surface border-edge   hover:border-emerald-300"
+                      ? "from-surface-sunken to-surface border-edge   hover:border-success/40"
+                      : "from-surface-sunken to-surface border-edge   hover:border-success/40"
                   }`}
                 >
                   {/* Task Card Header Area */}
@@ -614,7 +614,7 @@ export default function MagicTodoModule({
                         className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-colors cursor-pointer shrink-0 mt-0.5 ${
                           task.completed
                             ? "bg-brand border-brand text-white"
-                            : "border-brand bg-surface  hover:bg-orange-50"
+                            : "border-brand bg-surface  hover:bg-brand-soft/30"
                         }`}
                       >
                         {task.completed && <Check size={16} strokeWidth={3} />}
@@ -756,7 +756,7 @@ export default function MagicTodoModule({
                                     <span className="text-xs font-extrabold text-ink font-fredoka flex items-center gap-1.5">
                                       ⏰ Custom Quest Timer
                                     </span>
-                                    <span className="text-[9px] font-bold text-brand bg-orange-50 px-1.5 py-0.5 rounded-full border border-orange-100">
+                                    <span className="text-[9px] font-bold text-brand bg-brand-soft/30 px-1.5 py-0.5 rounded-full border border-brand/30">
                                       {task.estimatedMinutes !== undefined ? task.estimatedMinutes : estimateTaskDuration(task.title)}m total
                                     </span>
                                   </div>
@@ -865,7 +865,7 @@ export default function MagicTodoModule({
                             if (onFocusAndSwitch) onFocusAndSwitch(task.title, task.id);
                             onGubbyMessage(`Loading "${task.title}" into Focus Timer!`, "focused");
                           }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-success hover:bg-success text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
                         >
                           <Play size={11} className="fill-white" /> Focus
                         </button>
@@ -980,7 +980,7 @@ export default function MagicTodoModule({
                             id={`focus-btn-${task.id}`}
                             aria-label={`Start focus session for "${task.title}"`}
                             onClick={() => onFocusTask(task.title, undefined, task.id)}
-                            className="w-9 h-9 rounded-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer select-none shadow-sm"
+                            className="w-9 h-9 rounded-full bg-success hover:bg-success text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer select-none shadow-sm"
                           >
                             <Play size={14} className="fill-current ml-0.5" />
                           </button>
@@ -1048,7 +1048,7 @@ export default function MagicTodoModule({
                           onDeleteTask(task.id);
                           onGubbyMessage("Goblin quest banished! Begone, task clutter!", "cozy");
                         }}
-                        className="p-1.5 text-ink-muted hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-100 rounded-xl transition-all"
+                        className="p-1.5 text-ink-muted hover:text-danger hover:bg-danger-soft border border-transparent hover:border-danger/30 rounded-xl transition-all"
                         title="Delete quest completely"
                       >
                         <Trash2 size={14} />
@@ -1109,8 +1109,8 @@ export default function MagicTodoModule({
                                     onClick={() => handleToggleSubtask(task.id, sub.id)}
                                     className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${
                                       sub.completed
-                                        ? "bg-emerald-600 border-emerald-600 text-white"
-                                        : "border-edge-strong  bg-surface  hover:border-emerald-600"
+                                        ? "bg-success border-success text-white"
+                                        : "border-edge-strong  bg-surface  hover:border-success"
                                     }`}
                                   >
                                     {sub.completed && <Check size={12} strokeWidth={3} />}
@@ -1128,7 +1128,7 @@ export default function MagicTodoModule({
                                     id={`delete-subtask-btn-${sub.id}`}
                                     aria-label={`Delete micro-step "${sub.title}"`}
                                     onClick={() => handleDeleteSubtask(task.id, sub.id)}
-                                    className="p-1 text-ink-muted hover:text-red-500 rounded-lg"
+                                    className="p-1 text-ink-muted hover:text-danger rounded-lg"
                                   >
                                     <Trash2 size={12} />
                                   </button>
@@ -1205,7 +1205,7 @@ export default function MagicTodoModule({
                     className="w-full p-2.5 rounded-xl border-2 border-edge-soft outline-none focus:border-brand font-semibold"
                   />
                   {scheduleError && (
-                    <div className="flex items-center gap-1.5 text-xs text-red-600 font-semibold">
+                    <div className="flex items-center gap-1.5 text-xs text-danger font-semibold">
                       <AlertCircle size={14} /> {scheduleError}
                     </div>
                   )}
