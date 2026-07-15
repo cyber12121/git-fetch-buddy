@@ -336,7 +336,7 @@ export default function HabitTrackerModule({
               </button>
             </div>
           </div>
-          <div className="min-w-max" style={{ minWidth: isMobile ? "100%" : 720 }}>
+          <div style={{ minWidth: isMobile ? "auto" : 720 }}>
             {/* Column headers (dates on top) */}
             <div
               className="grid items-end gap-1 pb-3 mb-2 border-b"
