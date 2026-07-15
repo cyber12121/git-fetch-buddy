@@ -371,10 +371,12 @@ export default function HabitTrackerModule({
                 <Flame size={12} aria-hidden />
                 <span className="text-[9px] font-bold uppercase tracking-wider">Streak</span>
               </div>
-              <div className="flex flex-col items-center gap-0.5" style={{ color: SAGE.inkMuted }}>
-                <span className="text-xs font-bold leading-none" aria-hidden>∑</span>
-                <span className="text-[9px] font-bold uppercase tracking-wider">Total</span>
-              </div>
+              {!isMobile && (
+                <div className="flex flex-col items-center gap-0.5" style={{ color: SAGE.inkMuted }}>
+                  <span className="text-xs font-bold leading-none" aria-hidden>∑</span>
+                  <span className="text-[9px] font-bold uppercase tracking-wider">Total</span>
+                </div>
+              )}
             </div>
 
             {/* Rows (one habit per row) */}
