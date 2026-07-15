@@ -476,11 +476,13 @@ export default function HabitTrackerModule({
                     </div>
 
                     {/* Total */}
-                    <div className="text-center">
-                      <span className="text-xs font-bold tabular-nums" style={{ color: SAGE.ink }}>
-                        {total}
-                      </span>
-                    </div>
+                    {!isMobile && (
+                      <div className="text-center">
+                        <span className="text-xs font-bold tabular-nums" style={{ color: SAGE.ink }}>
+                          {total}
+                        </span>
+                      </div>
+                    )}
                   </motion.div>
                 );
               })}
