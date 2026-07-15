@@ -16,7 +16,7 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
   }
 
   componentDidCatch(error: Error) {
-    console.error("Goblin Flow crashed:", error);
+    console.error("Momentum crashed:", error);
   }
 
   private reset = () => this.setState({ error: null });
