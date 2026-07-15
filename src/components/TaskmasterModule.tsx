@@ -424,23 +424,23 @@ export default function TaskmasterModule({
 
   const handleCompleteMission = () => {
     if (!currentMission) return;
+    const elapsed = activeSessionSeconds;
     setIsRunning(false);
     playChime("victory");
-    if (activeTaskId) {
+    if (mode !== "break" && activeTaskId) {
       onCompleteActiveTask(activeTaskId, activeSubtaskId ?? undefined);
     }
     onGubbyMessage(`Amazing! Quest "${currentMission}" completed! Victory dance! 🦖💃`, "happy");
+    logSession(mode === "break" ? "break" : mode === "pomodoro" ? "pomodoro" : "focus", currentMission, elapsed);
     const completedTask = currentMission;
-    setCompletedMissions((prev) => {
-      if (!prev.includes(completedTask)) {
-        return [...prev, completedTask];
-      }
-      return prev;
-    });
+    if (mode !== "break") {
+      setCompletedMissions((prev) => (prev.includes(completedTask) ? prev : [...prev, completedTask]));
+    }
     setCurrentMission("");
     setTempFocusTitle("");
     setActiveSessionSeconds(0);
   };
+
 
   const handleCreateTempMission = (e: React.FormEvent) => {
     e.preventDefault();
