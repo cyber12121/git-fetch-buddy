@@ -375,22 +375,20 @@ export default function HabitTrackerModule({
                             onClick={() => onToggleDay(habit.id, date)}
                             aria-label={`${habit.name} on ${date} — ${done ? "done" : skip ? "skipped" : "not done"}`}
                             aria-pressed={done}
-                            className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
+                            className={`${today ? "w-9 h-9" : "w-8 h-8"} rounded-full flex items-center justify-center transition-colors`}
                             style={{
                               backgroundColor: done
                                 ? habit.color
                                 : skip
                                 ? "#FEF3C7"
-                                : today
-                                ? SAGE.bg
                                 : "transparent",
                               border: done
                                 ? "2px solid transparent"
                                 : skip
-                                ? "2px dashed #D97706"
+                                ? "1.5px dashed #D97706"
                                 : today
-                                ? `2px solid ${SAGE.deep}`
-                                : `1.5px solid ${SAGE.mid}66`,
+                                ? `2px solid ${SAGE.ink}`
+                                : `1.5px solid ${SAGE.mid}88`,
                               boxShadow: done ? `0 2px 6px -2px ${habit.color}88` : "none",
                               color: done ? "#fff" : skip ? "#D97706" : "transparent",
                             }}
