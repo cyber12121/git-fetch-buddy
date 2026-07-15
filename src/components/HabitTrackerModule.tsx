@@ -303,7 +303,7 @@ export default function HabitTrackerModule({
               <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: SAGE.inkMuted }}>
                 Habit
               </div>
-              {days.map((date) => {
+              {days.map((date: string) => {
                 const today = isToday(date);
                 const weekday = new Date(date + "T00:00:00")
                   .toLocaleDateString("en-US", { weekday: "short" })
@@ -379,7 +379,7 @@ export default function HabitTrackerModule({
                     </div>
 
                     {/* Day cells */}
-                    {days.map((date) => {
+                    {days.map((date: string) => {
                       const status = getStatus(habit.id, date);
                       const today = isToday(date);
                       const done = status === "done";
