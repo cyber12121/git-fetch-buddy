@@ -59,6 +59,11 @@ export default function App() {
   const [activeTab, setActiveTabState] = useState<TabId>("todo");
   const mainRef = useRef<HTMLElement | null>(null);
 
+  // Apply the saved theme as soon as the app mounts so CSS variables reflect
+  // the user's choice before the first paint of interactive content.
+  useEffect(() => { applyTheme(readStoredTheme()); }, []);
+
+
   // Move focus to the main region and scroll it into view. Used after
   // deep-link / back-forward navigation so the user's attention (and
   // screen-reader focus) lands on the correct tab content instead of
