@@ -539,7 +539,7 @@ export default function WeeklyPlannerModule({
   const fmtSub = (d: Date) => DAYS_S[d.getDay()];
 
   return (
-    <div className="min-h-screen bg-canvas text-ink" style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-canvas text-ink" style={{ fontFamily: "'Fredoka', 'Nunito', sans-serif" }}>
 
       {/* Top Bar — minimal */}
       <div className="flex items-center justify-between gap-3 px-6 md:px-10 pt-8 pb-6">
