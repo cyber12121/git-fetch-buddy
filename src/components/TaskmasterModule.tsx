@@ -316,26 +316,86 @@ export default function TaskmasterModule({
     onGubbyMessage("Timer reset! Ready when you are.", "cozy");
   };
 
+  const logSession = (
+    logMode: SessionRecord["mode"],
+    title: string,
+    seconds: number
+  ) => {
+    if (seconds < 5) return; // ignore accidental sub-5s runs
+    const next = appendSession({ mode: logMode, title, seconds });
+    setHistory(next);
+  };
+
+  const switchMode = (next: TimerMode) => {
+    if (isRunning) setIsRunning(false);
+    setMode(next);
+    setPomoPhase("focus");
+    setPomoRound(1);
+    const dur = next === "break" ? BREAK_SECS : next === "pomodoro" ? POMODORO_FOCUS_SECS : 3000;
+    setDuration(dur);
+    setTimeLeft(dur);
+    setActiveSessionSeconds(0);
+    if (next === "break") {
+      setCurrentMission("Short break");
+      onGubbyMessage("Break time! Stretch, hydrate, unclench that jaw. 🫖", "cozy");
+    } else if (next === "pomodoro") {
+      onGubbyMessage("Pomodoro loaded: 25 focus / 5 break. Pick your mission! 🍅", "focused");
+    } else {
+      onGubbyMessage("Back to classic focus mode. Set your one thing.", "focused");
+    }
+  };
+
   const handleTimerComplete = () => {
     setIsRunning(false);
     playChime("victory");
+    const elapsed = duration; // whole duration ran to zero
+    const missionTitle = currentMission || (mode === "break" ? "Short break" : mode === "pomodoro" ? `Pomodoro round ${pomoRound}` : "Focus session");
+
+    if (mode === "break") {
+      logSession("break", missionTitle, elapsed);
+      onGubbyMessage("Break over — welcome back. Ready for another round?", "happy");
+      setCurrentMission("");
+      setActiveSessionSeconds(0);
+      return;
+    }
+
+    if (mode === "pomodoro") {
+      if (pomoPhase === "focus") {
+        logSession("pomodoro", missionTitle, elapsed);
+        onGubbyMessage(`Pomodoro round ${pomoRound} done! 5-min break starting. 🍅`, "happy");
+        setPomoPhase("break");
+        setDuration(POMODORO_BREAK_SECS);
+        setTimeLeft(POMODORO_BREAK_SECS);
+        setActiveSessionSeconds(0);
+        setIsRunning(true); // auto-start break
+      } else {
+        logSession("break", "Pomodoro break", elapsed);
+        onGubbyMessage("Break done — back to focus! 🔥", "excited");
+        setPomoPhase("focus");
+        setPomoRound((r) => r + 1);
+        setDuration(POMODORO_FOCUS_SECS);
+        setTimeLeft(POMODORO_FOCUS_SECS);
+        setActiveSessionSeconds(0);
+        setIsRunning(true); // auto-start next focus
+      }
+      return;
+    }
+
+    // Classic focus
     onGubbyMessage("TIME IS UP! Absolute stellar work! Celebrate taking action! 🎉", "excited");
     if (currentMission) {
+      logSession("focus", currentMission, elapsed);
       if (activeTaskId) {
         onCompleteActiveTask(activeTaskId, activeSubtaskId ?? undefined);
       }
       const completedTask = currentMission;
-      setCompletedMissions((prev) => {
-        if (!prev.includes(completedTask)) {
-          return [...prev, completedTask];
-        }
-        return prev;
-      });
+      setCompletedMissions((prev) => (prev.includes(completedTask) ? prev : [...prev, completedTask]));
       setCurrentMission("");
       setTempFocusTitle("");
     }
     setActiveSessionSeconds(0);
   };
+
 
   // Keep interval-body refs pointed at the latest function/prop identities.
   soundEnabledRef.current = soundEnabled;
