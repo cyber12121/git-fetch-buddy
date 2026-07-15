@@ -293,7 +293,7 @@ export default function HabitTrackerModule({
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-[2rem] border p-4 sm:p-6 overflow-x-auto"
+          className="rounded-2xl sm:rounded-[2rem] border p-3 sm:p-6 overflow-x-auto"
           style={{ backgroundColor: SAGE.surface, borderColor: SAGE.muted }}
         >
           {/* Toolbar: range label + Today / prev / next */}
