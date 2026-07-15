@@ -505,7 +505,7 @@ export default function WeeklyPlannerModule({
                 value={newTitle}
                 onChange={setNewTitle}
                 onKeyDown={e => {
-                  if (e.key === "Enter") { e.preventDefault(); if (newTitle.trim()) { onAddTask(newTitle.trim(), "medium", "Added in Weekly Planner", dateStr); setNewTitle(""); setAddingDate(null); onGubbyMessage("Task added! 📝","happy"); } else setAddingDate(null); }
+                  if (e.key === "Enter") { e.preventDefault(); if (newTitle.trim()) { onAddTask(newTitle.trim(), "medium", "Added in Weekly Planner", dateStr); setNewTitle(""); onGubbyMessage("Task added! 📝","happy"); } else setAddingDate(null); }
                   else if (e.key === "Escape") { setAddingDate(null); setNewTitle(""); }
                 }}
                 onBlur={() => commitAdd(dateStr)}
