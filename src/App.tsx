@@ -59,9 +59,18 @@ export default function App() {
   const [activeTab, setActiveTabState] = useState<TabId>("todo");
   const mainRef = useRef<HTMLElement | null>(null);
 
-  // Apply the saved theme as soon as the app mounts so CSS variables reflect
-  // the user's choice before the first paint of interactive content.
-  useEffect(() => { applyTheme(readStoredTheme()); }, []);
+  // Apply the saved theme as soon as the app mounts, and track it so
+  // theme-specific UI (like hiding the Sprig companion in Kinetic Dark)
+  // can react to switches.
+  const [themeId, setThemeId] = useState<ThemeId>("cozy-goblin");
+  useEffect(() => {
+    const t = readStoredTheme();
+    applyTheme(t);
+    setThemeId(t);
+    return subscribeTheme(setThemeId);
+  }, []);
+  const showGubby = themeId !== "kinetic-dark";
+
 
 
   // Move focus to the main region and scroll it into view. Used after
