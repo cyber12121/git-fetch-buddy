@@ -747,7 +747,7 @@ export default function App() {
           {/* RIGHT: Sprig companion + Today's Quests (desktop only, do-tabs only) */}
           {!isWide && (
             <aside className="hidden lg:flex flex-col gap-4 w-80 shrink-0">
-              {!gubbyHidden ? (
+              {showGubby && (!gubbyHidden ? (
                 <GubbyCompanion
                   mood={gubbyMood}
                   customMessage={gubbyMessage}
@@ -762,7 +762,7 @@ export default function App() {
                 >
                   🦦 Bring Sprig back
                 </button>
-              )}
+              ))}
               <TodaysQuests tasks={tasks} onToggleTask={handleToggleTask} />
               <RewardHistory />
             </aside>
@@ -772,7 +772,8 @@ export default function App() {
 
         {/* Mobile/tablet: inline Sprig + reward log below the module. */}
         <section aria-label="Extras" className="lg:hidden mt-6 space-y-4">
-          {activeTab !== "weekly" && activeTab !== "calendar" && activeTab !== "habits" && !gubbyHidden && (
+          {showGubby && activeTab !== "weekly" && activeTab !== "calendar" && activeTab !== "habits" && !gubbyHidden && (
+
             <GubbyCompanion mood={gubbyMood} customMessage={gubbyMessage} xp={xp} onHide={() => updateGubbyHidden(true)} />
           )}
           <RewardHistory />
