@@ -1,7 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw, AlertCircle, CheckCircle, Volume2, VolumeX, Plus, Award } from "lucide-react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { Play, Pause, RotateCcw, AlertCircle, CheckCircle, Volume2, VolumeX, Plus, Award, Flame, Wind, Coffee, Target, Timer } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Task } from "../types";
+import BreathingOverlay from "./BreathingOverlay";
+import {
+  appendSession,
+  computeStats,
+  formatDuration as fmtHistoryDuration,
+  loadHistory,
+  type SessionRecord,
+} from "../lib/focusHistory";
 
 interface TaskmasterModuleProps {
   activeTaskTitle: string | null;
@@ -13,6 +21,12 @@ interface TaskmasterModuleProps {
 }
 
 type PendingAction = { type: "quest" | "quick_focus"; value: string };
+type TimerMode = "focus" | "pomodoro" | "break";
+
+const POMODORO_FOCUS_SECS = 25 * 60;
+const POMODORO_BREAK_SECS = 5 * 60;
+const BREAK_SECS = 5 * 60;
+
 
 export default function TaskmasterModule({
   activeTaskTitle,
@@ -30,10 +44,19 @@ export default function TaskmasterModule({
   const [pacingEnabled, setPacingEnabled] = useState(false); // subtle body-double ticking sound
   const [tempFocusTitle, setTempFocusTitle] = useState("");
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+  const [mode, setMode] = useState<TimerMode>("focus");
+  // For pomodoro: which half of the cycle we're in.
+  const [pomoPhase, setPomoPhase] = useState<"focus" | "break">("focus");
+  const [pomoRound, setPomoRound] = useState(1);
+  const [showBreathing, setShowBreathing] = useState(false);
+  const [history, setHistory] = useState<SessionRecord[]>(() => loadHistory());
+  const [showHistory, setShowHistory] = useState(false);
+  const stats = useMemo(() => computeStats(history), [history]);
 
   // Helper to get today's key format YYYY-MM-DD
   const getTodayKey = () => {
     const d = new Date();
+
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   };
 
@@ -293,26 +316,86 @@ export default function TaskmasterModule({
     onGubbyMessage("Timer reset! Ready when you are.", "cozy");
   };
 
+  const logSession = (
+    logMode: SessionRecord["mode"],
+    title: string,
+    seconds: number
+  ) => {
+    if (seconds < 5) return; // ignore accidental sub-5s runs
+    const next = appendSession({ mode: logMode, title, seconds });
+    setHistory(next);
+  };
+
+  const switchMode = (next: TimerMode) => {
+    if (isRunning) setIsRunning(false);
+    setMode(next);
+    setPomoPhase("focus");
+    setPomoRound(1);
+    const dur = next === "break" ? BREAK_SECS : next === "pomodoro" ? POMODORO_FOCUS_SECS : 3000;
+    setDuration(dur);
+    setTimeLeft(dur);
+    setActiveSessionSeconds(0);
+    if (next === "break") {
+      setCurrentMission("Short break");
+      onGubbyMessage("Break time! Stretch, hydrate, unclench that jaw. 🫖", "cozy");
+    } else if (next === "pomodoro") {
+      onGubbyMessage("Pomodoro loaded: 25 focus / 5 break. Pick your mission! 🍅", "focused");
+    } else {
+      onGubbyMessage("Back to classic focus mode. Set your one thing.", "focused");
+    }
+  };
+
   const handleTimerComplete = () => {
     setIsRunning(false);
     playChime("victory");
+    const elapsed = duration; // whole duration ran to zero
+    const missionTitle = currentMission || (mode === "break" ? "Short break" : mode === "pomodoro" ? `Pomodoro round ${pomoRound}` : "Focus session");
+
+    if (mode === "break") {
+      logSession("break", missionTitle, elapsed);
+      onGubbyMessage("Break over — welcome back. Ready for another round?", "happy");
+      setCurrentMission("");
+      setActiveSessionSeconds(0);
+      return;
+    }
+
+    if (mode === "pomodoro") {
+      if (pomoPhase === "focus") {
+        logSession("pomodoro", missionTitle, elapsed);
+        onGubbyMessage(`Pomodoro round ${pomoRound} done! 5-min break starting. 🍅`, "happy");
+        setPomoPhase("break");
+        setDuration(POMODORO_BREAK_SECS);
+        setTimeLeft(POMODORO_BREAK_SECS);
+        setActiveSessionSeconds(0);
+        setIsRunning(true); // auto-start break
+      } else {
+        logSession("break", "Pomodoro break", elapsed);
+        onGubbyMessage("Break done — back to focus! 🔥", "excited");
+        setPomoPhase("focus");
+        setPomoRound((r) => r + 1);
+        setDuration(POMODORO_FOCUS_SECS);
+        setTimeLeft(POMODORO_FOCUS_SECS);
+        setActiveSessionSeconds(0);
+        setIsRunning(true); // auto-start next focus
+      }
+      return;
+    }
+
+    // Classic focus
     onGubbyMessage("TIME IS UP! Absolute stellar work! Celebrate taking action! 🎉", "excited");
     if (currentMission) {
+      logSession("focus", currentMission, elapsed);
       if (activeTaskId) {
         onCompleteActiveTask(activeTaskId, activeSubtaskId ?? undefined);
       }
       const completedTask = currentMission;
-      setCompletedMissions((prev) => {
-        if (!prev.includes(completedTask)) {
-          return [...prev, completedTask];
-        }
-        return prev;
-      });
+      setCompletedMissions((prev) => (prev.includes(completedTask) ? prev : [...prev, completedTask]));
       setCurrentMission("");
       setTempFocusTitle("");
     }
     setActiveSessionSeconds(0);
   };
+
 
   // Keep interval-body refs pointed at the latest function/prop identities.
   soundEnabledRef.current = soundEnabled;
@@ -341,23 +424,23 @@ export default function TaskmasterModule({
 
   const handleCompleteMission = () => {
     if (!currentMission) return;
+    const elapsed = activeSessionSeconds;
     setIsRunning(false);
     playChime("victory");
-    if (activeTaskId) {
+    if (mode !== "break" && activeTaskId) {
       onCompleteActiveTask(activeTaskId, activeSubtaskId ?? undefined);
     }
     onGubbyMessage(`Amazing! Quest "${currentMission}" completed! Victory dance! 🦖💃`, "happy");
+    logSession(mode === "break" ? "break" : mode === "pomodoro" ? "pomodoro" : "focus", currentMission, elapsed);
     const completedTask = currentMission;
-    setCompletedMissions((prev) => {
-      if (!prev.includes(completedTask)) {
-        return [...prev, completedTask];
-      }
-      return prev;
-    });
+    if (mode !== "break") {
+      setCompletedMissions((prev) => (prev.includes(completedTask) ? prev : [...prev, completedTask]));
+    }
     setCurrentMission("");
     setTempFocusTitle("");
     setActiveSessionSeconds(0);
   };
+
 
   const handleCreateTempMission = (e: React.FormEvent) => {
     e.preventDefault();
@@ -546,8 +629,23 @@ export default function TaskmasterModule({
         )}
       </AnimatePresence>
 
-      {/* Tiny top row — status pill + recap link */}
-      <div className="flex items-center justify-between mb-10">
+      {/* Breathing overlay */}
+      <AnimatePresence>
+        {showBreathing && (
+          <BreathingOverlay
+            monoFont={monoFont}
+            onClose={() => setShowBreathing(false)}
+            onComplete={(secs) => {
+              logSession("breathe", "3-2-1 breathing", secs);
+              setShowBreathing(false);
+              onGubbyMessage("Breathing complete. Nervous system, downshifted. 🌬️", "cozy");
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Tiny top row — status pill + streak + recap */}
+      <div className="flex items-center justify-between mb-6">
         <div
           className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-ink-muted"
           style={{ fontFamily: monoFont }}
@@ -557,16 +655,69 @@ export default function TaskmasterModule({
               isRunning ? "bg-success animate-pulse" : status === "paused" ? "bg-warn" : "bg-ink-muted/50"
             }`}
           />
-          {status}
+          {mode === "pomodoro" ? `pomo r${pomoRound} · ${pomoPhase}` : mode} · {status}
         </div>
+        <div className="flex items-center gap-3">
+          {stats.streak > 0 && (
+            <div
+              className="flex items-center gap-1 text-[11px] font-bold text-brand"
+              style={{ fontFamily: monoFont }}
+              title="Consecutive days with a counted focus session"
+            >
+              <Flame size={12} /> {stats.streak}d
+            </div>
+          )}
+          <button
+            id="timer-view-summary-btn"
+            onClick={() => { setIsRunning(false); setShowSummary(true); }}
+            className="text-[11px] font-bold text-ink-muted hover:text-ink flex items-center gap-1.5 cursor-pointer transition-colors"
+          >
+            <Award size={12} /> Recap
+          </button>
+        </div>
+      </div>
+
+      {/* Mode selector — tiny segmented row */}
+      <div
+        className="flex items-center justify-center gap-1 mb-8 p-1 bg-surface-sunken border border-edge rounded-full max-w-md mx-auto"
+        style={{ fontFamily: monoFont }}
+        role="tablist"
+        aria-label="Timer mode"
+      >
+        {([
+          { id: "focus" as const, label: "Focus", Icon: Target },
+          { id: "pomodoro" as const, label: "Pomodoro", Icon: Timer },
+          { id: "break" as const, label: "Break", Icon: Coffee },
+        ]).map(({ id, label, Icon }) => {
+          const active = mode === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => switchMode(id)}
+              className={`flex-1 min-w-0 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors cursor-pointer ${
+                active ? "bg-brand text-primary-foreground" : "text-ink-muted hover:text-ink"
+              }`}
+            >
+              <Icon size={11} />
+              <span className="hidden sm:inline">{label}</span>
+            </button>
+          );
+        })}
         <button
-          id="timer-view-summary-btn"
-          onClick={() => { setIsRunning(false); setShowSummary(true); }}
-          className="text-[11px] font-bold text-ink-muted hover:text-ink flex items-center gap-1.5 cursor-pointer transition-colors"
+          type="button"
+          onClick={() => setShowBreathing(true)}
+          className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest text-ink-muted hover:text-ink cursor-pointer border-l border-edge ml-1"
+          title="3-2-1 breathing"
         >
-          <Award size={12} /> Recap
+          <Wind size={11} />
+          <span className="hidden sm:inline">Breathe</span>
         </button>
       </div>
+
+
 
       {/* Mission — single line, no card */}
       <div className="mb-8 text-center min-h-[3rem]">
@@ -779,6 +930,85 @@ export default function TaskmasterModule({
         </details>
       )}
 
+      {/* ── HISTORY & STREAK PANEL ─────────────────────────────── */}
+      <div className="mt-10 border-t border-edge pt-8">
+        <div
+          className="grid grid-cols-4 gap-px bg-edge rounded-2xl overflow-hidden border border-edge mb-4"
+          style={{ fontFamily: monoFont }}
+        >
+          <div className="bg-surface-sunken p-3 text-center">
+            <div className="text-[9px] font-bold uppercase tracking-widest text-ink-muted flex items-center justify-center gap-1">
+              <Flame size={10} /> Streak
+            </div>
+            <div className="text-xl font-bold text-brand tabular-nums mt-1">{stats.streak}d</div>
+          </div>
+          <div className="bg-surface-sunken p-3 text-center">
+            <div className="text-[9px] font-bold uppercase tracking-widest text-ink-muted">Today</div>
+            <div className="text-xl font-bold text-ink tabular-nums mt-1">{fmtHistoryDuration(stats.todayFocusSeconds)}</div>
+          </div>
+          <div className="bg-surface-sunken p-3 text-center">
+            <div className="text-[9px] font-bold uppercase tracking-widest text-ink-muted">All time</div>
+            <div className="text-xl font-bold text-ink tabular-nums mt-1">{fmtHistoryDuration(stats.totalFocusSeconds)}</div>
+          </div>
+          <div className="bg-surface-sunken p-3 text-center">
+            <div className="text-[9px] font-bold uppercase tracking-widest text-ink-muted">Best day</div>
+            <div className="text-xl font-bold text-ink tabular-nums mt-1">{fmtHistoryDuration(stats.bestDaySeconds)}</div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowHistory((v) => !v)}
+          className="w-full text-[11px] font-bold uppercase tracking-[0.2em] text-ink-muted hover:text-ink cursor-pointer flex items-center justify-center gap-1.5 py-2"
+          style={{ fontFamily: monoFont }}
+        >
+          <span className={`inline-block transition-transform ${showHistory ? "rotate-90" : ""}`}>›</span>
+          {stats.totalSessions === 0
+            ? "no sessions logged yet"
+            : `history · ${stats.totalSessions} session${stats.totalSessions === 1 ? "" : "s"}`}
+        </button>
+
+        <AnimatePresence>
+          {showHistory && history.length > 0 && (
+            <motion.ul
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-3 max-h-64 overflow-y-auto divide-y divide-edge/60 border border-edge rounded-xl bg-surface-sunken"
+            >
+              {[...history].reverse().slice(0, 40).map((r) => {
+                const d = new Date(r.at);
+                const when = d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) +
+                  " " + d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+                const modeIcon =
+                  r.mode === "focus" ? <Target size={11} className="text-brand" /> :
+                  r.mode === "pomodoro" ? <Timer size={11} className="text-brand" /> :
+                  r.mode === "break" ? <Coffee size={11} className="text-ink-muted" /> :
+                  <Wind size={11} className="text-accent" />;
+                return (
+                  <li key={r.id} className="flex items-center gap-3 px-3 py-2 text-xs">
+                    <span className="shrink-0">{modeIcon}</span>
+                    <span className="flex-1 min-w-0 truncate text-ink">{r.title}</span>
+                    <span
+                      className="tabular-nums text-ink-muted"
+                      style={{ fontFamily: monoFont }}
+                    >
+                      {fmtHistoryDuration(r.seconds)}
+                    </span>
+                    <span
+                      className="tabular-nums text-ink-muted/70 text-[10px] hidden sm:inline"
+                      style={{ fontFamily: monoFont }}
+                    >
+                      {when}
+                    </span>
+                  </li>
+                );
+              })}
+            </motion.ul>
+          )}
+        </AnimatePresence>
+      </div>
+
       {/* Footnote */}
       <p className="mt-8 text-center text-[10px] text-ink-muted/70" style={{ fontFamily: monoFont }}>
         sessions ≥ 10min count · deep flow gets the credit
@@ -786,4 +1016,5 @@ export default function TaskmasterModule({
     </div>
   );
 }
+
 
