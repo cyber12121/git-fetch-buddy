@@ -249,17 +249,25 @@ export default function HabitTrackerModule({
         <motion.header
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-wrap items-end justify-between gap-4 pb-4 border-b"
-          style={{ borderColor: SAGE.muted }}
+          className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4"
         >
           <div className="min-w-0">
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight truncate" style={{ ...headerFont, color: SAGE.ink }}>
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight truncate" style={{ ...headerFont, color: SAGE.ink }}>
               Habit Tracker
             </h1>
-            <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: SAGE.deep }}>
-              Don't break the chain
+            <p className="mt-1 text-xs" style={{ color: SAGE.inkMuted }}>
+              Small habits. Big change.
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => setShowAddForm(true)}
+            className="group inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-white font-semibold text-xs sm:text-sm shadow-md transition-all hover:brightness-110 shrink-0"
+            style={{ backgroundColor: SAGE.ink }}
+          >
+            <Plus size={14} className="transition-transform group-hover:rotate-90" />
+            Add habit
+          </button>
         </motion.header>
 
         {/* Matrix: habits × days */}
@@ -278,29 +286,24 @@ export default function HabitTrackerModule({
               <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: SAGE.inkMuted }}>
                 Habit
               </div>
-              {days.map((date, i) => {
-                const showMonth = i === 0 || monthLabel(date) !== monthLabel(days[i - 1]);
+              {days.map((date) => {
                 const today = isToday(date);
+                const weekday = new Date(date + "T00:00:00")
+                  .toLocaleDateString("en-US", { weekday: "short" })
+                  .toUpperCase();
                 return (
                   <div key={date} className="flex flex-col items-center gap-0.5">
-                    {showMonth ? (
-                      <span className="text-[9px] font-bold uppercase" style={{ color: SAGE.deep }}>
-                        {monthLabel(date)}
-                      </span>
-                    ) : (
-                      <span className="h-[11px]" />
-                    )}
                     <span
                       className="text-[11px] font-bold tabular-nums leading-none"
-                      style={{ color: today ? SAGE.deep : SAGE.ink }}
+                      style={{ color: SAGE.ink }}
                     >
                       {dayNum(date)}
                     </span>
                     <span
-                      className="text-[9px] font-semibold uppercase leading-none"
-                      style={{ color: today ? SAGE.deep : `${SAGE.ink}66` }}
+                      className="text-[9px] font-semibold tracking-wider leading-none"
+                      style={{ color: today ? SAGE.ink : `${SAGE.ink}66` }}
                     >
-                      {today ? "Now" : dayLetter(date)}
+                      {today ? "TODAY" : weekday}
                     </span>
                   </div>
                 );
@@ -372,22 +375,20 @@ export default function HabitTrackerModule({
                             onClick={() => onToggleDay(habit.id, date)}
                             aria-label={`${habit.name} on ${date} — ${done ? "done" : skip ? "skipped" : "not done"}`}
                             aria-pressed={done}
-                            className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
+                            className={`${today ? "w-9 h-9" : "w-8 h-8"} rounded-full flex items-center justify-center transition-colors`}
                             style={{
                               backgroundColor: done
                                 ? habit.color
                                 : skip
                                 ? "#FEF3C7"
-                                : today
-                                ? SAGE.bg
                                 : "transparent",
                               border: done
                                 ? "2px solid transparent"
                                 : skip
-                                ? "2px dashed #D97706"
+                                ? "1.5px dashed #D97706"
                                 : today
-                                ? `2px solid ${SAGE.deep}`
-                                : `1.5px solid ${SAGE.mid}66`,
+                                ? `2px solid ${SAGE.ink}`
+                                : `1.5px solid ${SAGE.mid}88`,
                               boxShadow: done ? `0 2px 6px -2px ${habit.color}88` : "none",
                               color: done ? "#fff" : skip ? "#D97706" : "transparent",
                             }}
@@ -423,34 +424,6 @@ export default function HabitTrackerModule({
                 );
               })}
             </AnimatePresence>
-
-            {/* Daily summary row */}
-            {habits.length > 0 && (
-              <div
-                className="grid items-center gap-1 pt-3 mt-2 border-t"
-                style={{ gridTemplateColumns: gridCols, borderColor: SAGE.muted }}
-              >
-                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: SAGE.inkMuted }}>
-                  Daily
-                </span>
-                {days.map((date) => {
-                  const doneCount = habits.filter((h) => getStatus(h.id, date) === "done").length;
-                  const allDone = doneCount === habits.length && habits.length > 0;
-                  return (
-                    <div key={date} className="text-center">
-                      <span
-                        className="text-[11px] font-bold tabular-nums"
-                        style={{ color: allDone ? SAGE.deep : `${SAGE.ink}66` }}
-                      >
-                        {doneCount > 0 ? doneCount : "·"}
-                      </span>
-                    </div>
-                  );
-                })}
-                <div />
-                <div />
-              </div>
-            )}
           </div>
         </motion.div>
 
