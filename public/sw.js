@@ -1,6 +1,8 @@
-// Minimal offline service worker for Goblin Flow (installable PWA).
+// Minimal offline service worker for Momentum (installable PWA).
 // Network-first for page navigations, cache-first for static assets.
-const CACHE = "goblin-flow-v1";
+// Bump the version whenever the app shell rebrands or reshapes so old
+// clients drop their stale cache on activate.
+const CACHE = "momentum-v2";
 const APP_SHELL = ["/", "/index.html", "/icon.svg", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
