@@ -171,11 +171,65 @@ const FOCUS: ThemeDef = {
   },
 };
 
-export const THEMES: ThemeDef[] = [COZY, KINETIC, FOCUS];
+// Dopamine Arcade — high-contrast, saturated, playful. Built for ADHD brains
+// that want the reward loop to *feel* electric: black-violet canvas, hot
+// magenta primary, electric cyan accent, sunshine highlight. Big glows.
+const ARCADE: ThemeDef = {
+  id: "dopamine-arcade",
+  name: "Dopamine Arcade",
+  description: "High-contrast neon — every win feels like a jackpot.",
+  swatches: ["#0a0514", "#ff2d75", "#22d3ee", "#fde047"],
+  fontSans: "'Space Grotesk', 'DM Sans', system-ui, sans-serif",
+  fontDisplay: "'Space Grotesk', 'DM Sans', system-ui, sans-serif",
+  fontMono: "'JetBrains Mono', ui-monospace, Menlo, monospace",
+  vars: {
+    "--background": "#0a0514",
+    "--foreground": "#fef6ff",
+    "--card": "#150a24",
+    "--card-foreground": "#fef6ff",
+    "--popover": "#150a24",
+    "--popover-foreground": "#fef6ff",
+    "--primary": "#ff2d75",
+    "--primary-foreground": "#0a0514",
+    "--secondary": "#1a0f2e",
+    "--secondary-foreground": "#fef6ff",
+    "--muted": "#1a0f2e",
+    "--muted-foreground": "#b8a5d4",
+    "--accent": "#22d3ee",
+    "--accent-foreground": "#0a0514",
+    "--destructive": "#f43f5e",
+    "--destructive-foreground": "#0a0514",
+    "--border": "rgba(255,45,117,0.20)",
+    "--input": "rgba(255,255,255,0.10)",
+    "--ring": "#ff2d75",
+
+    "--color-canvas": "#0a0514",
+    "--color-surface": "#150a24",
+    "--color-surface-sunken": "#0f0720",
+    "--color-surface-raised": "#1f1236",
+    "--color-surface-raised2": "#261645",
+    "--color-surface-disabled": "#1a0f2e",
+    "--color-ink": "#fef6ff",
+    "--color-ink-2": "#f0e0ff",
+    "--color-ink-muted": "#b8a5d4",
+    "--color-edge": "rgba(255,45,117,0.20)",
+    "--color-edge-soft": "rgba(255,255,255,0.06)",
+    "--color-edge-strong": "rgba(34,211,238,0.35)",
+    "--color-brand": "#ff2d75",
+    "--color-brand-hover": "#ff5a92",
+    "--color-brand-soft": "rgba(255,45,117,0.18)",
+
+    "--theme-glow": "0 0 40px rgba(255,45,117,0.45)",
+    "color-scheme": "dark",
+  },
+};
+
+export const THEMES: ThemeDef[] = [COZY, KINETIC, FOCUS, ARCADE];
 export const THEME_MAP: Record<ThemeId, ThemeDef> = {
   "cozy-goblin": COZY,
   "kinetic-dark": KINETIC,
   "focus-paper": FOCUS,
+  "dopamine-arcade": ARCADE,
 };
 
 const STORAGE_KEY = "goblin_theme";
@@ -185,7 +239,7 @@ export function readStoredTheme(): ThemeId {
   if (typeof window === "undefined") return DEFAULT;
   try {
     const v = window.localStorage.getItem(STORAGE_KEY);
-    if (v === "cozy-goblin" || v === "kinetic-dark" || v === "focus-paper") return v;
+    if (v === "cozy-goblin" || v === "kinetic-dark" || v === "focus-paper" || v === "dopamine-arcade") return v;
   } catch { /* ignore */ }
   return DEFAULT;
 }
