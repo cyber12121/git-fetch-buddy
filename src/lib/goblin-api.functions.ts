@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequestHeader, getRequestIP } from "@tanstack/react-start/server";
 import { GoogleGenAI, Type } from "@google/genai";
 import { z } from "zod";
 import {
@@ -10,28 +11,46 @@ import {
 
 // Lightweight in-memory rate limiter. Buckets expire after the window; in a
 // serverless environment this is per-instance rather than global, but it still
-// catches rapid bursts from the same client.
+// catches rapid bursts from the same client. Stale buckets are pruned inline
+// on read so we don't need a leaky module-scope setInterval that survives HMR.
 const rateBuckets = new Map<string, { count: number; resetAt: number }>();
+const RATE_BUCKET_CAP = 5_000; // hard ceiling to prevent unbounded memory growth
 
-function isRateLimited(ip: string): boolean {
+function isRateLimited(key: string): boolean {
   const now = Date.now();
-  const bucket = rateBuckets.get(ip);
+  const bucket = rateBuckets.get(key);
   if (!bucket || now > bucket.resetAt) {
-    rateBuckets.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    // Opportunistic prune when we're near the cap.
+    if (rateBuckets.size > RATE_BUCKET_CAP) {
+      for (const [k, b] of rateBuckets) {
+        if (b.resetAt <= now) rateBuckets.delete(k);
+      }
+    }
+    rateBuckets.set(key, { count: 1, resetAt: now + RATE_WINDOW_MS });
     return false;
   }
   bucket.count += 1;
   return bucket.count > RATE_MAX;
 }
 
-function cleanupBuckets() {
-  const now = Date.now();
-  for (const [ip, bucket] of rateBuckets) {
-    if (bucket.resetAt <= now) rateBuckets.delete(ip);
+/**
+ * Derive a per-client rate-limit key from the request. Falls back to
+ * "anonymous" only when no identifying header is available — never share
+ * a bucket across every visitor of the app (the previous behaviour).
+ */
+function clientRateKey(): string {
+  try {
+    const forwarded = getRequestHeader("x-forwarded-for");
+    if (forwarded) return forwarded.split(",")[0]!.trim();
+    const cfIp = getRequestHeader("cf-connecting-ip");
+    if (cfIp) return cfIp;
+    const ip = getRequestIP({ xForwardedFor: true });
+    if (ip) return ip;
+  } catch {
+    /* server utilities unavailable — fall through */
   }
+  return "anonymous";
 }
-
-setInterval(cleanupBuckets, RATE_WINDOW_MS);
 
 let aiClient: GoogleGenAI | null = null;
 
