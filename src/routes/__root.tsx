@@ -157,8 +157,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      {/* reducedMotion="user" makes Framer Motion honor prefers-reduced-motion globally. */}
+      <MotionConfig reducedMotion="user">
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+      </MotionConfig>
     </QueryClientProvider>
   );
 }
