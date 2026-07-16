@@ -267,7 +267,7 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
               <div className="absolute inset-0 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
               <Brain size={28} className="absolute inset-0 m-auto text-brand animate-pulse" />
             </div>
-            <p className="text-ink font-bold font-fredoka text-base">Sorting the Goblin's Treasure Pile...</p>
+            <p className="text-ink font-bold font-fredoka text-base">Sorting your treasure pile...</p>
             <p className="text-ink-muted text-sm max-w-md mx-auto">
               Sprig is dusting off your ideas, wiping away the panic, and formatting them into bite-sized actionable quests! Just a moment...
             </p>
