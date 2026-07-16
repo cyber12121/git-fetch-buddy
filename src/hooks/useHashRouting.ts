@@ -33,20 +33,27 @@ export function useHashRouting<T extends string>(
     });
   }, []);
 
+  // First `apply()` on mount only syncs state from the URL — it must NOT
+  // steal focus or scroll, or every page load jumps to the tabpanel.
+  // Only user-driven navigation (popstate / hashchange) focuses main.
   useEffect(() => {
-    const apply = () => {
+    const applyInitial = () => {
+      const t = readTab();
+      if (t) setActiveTabState(t);
+    };
+    const applyNav = () => {
       const t = readTab();
       if (t) {
         setActiveTabState(t);
         focusMain();
       }
     };
-    apply();
-    window.addEventListener("popstate", apply);
-    window.addEventListener("hashchange", apply);
+    applyInitial();
+    window.addEventListener("popstate", applyNav);
+    window.addEventListener("hashchange", applyNav);
     return () => {
-      window.removeEventListener("popstate", apply);
-      window.removeEventListener("hashchange", apply);
+      window.removeEventListener("popstate", applyNav);
+      window.removeEventListener("hashchange", applyNav);
     };
   }, [focusMain, readTab]);
 

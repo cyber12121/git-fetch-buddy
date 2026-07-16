@@ -20,6 +20,10 @@ interface Options {
  */
 export function useXpSystem({ pushToast, onLevelUp }: Options) {
   const [xp, setXp] = useState<number>(0);
+  // Sentinel: don't fire the level-up celebration when XP jumps from 0
+  // (initial mount) to the hydrated/cloud-merged value. Only real, live
+  // increments after hydration should celebrate.
+  const hydratedRef = useRef(false);
 
   // Hydrate from localStorage after mount — avoids SSR hydration mismatch.
   useEffect(() => {
@@ -27,6 +31,9 @@ export function useXpSystem({ pushToast, onLevelUp }: Options) {
       const saved = Number(localStorage.getItem("goblin_xp") || "0");
       if (Number.isFinite(saved) && saved > 0) setXp(saved);
     } catch { /* ignore */ }
+    // Mark hydrated on the *next* tick so the level-effect that observes
+    // the hydrated value still sees hydratedRef=false and skips celebration.
+    queueMicrotask(() => { hydratedRef.current = true; });
   }, []);
 
   const addXp = useCallback((amount: number) => {
@@ -70,11 +77,17 @@ export function useXpSystem({ pushToast, onLevelUp }: Options) {
     return nextCount;
   }, [addXp, pushToast]);
 
-  // Level-up celebration. Sentinel prevents a bogus burst on first mount.
+  // Level-up celebration. Two sentinels prevent bogus fires:
+  //  - prevLevelRef=null on very first observation
+  //  - hydratedRef=false during the hydration/cloud-merge XP jump
   const prevLevelRef = useRef<number | null>(null);
   useEffect(() => {
     const lvl = Math.floor(xp / 100) + 1;
-    if (prevLevelRef.current !== null && lvl > prevLevelRef.current) {
+    if (
+      hydratedRef.current &&
+      prevLevelRef.current !== null &&
+      lvl > prevLevelRef.current
+    ) {
       const msg = `Sprig grew to Level ${lvl}! 🎉 You're stronger with every quest.`;
       onLevelUp?.(msg, "excited");
       recordReward("levelup", "🌿", `Level ${lvl} reached!`);

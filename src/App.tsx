@@ -84,6 +84,7 @@ export default function App() {
     manualEvents: data.manualEvents,
     habits: data.habits,
     habitLog: data.habitLog,
+    xp,
     syncTasks: data.syncTasks,
     syncEvents: data.syncEvents,
     syncHabits: data.syncHabits,

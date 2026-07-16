@@ -27,6 +27,8 @@ interface UseCloudSyncArgs {
   manualEvents: CalendarEvent[];
   habits: Habit[];
   habitLog: HabitLog;
+  /** Live XP value — must be in deps so cloud push fires on XP-only changes. */
+  xp: number;
   syncTasks: (tasks: Task[]) => void;
   syncEvents: (events: CalendarEvent[]) => void;
   syncHabits: (habits: Habit[]) => void;
@@ -52,6 +54,7 @@ export function useCloudSync({
   manualEvents,
   habits,
   habitLog,
+  xp,
   syncTasks,
   syncEvents,
   syncHabits,
@@ -127,7 +130,7 @@ export function useCloudSync({
         manualEvents,
         habits,
         habitLog,
-        xp: Number(localStorage.getItem("goblin_xp") || "0"),
+        xp,
         updatedAt: Date.now(),
       })
         .then(() => {
@@ -148,7 +151,7 @@ export function useCloudSync({
         });
     }, 800);
     return () => clearTimeout(handle);
-  }, [tasks, manualEvents, habits, habitLog, user]);
+  }, [tasks, manualEvents, habits, habitLog, xp, user, pushToast]);
 
   return { cloudStatus };
 }
