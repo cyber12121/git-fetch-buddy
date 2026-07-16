@@ -11,9 +11,9 @@
   },
   "mcp": {
     "server": {
-      "name": "goblin-flow-mcp",
+      "name": "momentum-mcp",
       "version": "0.1.0",
-      "title": "Goblin Flow"
+      "title": "Momentum"
     },
     "tools": [
       {
