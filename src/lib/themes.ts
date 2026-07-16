@@ -263,7 +263,7 @@ export function applyTheme(id: ThemeId) {
   }
   root.dataset.theme = id;
   // Toggle Tailwind's `dark` variant so any `dark:` utilities behave correctly.
-  if (id === "kinetic-dark") root.classList.add("dark");
+  if (id === "kinetic-dark" || id === "dopamine-arcade") root.classList.add("dark");
   else root.classList.remove("dark");
   try { window.localStorage.setItem(STORAGE_KEY, id); } catch { /* ignore */ }
   window.dispatchEvent(new CustomEvent("goblin:theme-change", { detail: id }));
