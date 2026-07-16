@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
-import { Settings, X, Check, Palette, Trophy, ChevronDown } from "lucide-react";
+import { Settings, X, Check, Palette, Trophy, ChevronDown, LogIn, LogOut, User as UserIcon } from "lucide-react";
+import type { User } from "firebase/auth";
 import { THEMES, applyTheme, readStoredTheme, THEME_MAP, type ThemeId } from "../lib/themes";
+import { auth } from "../lib/firebaseApp";
+import { disableGuestMode, isGuestMode } from "../lib/guestMode";
 import RewardHistory from "./RewardHistory";
 
 const FOCUSABLE_SELECTOR = [
