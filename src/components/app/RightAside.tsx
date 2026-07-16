@@ -2,7 +2,6 @@ import { memo } from "react";
 import type { Task } from "../../types";
 import GubbyCompanion from "../GubbyCompanion";
 import TodaysQuests from "../TodaysQuests";
-import RewardHistory from "../RewardHistory";
 import type { GubbyMood } from "../../hooks/useGubbyState";
 
 interface Props {
@@ -19,8 +18,8 @@ interface Props {
 
 /**
  * Right-hand desktop rail: Sprig companion (or a small "bring me back"
- * button when hidden), Today's Quests, and the reward log.
- * Memoized so purely-cosmetic App re-renders don't re-render the list.
+ * button when hidden) and Today's Quests. The reward panel lives inside
+ * Settings now — it doesn't belong on every module page.
  */
 function RightAsideImpl(p: Props) {
   return (
@@ -42,7 +41,6 @@ function RightAsideImpl(p: Props) {
         </button>
       ))}
       <TodaysQuests tasks={p.tasks} onToggleTask={p.onToggleTask} />
-      <RewardHistory />
     </aside>
   );
 }
