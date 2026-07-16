@@ -28,6 +28,8 @@ export default function SettingsPanel() {
   const [theme, setTheme] = useState<ThemeId>("cozy-goblin");
   const [themeOpen, setThemeOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [guest, setGuest] = useState(false);
 
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLElement | null>(null);
@@ -36,9 +38,28 @@ export default function SettingsPanel() {
   useEffect(() => {
     setMounted(true);
     setTheme(readStoredTheme());
+    setUser(auth.currentUser);
+    setGuest(isGuestMode());
+    const unsub = auth.onAuthStateChanged((u) => setUser(u));
+    return unsub;
   }, []);
 
   const close = useCallback(() => setOpen(false), []);
+
+  const goSignIn = useCallback(() => {
+    disableGuestMode();
+    window.location.href = "/auth?next=/";
+  }, []);
+
+  const signOut = useCallback(async () => {
+    try {
+      await auth.signOut();
+    } catch {
+      /* ignore */
+    }
+    disableGuestMode();
+    window.location.href = "/auth";
+  }, []);
 
   const pick = (id: ThemeId) => {
     setTheme(id);
