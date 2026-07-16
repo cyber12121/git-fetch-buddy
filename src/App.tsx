@@ -47,7 +47,7 @@ export default function App() {
   const showGubby = themeId !== "kinetic-dark";
 
   // ── Routing ──────────────────────────────────────────────────────────
-  const { activeTab, setActiveTab, mainRef } = useHashRouting<TabId>(VALID_TABS, "todo");
+  const { activeTab, setActiveTab, mainRef } = useHashRouting<TabId>(VALID_TABS, "today");
 
   // ── Persisted data + Sprig state ─────────────────────────────────────
   const data = useAppData({ pushToast });
