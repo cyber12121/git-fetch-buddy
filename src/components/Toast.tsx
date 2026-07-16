@@ -37,6 +37,9 @@ const TONE_STYLES: Record<ToastTone, string> = {
 // Long enough to read, but pausable on hover so an ADHD user who glances away
 // doesn't lose the message.
 const AUTO_DISMISS_MS = 4000;
+// Cap concurrent toasts so a burst (e.g. completing 10 tasks fast) can't cover
+// the UI. Oldest gets dropped when the cap is exceeded.
+const MAX_VISIBLE_TOASTS = 3;
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -71,7 +74,21 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const pushToast = useCallback<ToastContextValue["pushToast"]>(
     ({ message, icon, tone = "info" }) => {
       const id = ++idRef.current;
-      setToasts((prev) => [...prev, { id, message, icon, tone }]);
+      setToasts((prev) => {
+        const next = [...prev, { id, message, icon, tone }];
+        // Drop oldest to keep the stack readable during rapid bursts.
+        while (next.length > MAX_VISIBLE_TOASTS) {
+          const dropped = next.shift();
+          if (dropped) {
+            const handle = timers.current.get(dropped.id);
+            if (handle) {
+              window.clearTimeout(handle);
+              timers.current.delete(dropped.id);
+            }
+          }
+        }
+        return next;
+      });
       scheduleDismiss(id);
     },
     [scheduleDismiss]
