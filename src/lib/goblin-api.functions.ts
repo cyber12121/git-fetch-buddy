@@ -185,7 +185,7 @@ export const breakdownTask = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const ip = "anonymous";
     if (isRateLimited(ip)) {
-      throw new Error("Whoa goblin, too many requests! Take a cozy breath and try again in a moment.");
+      throw new Error("Whoa, too many requests! Take a cozy breath and try again in a moment.");
     }
 
     const ai = getGeminiClient();
