@@ -54,9 +54,43 @@ export default function TaskmasterModule({
   const POMODORO_BREAK_SECS = settings.pomoBreakMinutes * 60;
   const BREAK_SECS = settings.breakMinutes * 60;
 
-  const [duration, setDuration] = useState(() => loadSettings().focusMinutes * 60);
-  const [timeLeft, setTimeLeft] = useState(() => loadSettings().focusMinutes * 60);
-  const [isRunning, setIsRunning] = useState(false);
+  // Persisted session shape: `{ endAt, duration, mission, mode, pomoPhase }`.
+  // Storing the absolute end timestamp (not "seconds remaining") means a
+  // browser reload mid-focus resumes at the true remaining time instead of
+  // rewinding to the moment we last serialized.
+  const SESSION_KEY = "goblin_active_session_v1";
+  type PersistedSession = {
+    endAt: number;
+    duration: number;
+    mission?: string;
+    mode?: TimerMode;
+    pomoPhase?: "focus" | "break";
+  };
+  const loadPersistedSession = (): PersistedSession | null => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = localStorage.getItem(SESSION_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as PersistedSession;
+      if (typeof parsed?.endAt !== "number" || typeof parsed?.duration !== "number") return null;
+      return parsed;
+    } catch {
+      return null;
+    }
+  };
+  const initialSession = loadPersistedSession();
+  const initialRemaining = initialSession
+    ? Math.max(0, Math.round((initialSession.endAt - Date.now()) / 1000))
+    : 0;
+  const shouldResume = !!initialSession && initialRemaining > 0;
+
+  const [duration, setDuration] = useState(() =>
+    shouldResume ? initialSession!.duration : loadSettings().focusMinutes * 60,
+  );
+  const [timeLeft, setTimeLeft] = useState(() =>
+    shouldResume ? initialRemaining : loadSettings().focusMinutes * 60,
+  );
+  const [isRunning, setIsRunning] = useState(shouldResume);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [pacingEnabled, setPacingEnabled] = useState(false);
   const [tempFocusTitle, setTempFocusTitle] = useState("");
@@ -178,9 +212,21 @@ export default function TaskmasterModule({
   }, [activeTaskTitle, tasks, onGubbyMessage]);
 
   useEffect(() => {
-    if (!isRunning) return;
+    if (!isRunning) {
+      // Session stopped/paused/completed — drop the persisted anchor so a
+      // reload doesn't spuriously resume.
+      try { localStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
+      return;
+    }
 
     const endAt = Date.now() + timeLeft * 1000;
+    try {
+      localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify({ endAt, duration, mission: currentMission, mode, pomoPhase } satisfies PersistedSession),
+      );
+    } catch { /* quota / SSR — best-effort */ }
+
     let activeElapsed = activeSessionSeconds;
 
     intervalRef.current = setInterval(() => {
@@ -211,6 +257,7 @@ export default function TaskmasterModule({
       if (remaining <= 0) {
         if (intervalRef.current) clearInterval(intervalRef.current);
         intervalRef.current = null;
+        try { localStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
         handleTimerCompleteRef.current();
       }
     }, 1000);
