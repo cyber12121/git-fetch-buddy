@@ -130,7 +130,7 @@ export function useCloudSync({
         manualEvents,
         habits,
         habitLog,
-        xp: Number(localStorage.getItem("goblin_xp") || "0"),
+        xp,
         updatedAt: Date.now(),
       })
         .then(() => {
