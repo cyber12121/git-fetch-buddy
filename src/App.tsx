@@ -3,7 +3,7 @@ import GubbyCompanion from "./components/GubbyCompanion";
 import AppNav from "./components/AppNav";
 import SideNav from "./components/SideNav";
 import AppStatusBar from "./components/AppStatusBar";
-import RewardHistory from "./components/RewardHistory";
+
 import ModuleRouter, { MODULE_PREFETCH, type TabId } from "./components/app/ModuleRouter";
 import RightAside from "./components/app/RightAside";
 
@@ -221,7 +221,7 @@ export default function App() {
           )}
         </div>
 
-        {/* Mobile/tablet: inline Sprig + reward log below the module. */}
+        {/* Mobile/tablet: inline Sprig below the module. Rewards live in Settings. */}
         <section aria-label="Extras" className="lg:hidden mt-6 space-y-4">
           {showGubby && !isWide && !gubby.gubbyHidden && (
             <GubbyCompanion
@@ -231,7 +231,6 @@ export default function App() {
               onHide={hideGubby}
             />
           )}
-          <RewardHistory />
         </section>
       </div>
 

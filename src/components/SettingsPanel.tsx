@@ -1,18 +1,22 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
-import { Settings, X, Check, Palette } from "lucide-react";
+import { Settings, X, Check, Palette, Trophy } from "lucide-react";
 import { THEMES, applyTheme, readStoredTheme, type ThemeId } from "../lib/themes";
+import RewardHistory from "./RewardHistory";
 
 /**
- * Settings sheet. Currently houses the Theme picker (previously a top-bar
- * button). Designed as a right-side drawer so more preferences can slot in
- * later without cluttering the header.
+ * Settings sheet. Right-side drawer housing the theme picker and the reward
+ * dashboard. Rendered via a portal so no transformed ancestor (framer-motion,
+ * page shells) can clip the fixed-position overlay.
  */
 export default function SettingsPanel() {
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<ThemeId>("cozy-goblin");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     setTheme(readStoredTheme());
   }, []);
 
@@ -29,6 +33,130 @@ export default function SettingsPanel() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  const drawer = (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            aria-hidden="true"
+            className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setOpen(false)}
+          />
+          <motion.aside
+            key="panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Settings"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed top-0 right-0 bottom-0 z-[9999] w-full sm:w-[420px] bg-card border-l border-edge shadow-2xl flex flex-col"
+            style={{
+              paddingTop: "env(safe-area-inset-top)",
+              paddingBottom: "env(safe-area-inset-bottom)",
+            }}
+          >
+            <header className="flex items-center justify-between px-5 py-4 border-b border-edge/70 shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-primary/15 text-primary">
+                  <Settings size={16} />
+                </span>
+                <div>
+                  <h2 className="text-sm font-extrabold text-ink font-fredoka">Settings</h2>
+                  <p className="text-[10px] text-ink-muted">Make it yours — everything saves automatically.</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-sunken transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </header>
+
+            <div className="flex-1 overflow-y-auto p-5 space-y-6">
+              <section aria-labelledby="settings-theme">
+                <div className="flex items-center gap-2 mb-3">
+                  <Palette size={14} className="text-brand" aria-hidden="true" />
+                  <h3 id="settings-theme" className="text-xs font-extrabold text-ink uppercase tracking-widest">
+                    Theme
+                  </h3>
+                </div>
+                <ul className="grid grid-cols-1 gap-2">
+                  {THEMES.map((t) => {
+                    const active = t.id === theme;
+                    return (
+                      <li key={t.id}>
+                        <button
+                          type="button"
+                          aria-pressed={active}
+                          onClick={() => pick(t.id)}
+                          className={`w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left border transition-all ${
+                            active
+                              ? "bg-primary/8 border-primary/50 shadow-[0_0_0_3px_var(--color-brand-soft)]"
+                              : "bg-surface-sunken border-edge hover:border-edge-strong"
+                          }`}
+                        >
+                          <span
+                            className="flex -space-x-1.5 shrink-0 p-1 rounded-full bg-canvas/40"
+                            aria-hidden="true"
+                          >
+                            {t.swatches.map((c, i) => (
+                              <span
+                                key={i}
+                                className="w-5 h-5 rounded-full border border-edge shadow-sm"
+                                style={{ background: c }}
+                              />
+                            ))}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-sm font-extrabold text-ink truncate">{t.name}</span>
+                            <span className="block text-[11px] text-ink-muted truncate">{t.description}</span>
+                          </span>
+                          {active && (
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground shrink-0">
+                              <Check size={13} strokeWidth={3} />
+                            </span>
+                          )}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+
+              <section aria-labelledby="settings-rewards" className="pt-2 border-t border-edge/50">
+                <div className="flex items-center gap-2 mb-3">
+                  <Trophy size={14} className="text-brand" aria-hidden="true" />
+                  <h3 id="settings-rewards" className="text-xs font-extrabold text-ink uppercase tracking-widest">
+                    Rewards
+                  </h3>
+                </div>
+                <RewardHistory defaultOpen />
+              </section>
+
+              <section aria-labelledby="settings-about" className="pt-2 border-t border-edge/50">
+                <h3 id="settings-about" className="text-[10px] font-extrabold text-ink-muted uppercase tracking-widest mb-2">
+                  About
+                </h3>
+                <p className="text-[11px] text-ink-muted leading-relaxed">
+                  Momentum is a cozy focus OS built for ADHD brains. Your data syncs to the
+                  cloud when signed in — nothing tracks you.
+                </p>
+              </section>
+            </div>
+          </motion.aside>
+        </>
+      )}
+    </AnimatePresence>
+  );
+
   return (
     <>
       <button
@@ -40,124 +168,7 @@ export default function SettingsPanel() {
         <Settings size={14} aria-hidden="true" />
         <span className="hidden sm:inline text-[11px] font-bold">Settings</span>
       </button>
-
-      <AnimatePresence>
-        {open && (
-          <>
-            <motion.button
-              type="button"
-              aria-label="Close settings"
-              className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm cursor-default"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setOpen(false)}
-            />
-            <motion.aside
-              key="panel"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Settings"
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed top-0 right-0 bottom-0 z-[70] w-full sm:w-[420px] bg-card border-l border-edge shadow-2xl flex flex-col"
-              style={{
-                paddingTop: "env(safe-area-inset-top)",
-                paddingBottom: "env(safe-area-inset-bottom)",
-              }}
-            >
-              {/* Header */}
-              <header className="flex items-center justify-between px-5 py-4 border-b border-edge/70">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-primary/15 text-primary">
-                    <Settings size={16} />
-                  </span>
-                  <div>
-                    <h2 className="text-sm font-extrabold text-ink font-fredoka">Settings</h2>
-                    <p className="text-[10px] text-ink-muted">Make it yours — everything saves automatically.</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  aria-label="Close"
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-sunken transition-colors"
-                >
-                  <X size={16} />
-                </button>
-              </header>
-
-              {/* Body */}
-              <div className="flex-1 overflow-y-auto p-5 space-y-6">
-                {/* Theme section */}
-                <section aria-labelledby="settings-theme">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Palette size={14} className="text-brand" aria-hidden="true" />
-                    <h3 id="settings-theme" className="text-xs font-extrabold text-ink uppercase tracking-widest">
-                      Theme
-                    </h3>
-                  </div>
-                  <ul className="grid grid-cols-1 gap-2">
-                    {THEMES.map((t) => {
-                      const active = t.id === theme;
-                      return (
-                        <li key={t.id}>
-                          <button
-                            type="button"
-                            role="radio"
-                            aria-checked={active}
-                            onClick={() => pick(t.id)}
-                            className={`w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left border transition-all ${
-                              active
-                                ? "bg-primary/8 border-primary/50 shadow-[0_0_0_3px_var(--color-brand-soft)]"
-                                : "bg-surface-sunken border-edge hover:border-edge-strong"
-                            }`}
-                          >
-                            <span
-                              className="flex -space-x-1.5 shrink-0 p-1 rounded-full bg-canvas/40"
-                              aria-hidden="true"
-                            >
-                              {t.swatches.map((c, i) => (
-                                <span
-                                  key={i}
-                                  className="w-5 h-5 rounded-full border border-edge shadow-sm"
-                                  style={{ background: c }}
-                                />
-                              ))}
-                            </span>
-                            <span className="min-w-0 flex-1">
-                              <span className="block text-sm font-extrabold text-ink truncate">{t.name}</span>
-                              <span className="block text-[11px] text-ink-muted truncate">{t.description}</span>
-                            </span>
-                            {active && (
-                              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground shrink-0">
-                                <Check size={13} strokeWidth={3} />
-                              </span>
-                            )}
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </section>
-
-                {/* About */}
-                <section aria-labelledby="settings-about" className="pt-2 border-t border-edge/50">
-                  <h3 id="settings-about" className="text-[10px] font-extrabold text-ink-muted uppercase tracking-widest mb-2">
-                    About
-                  </h3>
-                  <p className="text-[11px] text-ink-muted leading-relaxed">
-                    Momentum is a cozy focus OS built for ADHD brains. Your data syncs to the
-                    cloud when signed in — nothing tracks you.
-                  </p>
-                </section>
-              </div>
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
+      {mounted ? createPortal(drawer, document.body) : null}
     </>
   );
 }
