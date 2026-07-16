@@ -75,7 +75,7 @@ export function useXpSystem({ pushToast, onLevelUp }: Options) {
   useEffect(() => {
     const lvl = Math.floor(xp / 100) + 1;
     if (prevLevelRef.current !== null && lvl > prevLevelRef.current) {
-      const msg = `Sprig grew to Level ${lvl}! 🎉 You're a mightier goblin with every quest.`;
+      const msg = `Sprig grew to Level ${lvl}! 🎉 You're stronger with every quest.`;
       onLevelUp?.(msg, "excited");
       recordReward("levelup", "🌿", `Level ${lvl} reached!`);
       confetti({
