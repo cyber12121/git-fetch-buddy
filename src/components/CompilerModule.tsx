@@ -3,7 +3,7 @@ import { Sparkles, Brain, ArrowRight, Trash2, Check, AlertCircle, Mic, Square } 
 import { motion, AnimatePresence } from "motion/react";
 import { Task } from "../types";
 import { useSpeechRecognition } from "../lib/useSpeechRecognition";
-import { PRIORITY_CHIP } from "../lib/constants";
+import { PRIORITY_CHIP, MAX_RAW_TEXT_LENGTH } from "../lib/constants";
 import { compileBrainDump } from "../lib/goblin-api.functions";
 
 interface CompilerModuleProps {
