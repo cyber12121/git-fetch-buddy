@@ -10,7 +10,7 @@ export const MILESTONE_LABELS: Record<number, string> = {
   100: "🍄 100 XP — Level 2 unlocked!",
   250: "⚡ 250 XP — you're on a roll!",
   500: "🔥 500 XP — Sprig is beaming!",
-  1000: "👑 1000 XP — legendary goblin!",
+  1000: "👑 1000 XP — legendary!",
   2500: "🌟 2500 XP — myth-tier hustler.",
   5000: "🏆 5000 XP — Sprig bows to you.",
 };
