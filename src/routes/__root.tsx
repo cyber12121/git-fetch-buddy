@@ -78,15 +78,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Momentum — Cozy focus OS for ADHD brains" },
-      { name: "description", content: "A cozy focus OS for ADHD brains: brain-dump compiler, magic to-do, sensory-friendly focus timer, calendar, weekly planner, and habit chains." },
+      { title: "Momentum — Cozy Focus OS" },
+      { name: "description", content: "A cozy focus OS for ADHD brains — tasks, calendar, focus timer, and habits." },
       { name: "theme-color", content: "#E6F0E6" },
-      { property: "og:title", content: "Momentum — Cozy focus OS for ADHD brains" },
-      { property: "og:description", content: "Brain-dump compiler, magic to-do, sensory-friendly focus timer, calendar, and habit chains — designed for ADHD brains." },
+      { property: "og:title", content: "Momentum — Cozy Focus OS" },
+      { property: "og:description", content: "A cozy focus OS for ADHD brains — tasks, calendar, focus timer, and habits." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
 
+      { name: "twitter:title", content: "Momentum — Cozy Focus OS" },
+      { name: "twitter:description", content: "A cozy focus OS for ADHD brains — tasks, calendar, focus timer, and habits." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ce0f813c-2110-4905-8586-3ca4b1a5b890/id-preview-be037f1d--f1949179-e045-43f3-bc25-820de3ad1d12.lovable.app-1784224069887.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ce0f813c-2110-4905-8586-3ca4b1a5b890/id-preview-be037f1d--f1949179-e045-43f3-bc25-820de3ad1d12.lovable.app-1784224069887.png" },
     ],
     links: [
       {
