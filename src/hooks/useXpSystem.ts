@@ -77,11 +77,17 @@ export function useXpSystem({ pushToast, onLevelUp }: Options) {
     return nextCount;
   }, [addXp, pushToast]);
 
-  // Level-up celebration. Sentinel prevents a bogus burst on first mount.
+  // Level-up celebration. Two sentinels prevent bogus fires:
+  //  - prevLevelRef=null on very first observation
+  //  - hydratedRef=false during the hydration/cloud-merge XP jump
   const prevLevelRef = useRef<number | null>(null);
   useEffect(() => {
     const lvl = Math.floor(xp / 100) + 1;
-    if (prevLevelRef.current !== null && lvl > prevLevelRef.current) {
+    if (
+      hydratedRef.current &&
+      prevLevelRef.current !== null &&
+      lvl > prevLevelRef.current
+    ) {
       const msg = `Sprig grew to Level ${lvl}! 🎉 You're stronger with every quest.`;
       onLevelUp?.(msg, "excited");
       recordReward("levelup", "🌿", `Level ${lvl} reached!`);
