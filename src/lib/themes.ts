@@ -277,18 +277,75 @@ const SKY_PEACH: ThemeDef = {
   },
 };
 
-export const THEMES: ThemeDef[] = [COZY, SKY_PEACH, KINETIC, FOCUS, ARCADE];
+// Quiet Mono — pure minimalist theme, engineered against ADHD visual overload.
+// Research-backed choices: warm off-white (not pure #FFF) to cut screen glare,
+// soft charcoal ink (not #000) to reduce contrast fatigue, ONE muted sage
+// accent used sparingly, hairline borders, zero glows/shadows, and a calm
+// humanist serif for headings paired with a neutral sans for body. No color
+// on non-essential elements — the eye lands only where action is required.
+const QUIET_MONO: ThemeDef = {
+  id: "quiet-mono",
+  name: "Quiet Mono",
+  description: "Pure minimalist. Warm paper, soft ink, one sage cue. Built to prevent overload.",
+  swatches: ["#FAFAF7", "#2A2A28", "#7C8B6F", "#EAEAE5"],
+  fontSans: "'Inter', system-ui, -apple-system, sans-serif",
+  fontDisplay: "'Newsreader', 'Cormorant Garamond', Georgia, serif",
+  fontMono: "'IBM Plex Mono', ui-monospace, Menlo, monospace",
+  vars: {
+    "--background": "#FAFAF7",
+    "--foreground": "#2A2A28",
+    "--card": "#FFFFFF",
+    "--card-foreground": "#2A2A28",
+    "--popover": "#FFFFFF",
+    "--popover-foreground": "#2A2A28",
+    "--primary": "#2A2A28",
+    "--primary-foreground": "#FAFAF7",
+    "--secondary": "#F1F1EC",
+    "--secondary-foreground": "#2A2A28",
+    "--muted": "#F1F1EC",
+    "--muted-foreground": "#6B6B66",
+    "--accent": "#7C8B6F",
+    "--accent-foreground": "#FAFAF7",
+    "--destructive": "#8A3A2E",
+    "--destructive-foreground": "#FAFAF7",
+    "--border": "#EAEAE5",
+    "--input": "#EAEAE5",
+    "--ring": "#7C8B6F",
+
+    "--color-canvas": "#FAFAF7",
+    "--color-surface": "#FFFFFF",
+    "--color-surface-sunken": "#F4F4EF",
+    "--color-surface-raised": "#FFFFFF",
+    "--color-surface-raised2": "#F1F1EC",
+    "--color-surface-disabled": "#EAEAE5",
+    "--color-ink": "#2A2A28",
+    "--color-ink-2": "#3A3A36",
+    "--color-ink-muted": "#6B6B66",
+    "--color-edge": "#EAEAE5",
+    "--color-edge-soft": "#F1F1EC",
+    "--color-edge-strong": "#D6D6D0",
+    "--color-brand": "#7C8B6F",
+    "--color-brand-hover": "#6A7A5D",
+    "--color-brand-soft": "#E8ECE2",
+
+    "--theme-glow": "0 0 0 rgba(0,0,0,0)",
+    "color-scheme": "light",
+  },
+};
+
+export const THEMES: ThemeDef[] = [COZY, SKY_PEACH, KINETIC, FOCUS, ARCADE, QUIET_MONO];
 export const THEME_MAP: Record<ThemeId, ThemeDef> = {
   "cozy-goblin": COZY,
   "kinetic-dark": KINETIC,
   "focus-paper": FOCUS,
   "dopamine-arcade": ARCADE,
   "sky-peach": SKY_PEACH,
+  "quiet-mono": QUIET_MONO,
 };
 
 const STORAGE_KEY = "goblin_theme";
 const DEFAULT: ThemeId = "cozy-goblin";
-const VALID_IDS: ThemeId[] = ["cozy-goblin", "kinetic-dark", "focus-paper", "dopamine-arcade", "sky-peach"];
+const VALID_IDS: ThemeId[] = ["cozy-goblin", "kinetic-dark", "focus-paper", "dopamine-arcade", "sky-peach", "quiet-mono"];
 
 export function readStoredTheme(): ThemeId {
   if (typeof window === "undefined") return DEFAULT;
