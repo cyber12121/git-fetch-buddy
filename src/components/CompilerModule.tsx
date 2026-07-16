@@ -172,8 +172,13 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
           <textarea
             id="compiler-brain-dump-input"
             value={rawText}
+            maxLength={MAX_RAW_TEXT_LENGTH}
+            aria-describedby="compiler-brain-dump-count"
             onChange={(e) => {
-              setRawText(e.target.value);
+              // maxLength on the element already blocks overflow, but paste on
+              // some mobile keyboards can bypass it — clamp defensively.
+              const next = e.target.value.slice(0, MAX_RAW_TEXT_LENGTH);
+              setRawText(next);
               if (error) setError(null);
             }}
             placeholder="Laundry piling up, email boss, car squeaking, buy milk, renewal deadline tomorrow..."
@@ -201,9 +206,22 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
 
         {/* Char count + Clear (moved out of textarea to avoid overlap) */}
         <div className="mt-1.5 flex items-center justify-between gap-2 px-1 min-h-[20px]">
-          <span className="text-[11px] text-ink-muted tabular-nums">
-            {rawText.length > 0 ? `${rawText.length} chars` : ""}
-          </span>
+          {(() => {
+            const remaining = MAX_RAW_TEXT_LENGTH - rawText.length;
+            const near = remaining <= 500;
+            const tone = remaining <= 0 ? "text-red-500" : near ? "text-amber-600" : "text-ink-muted";
+            return (
+              <span
+                id="compiler-brain-dump-count"
+                className={`text-[11px] tabular-nums ${tone}`}
+                aria-live="polite"
+              >
+                {rawText.length.toLocaleString()} / {MAX_RAW_TEXT_LENGTH.toLocaleString()}
+                {near && remaining > 0 && ` — ${remaining} left`}
+                {remaining <= 0 && " — max reached"}
+              </span>
+            );
+          })()}
           {rawText && (
             <button
               id="clear-dump-btn"
@@ -215,6 +233,7 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
             </button>
           )}
         </div>
+
 
 
         {/* Compile Button and Error Display */}
