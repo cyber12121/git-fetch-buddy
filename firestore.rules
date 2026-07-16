@@ -1,0 +1,18 @@
+rules_version = "2";
+
+// Per-user isolation for Momentum's cloud sync doc. Every read/write must
+// come from the owner of the document — otherwise any signed-in user could
+// read anyone else's tasks, habits, and XP.
+//
+// Deploy from a workstation with the Firebase CLI:
+//   firebase deploy --only firestore:rules
+//
+// Without an explicit `match` block, Firestore denies by default, so any
+// path not listed here is inaccessible even to authenticated users.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}

@@ -73,8 +73,11 @@ export interface ModuleRouterProps {
  * component do.
  */
 function ModuleRouterImpl(p: ModuleRouterProps) {
+  // Keying the boundary on the active tab means switching tabs auto-recovers
+  // from a per-module crash — the user can't get trapped on the fallback UI
+  // just because Compiler once threw.
   return (
-    <ErrorBoundary>
+    <ErrorBoundary key={p.activeTab} label="This section">
       <Suspense fallback={
         <div className="flex items-center justify-center py-16 text-ink-muted text-sm">Sprig is warming up… 🍄</div>
       }>
