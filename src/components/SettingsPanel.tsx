@@ -224,9 +224,12 @@ export default function SettingsPanel() {
   return (
     <>
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open settings"
+        aria-haspopup="dialog"
+        aria-expanded={open}
         className="flex items-center gap-1.5 bg-surface-sunken/80 border border-edge rounded-full px-2.5 py-1 shadow-sm text-ink-muted hover:text-ink transition-colors min-h-8"
       >
         <Settings size={14} aria-hidden="true" />
