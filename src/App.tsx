@@ -209,7 +209,7 @@ export default function App() {
           {/* RIGHT: Sprig + Today's Quests + rewards (desktop, do-tabs only) */}
           {!isWide && (
             <RightAside
-              tasks={data.tasks}
+              activeTab={activeTab}
               onToggleTask={handlers.handleToggleTask}
               showGubby={showGubby}
               gubbyHidden={gubby.gubbyHidden}
