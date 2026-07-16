@@ -72,7 +72,7 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
               </motion.div>
               <div className="min-w-0 leading-none">
                 <h1 className="font-fredoka font-extrabold text-ink text-base tracking-tight truncate">
-                  Momentum
+                  Momentum — Cozy Focus OS
                 </h1>
                 <div className="text-[10px] font-bold text-ink-muted uppercase tracking-widest truncate">
                   {isDark ? "kinetic focus OS" : "cozy focus OS"}
