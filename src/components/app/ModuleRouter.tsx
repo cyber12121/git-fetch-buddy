@@ -44,6 +44,7 @@ export interface ModuleRouterProps {
 
   onGubbyMessage: (msg: string, mood: GubbyMood) => void;
   onGainXp: (n: number) => void;
+  onOpenTab: (tab: TabId) => void;
 
   // Task handlers
   onAddTask: (title: string, priority: "low" | "medium" | "high", notes?: string, scheduledDate?: string, estimatedMinutes?: number) => Promise<void> | void;
