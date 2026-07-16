@@ -201,6 +201,13 @@ export default function TaskmasterModule({
         playTickSoundRef.current();
       }
 
+      // Live growth signal for the focus-plant on the side rail.
+      try {
+        window.dispatchEvent(
+          new CustomEvent("momentum:focus-tick", { detail: { seconds: activeElapsed } }),
+        );
+      } catch { /* SSR / no-window */ }
+
       if (remaining <= 0) {
         if (intervalRef.current) clearInterval(intervalRef.current);
         intervalRef.current = null;
