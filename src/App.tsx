@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import GubbyCompanion from "./components/GubbyCompanion";
 import AppNav from "./components/AppNav";
 import SideNav from "./components/SideNav";
@@ -11,7 +11,6 @@ import FocusPlant from "./components/FocusPlant";
 import { useToast } from "./components/Toast";
 import { useCloudSync } from "./hooks/useCloudSync";
 import { useGoogleCalendar } from "./hooks/useGoogleCalendar";
-import { useHashRouting } from "./hooks/useHashRouting";
 import { useAppData } from "./hooks/useAppData";
 import { useXpSystem } from "./hooks/useXpSystem";
 import { useGubbyState } from "./hooks/useGubbyState";
@@ -19,22 +18,23 @@ import { useTaskHandlers } from "./hooks/useTaskHandlers";
 import { toLocalDateKey } from "./lib/constants";
 import { applyTheme, readStoredTheme, subscribeTheme, type ThemeId } from "./lib/themes";
 
-// Valid tab ids, single source of truth for hash-routing + typing.
-const VALID_TABS: readonly TabId[] = ["today", "compiler", "todo", "taskmaster", "calendar", "weekly", "habits"];
+interface AppProps {
+  /** Which tab is active — driven by the route (`/today`, `/compiler`, …). */
+  activeTab: TabId;
+  /** Router-backed navigation. Every tab click is a real URL change now. */
+  onNavigate: (tab: TabId) => void;
+}
 
 /**
  * Root application shell.
  *
- * Responsibilities are delegated to focused hooks and memoized components:
- *   - useHashRouting  → tab state + deep-linking + focus mgmt
- *   - useAppData      → tasks/events/habits + persisted setters
- *   - useXpSystem     → XP, combo, milestone/level-up feedback
- *   - useGubbyState   → Sprig message/mood/hidden preference
- *   - useTaskHandlers → all task/event/habit mutations (stable callbacks)
- *   - useGoogleCalendar / useCloudSync → external integrations
- *   - <ModuleRouter/> → lazy-loads and renders the active workspace module
+ * Tab routing used to live in a `useHashRouting` hook that pushed `#today`,
+ * `#compiler` etc. onto `window.location.hash`. That worked in a single
+ * `/` route but broke deep-link SEO, back button, and shareable URLs. The
+ * router now owns tab identity via `/$tab` — App just receives `activeTab`
+ * and `onNavigate` from the route component.
  */
-export default function App() {
+export default function App({ activeTab, onNavigate }: AppProps) {
   const { pushToast } = useToast();
 
   // ── Theme ────────────────────────────────────────────────────────────
@@ -48,7 +48,25 @@ export default function App() {
   const showGubby = themeId !== "kinetic-dark";
 
   // ── Routing ──────────────────────────────────────────────────────────
-  const { activeTab, setActiveTab, mainRef } = useHashRouting<TabId>(VALID_TABS, "today");
+  const mainRef = useRef<HTMLElement | null>(null);
+  const setActiveTab = onNavigate;
+  // Focus the freshly-mounted <main> after tab changes so keyboard users
+  // land inside the new module. Skip the very first mount to avoid a
+  // page-load focus jump.
+  const firstMountRef = useRef(true);
+  useEffect(() => {
+    if (firstMountRef.current) {
+      firstMountRef.current = false;
+      return;
+    }
+    const raf = requestAnimationFrame(() => {
+      const el = mainRef.current;
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      el.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [activeTab]);
 
   // ── Persisted data + Sprig state ─────────────────────────────────────
   const data = useAppData({ pushToast });
