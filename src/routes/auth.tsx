@@ -5,6 +5,19 @@ import { lovable } from "@/integrations/lovable/index";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
+  head: () => ({
+    meta: [
+      { title: "Sign In — Momentum" },
+      { name: "description", content: "Sign in to Momentum to authorize agent integrations (MCP) for your workspace." },
+      { property: "og:title", content: "Sign In — Momentum" },
+      { property: "og:description", content: "Sign in to Momentum to authorize agent integrations (MCP) for your workspace." },
+      { property: "og:url", content: "https://git-friend-come-here.lovable.app/auth" },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://git-friend-come-here.lovable.app/auth" },
+    ],
+  }),
   validateSearch: (s: Record<string, unknown>) => ({
     next: typeof s.next === "string" ? s.next : "",
   }),

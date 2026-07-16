@@ -1,0 +1,12 @@
+# Momentum
+
+> A cozy focus OS for ADHD brains — tasks, calendar, focus timer, and habits.
+
+Momentum helps people with executive dysfunction get moving through a
+sensory-friendly interface: a brain-dump compiler that turns messy thoughts
+into small tasks, a single-focus timer, weekly and monthly calendars, and
+tiny habit chains.
+
+## Pages
+
+- [Home](/): Momentum app — Compiler, Quest Log, Focus, Calendar, Weekly, Habits

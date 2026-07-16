@@ -77,7 +77,7 @@ export default function MagicTodoModule({
         <div className="flex items-end justify-between gap-4 mb-2">
           <div className="min-w-0">
             <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-ink-muted">Today · {s.todayStr}</div>
-            <h1 className="text-2xl sm:text-3xl font-fredoka font-bold text-ink truncate">Quest Log</h1>
+            <h2 className="text-2xl sm:text-3xl font-fredoka font-bold text-ink truncate">Quest Log</h2>
           </div>
           <div className="text-right shrink-0">
             <div className="font-mono text-2xl sm:text-3xl font-bold text-brand tabular-nums leading-none">

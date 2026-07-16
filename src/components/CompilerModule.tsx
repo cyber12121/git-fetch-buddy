@@ -186,6 +186,8 @@ export default function CompilerModule({ onTasksCompiled, onGubbyMessage }: Comp
               id="compiler-mic-btn"
               onClick={() => (speech.listening ? speech.stop() : speech.start())}
               title={speech.listening ? "Stop dictation" : "Dictate your brain dump"}
+              aria-label={speech.listening ? "Stop dictation" : "Start voice dictation"}
+              aria-pressed={speech.listening}
               className={`absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 p-2 rounded-xl border-2 transition-all cursor-pointer select-none ${
                 speech.listening
                   ? "bg-brand text-white border-brand animate-pulse shadow"

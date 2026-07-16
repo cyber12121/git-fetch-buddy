@@ -92,6 +92,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ce0f813c-2110-4905-8586-3ca4b1a5b890/id-preview-be037f1d--f1949179-e045-43f3-bc25-820de3ad1d12.lovable.app-1784224069887.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ce0f813c-2110-4905-8586-3ca4b1a5b890/id-preview-be037f1d--f1949179-e045-43f3-bc25-820de3ad1d12.lovable.app-1784224069887.png" },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Momentum",
+          alternateName: "Momentum — Cozy Focus OS",
+          description: "A cozy focus OS for ADHD brains — tasks, calendar, focus timer, and habits.",
+          url: "https://git-friend-come-here.lovable.app",
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Momentum",
+          url: "https://git-friend-come-here.lovable.app",
+          logo: "https://git-friend-come-here.lovable.app/icon.svg",
+        }),
+      },
+    ],
     links: [
       {
         rel: "stylesheet",
