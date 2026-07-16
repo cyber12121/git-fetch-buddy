@@ -110,7 +110,7 @@ export default function TodayModule({ tasks, habits, habitLog, onOpenTab }: Prop
         Hey. Let's do one thing.
       </h1>
 
-      {/* Next Action */}
+      {/* Brain Dump */}
       <motion.article
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -127,23 +127,25 @@ export default function TodayModule({ tasks, habits, habitLog, onOpenTab }: Prop
         />
         <div className="relative">
           <div className="flex items-center gap-1.5 mb-3">
-            <Zap size={12} className="text-brand" aria-hidden="true" />
+            <Brain size={12} className="text-brand" aria-hidden="true" />
             <span className="text-[10px] font-extrabold text-brand uppercase tracking-[0.18em]">
-              Next action
+              Brain dump
             </span>
           </div>
           <h2 className="font-fredoka text-xl sm:text-2xl font-extrabold text-ink leading-snug mb-4">
-            {nextAction.headline}
+            Empty your head onto the page.
           </h2>
           <button
             type="button"
-            onClick={() => onOpenTab(nextAction.target)}
+            onClick={() => onOpenTab("compiler")}
             className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground text-sm font-bold px-4 py-2 shadow hover:brightness-110 active:scale-[0.98] transition min-h-10"
           >
-            {nextAction.cta}
+            Start brain dump
+            <ArrowRight size={14} aria-hidden="true" />
           </button>
         </div>
       </motion.article>
+
 
       {/* Stat row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
