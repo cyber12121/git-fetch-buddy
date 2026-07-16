@@ -1,53 +1,99 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { Settings, X, Check, Palette, Trophy } from "lucide-react";
 import { THEMES, applyTheme, readStoredTheme, type ThemeId } from "../lib/themes";
 import RewardHistory from "./RewardHistory";
 
+const FOCUSABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "textarea:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])',
+].join(",");
+
 /**
  * Settings sheet. Right-side drawer housing the theme picker and the reward
- * dashboard. Rendered via a portal so no transformed ancestor (framer-motion,
- * page shells) can clip the fixed-position overlay.
+ * dashboard. Rendered via a portal so no transformed ancestor can clip the
+ * fixed overlay. Behavior: Escape to close, outside-click to close, focus
+ * trap while open, body scroll lock, and focus restore on close.
  */
 export default function SettingsPanel() {
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<ThemeId>("cozy-goblin");
   const [mounted, setMounted] = useState(false);
 
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const panelRef = useRef<HTMLElement | null>(null);
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
+
   useEffect(() => {
     setMounted(true);
     setTheme(readStoredTheme());
   }, []);
+
+  const close = useCallback(() => setOpen(false), []);
 
   const pick = (id: ThemeId) => {
     setTheme(id);
     applyTheme(id);
   };
 
-  // Close on Escape
+  // Escape + Tab-trap while open. Restore focus to trigger on close.
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
 
-  const drawer = (
-    <AnimatePresence>
-      {open && (
-        <>
-          <motion.div
-            aria-hidden="true"
-            className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setOpen(false)}
-          />
-          <motion.aside
-            key="panel"
-            role="dialog"
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
+    // Body scroll lock (preserve scroll offset).
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    // Move focus into the panel after it mounts.
+    const focusTimer = window.setTimeout(() => {
+      closeBtnRef.current?.focus();
+    }, 50);
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        close();
+        return;
+      }
+      if (e.key !== "Tab" || !panelRef.current) return;
+      const nodes = panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+      const visible = Array.from(nodes).filter(
+        (el) => !el.hasAttribute("data-focus-skip") && el.offsetParent !== null,
+      );
+      if (visible.length === 0) {
+        e.preventDefault();
+        return;
+      }
+      const first = visible[0];
+      const last = visible[visible.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && (active === first || !panelRef.current.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKey, true);
+    return () => {
+      document.removeEventListener("keydown", onKey, true);
+      window.clearTimeout(focusTimer);
+      document.body.style.overflow = prevOverflow;
+      // Restore focus to whatever opened the drawer.
+      (previouslyFocused ?? triggerRef.current)?.focus?.();
+    };
+  }, [open, close]);
+
+
             aria-modal="true"
             aria-label="Settings"
             initial={{ x: "100%" }}
