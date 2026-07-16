@@ -151,7 +151,7 @@ export function useCloudSync({
         });
     }, 800);
     return () => clearTimeout(handle);
-  }, [tasks, manualEvents, habits, habitLog, user]);
+  }, [tasks, manualEvents, habits, habitLog, xp, user, pushToast]);
 
   return { cloudStatus };
 }
