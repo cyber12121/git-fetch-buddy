@@ -254,7 +254,7 @@ export default function CalendarModule({
       const taskId = id.replace("task-event-", "");
       onDeleteTask(taskId);
       setSelectedEvent(null);
-      onGubbyMessage("Goblin quest banished! Begone, task clutter! 🗑️", "cozy");
+      onGubbyMessage("Quest banished! Begone, task clutter! 🗑️", "cozy");
     } else {
       onDeleteManualEvent(id);
 

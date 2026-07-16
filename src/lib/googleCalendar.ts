@@ -124,7 +124,7 @@ export async function createGoogleCalendarEvent(
         summary: title,
         start: startObj,
         end: endObj,
-        description: "Created via Goblin Flow 👺"
+        description: "Created via Momentum ✨"
       })
     });
 

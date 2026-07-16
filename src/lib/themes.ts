@@ -19,7 +19,7 @@ export interface ThemeDef {
 // Baseline cozy goblin — matches the values already in styles.css.
 const COZY: ThemeDef = {
   id: "cozy-goblin",
-  name: "Cozy Goblin",
+  name: "Cozy Moss",
   description: "Warm mossy greens with an orange brand pop.",
   swatches: ["#E6F0E6", "#F27D26", "#556B55", "#FFD4A3"],
   fontSans: "'Fredoka', 'Nunito', sans-serif",

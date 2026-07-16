@@ -7,10 +7,10 @@ export const Route = createFileRoute("/auth")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Sign In — Goblin Flow" },
-      { name: "description", content: "Sign in to Goblin Flow with your Google account to sync tasks, habits and calendar across devices." },
-      { property: "og:title", content: "Sign In — Goblin Flow" },
-      { property: "og:description", content: "Sign in to Goblin Flow with your Google account to sync tasks, habits and calendar across devices." },
+      { title: "Sign In — Momentum" },
+      { name: "description", content: "Sign in to Momentum with your Google account to sync tasks, habits and calendar across devices." },
+      { property: "og:title", content: "Sign In — Momentum" },
+      { property: "og:description", content: "Sign in to Momentum with your Google account to sync tasks, habits and calendar across devices." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -51,7 +51,7 @@ function AuthPage() {
   return (
     <main className="min-h-screen flex items-center justify-center p-6 bg-surface">
       <div className="w-full max-w-sm rounded-2xl border border-edge bg-surface-raised p-6 shadow-sm">
-        <h1 className="text-xl font-bold mb-1">Sign in to Goblin Flow</h1>
+        <h1 className="text-xl font-bold mb-1">Sign in to Momentum</h1>
         <p className="text-sm text-ink-muted mb-4">
           Sign in with Google to sync your quests, habits and calendar across devices.
         </p>

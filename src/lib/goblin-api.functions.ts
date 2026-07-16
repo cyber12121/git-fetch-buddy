@@ -85,7 +85,7 @@ export const compileBrainDump = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const ip = "anonymous";
     if (isRateLimited(ip)) {
-      throw new Error("Whoa goblin, too many requests! Take a cozy breath and try again in a moment.");
+      throw new Error("Whoa, too many requests! Take a cozy breath and try again in a moment.");
     }
 
     const ai = getGeminiClient();
@@ -185,7 +185,7 @@ export const breakdownTask = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const ip = "anonymous";
     if (isRateLimited(ip)) {
-      throw new Error("Whoa goblin, too many requests! Take a cozy breath and try again in a moment.");
+      throw new Error("Whoa, too many requests! Take a cozy breath and try again in a moment.");
     }
 
     const ai = getGeminiClient();
@@ -248,6 +248,6 @@ function fallbackSteps(title: string): string[] {
     `Do the absolute smallest first movement related to "${title}" (e.g., open a blank page, set up your space, or grab tools).`,
     `Set a cozy timer for literally 5-10 minutes. Tell yourself you are allowed to stop once it rings.`,
     `Work on "${title}" at a gentle, steady pace. You are doing wonderfully!`,
-    `Celebrate making progress on "${title}"! Grab a warm goblin snack 🍪 or take a cozy stretch.`,
+    `Celebrate making progress on "${title}"! Grab a warm snack 🍪 or take a cozy stretch.`,
   ];
 }
