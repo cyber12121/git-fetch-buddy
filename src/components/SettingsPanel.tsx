@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
-import { Settings, X, Check, Palette, Trophy } from "lucide-react";
-import { THEMES, applyTheme, readStoredTheme, type ThemeId } from "../lib/themes";
+import { Settings, X, Check, Palette, Trophy, ChevronDown } from "lucide-react";
+import { THEMES, applyTheme, readStoredTheme, THEME_MAP, type ThemeId } from "../lib/themes";
 import RewardHistory from "./RewardHistory";
 
 const FOCUSABLE_SELECTOR = [
