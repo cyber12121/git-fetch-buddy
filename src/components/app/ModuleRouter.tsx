@@ -188,6 +188,7 @@ export default ModuleRouter;
 
 /** Map of tab id → dynamic import, used to prefetch a module on hover. */
 export const MODULE_PREFETCH: Record<string, () => Promise<unknown>> = {
+  today: () => import("../TodayModule"),
   compiler: () => import("../CompilerModule"),
   todo: () => import("../MagicTodoModule"),
   taskmaster: () => import("../TaskmasterModule"),
