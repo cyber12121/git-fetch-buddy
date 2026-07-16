@@ -546,10 +546,10 @@ export default function TaskmasterModule({
           className="font-bold tabular-nums leading-none tracking-tight select-none transition-colors duration-700"
           style={{
             fontFamily: MONO_FONT,
-            fontSize: "clamp(5rem, 22vw, 11rem)",
+            fontSize: "clamp(3rem, 13vw, 6.5rem)",
             color: zoneColor,
-            textShadow: isRunning ? `0 0 60px ${zoneColor}44` : "none",
-            letterSpacing: "-0.04em",
+            textShadow: isRunning ? `0 0 40px ${zoneColor}33` : "none",
+            letterSpacing: "-0.03em",
           }}
         >
           {formatTime(timeLeft)}
