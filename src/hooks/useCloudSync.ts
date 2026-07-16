@@ -54,6 +54,7 @@ export function useCloudSync({
   manualEvents,
   habits,
   habitLog,
+  xp,
   syncTasks,
   syncEvents,
   syncHabits,
