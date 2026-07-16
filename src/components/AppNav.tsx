@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { Brain, Play, Calendar, CheckSquare, CalendarDays, Repeat, Sparkles } from "lucide-react";
-import ThemeSwitcher from "./ThemeSwitcher";
+import SettingsPanel from "./SettingsPanel";
 import { useTheme } from "../lib/themes";
 
 type GubbyMood = "happy" | "thoughtful" | "focused" | "cozy" | "excited";
@@ -139,7 +139,7 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
                 </span>
               </div>
 
-              <ThemeSwitcher />
+              <SettingsPanel />
 
               <div className="hidden lg:flex items-center gap-1.5 bg-surface-sunken/80 border border-edge rounded-full px-3 py-1.5 shadow-sm">
 
