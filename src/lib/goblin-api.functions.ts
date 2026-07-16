@@ -102,8 +102,7 @@ const compileSchema = z.object({
 export const compileBrainDump = createServerFn({ method: "POST" })
   .inputValidator((data) => compileSchema.parse(data))
   .handler(async ({ data }) => {
-    const ip = "anonymous";
-    if (isRateLimited(ip)) {
+    if (isRateLimited(clientRateKey())) {
       throw new Error("Whoa, too many requests! Take a cozy breath and try again in a moment.");
     }
 
