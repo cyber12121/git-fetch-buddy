@@ -189,6 +189,7 @@ export default function App() {
               onLoadGoogleEvents={loadGoogleEvents}
               onGubbyMessage={gubby.triggerGubbySpeak}
               onGainXp={addXp}
+              onOpenTab={(tab) => setActiveTab(tab as TabId)}
               onAddTask={handlers.handleAddTask}
               onDeleteTask={handlers.handleDeleteTask}
               onToggleTask={handlers.handleToggleTask}
