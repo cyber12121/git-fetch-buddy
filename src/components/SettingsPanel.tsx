@@ -134,9 +134,10 @@ export default function SettingsPanel() {
                 </div>
               </div>
               <button
+                ref={closeBtnRef}
                 type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Close"
+                onClick={close}
+                aria-label="Close settings"
                 className="w-8 h-8 rounded-full flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-sunken transition-colors"
               >
                 <X size={16} />
