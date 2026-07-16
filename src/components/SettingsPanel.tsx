@@ -1,37 +1,98 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { Settings, X, Check, Palette, Trophy } from "lucide-react";
 import { THEMES, applyTheme, readStoredTheme, type ThemeId } from "../lib/themes";
 import RewardHistory from "./RewardHistory";
 
+const FOCUSABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "textarea:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])',
+].join(",");
+
 /**
  * Settings sheet. Right-side drawer housing the theme picker and the reward
- * dashboard. Rendered via a portal so no transformed ancestor (framer-motion,
- * page shells) can clip the fixed-position overlay.
+ * dashboard. Rendered via a portal so no transformed ancestor can clip the
+ * fixed overlay. Behavior: Escape to close, outside-click to close, focus
+ * trap while open, body scroll lock, and focus restore on close.
  */
 export default function SettingsPanel() {
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<ThemeId>("cozy-goblin");
   const [mounted, setMounted] = useState(false);
 
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const panelRef = useRef<HTMLElement | null>(null);
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
+
   useEffect(() => {
     setMounted(true);
     setTheme(readStoredTheme());
   }, []);
+
+  const close = useCallback(() => setOpen(false), []);
 
   const pick = (id: ThemeId) => {
     setTheme(id);
     applyTheme(id);
   };
 
-  // Close on Escape
+  // Escape + Tab-trap while open. Restore focus to trigger on close.
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
+    // Body scroll lock (preserve scroll offset).
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    // Move focus into the panel after it mounts.
+    const focusTimer = window.setTimeout(() => {
+      closeBtnRef.current?.focus();
+    }, 50);
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        close();
+        return;
+      }
+      if (e.key !== "Tab" || !panelRef.current) return;
+      const nodes = panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+      const visible = Array.from(nodes).filter(
+        (el) => !el.hasAttribute("data-focus-skip") && el.offsetParent !== null,
+      );
+      if (visible.length === 0) {
+        e.preventDefault();
+        return;
+      }
+      const first = visible[0];
+      const last = visible[visible.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && (active === first || !panelRef.current.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKey, true);
+    return () => {
+      document.removeEventListener("keydown", onKey, true);
+      window.clearTimeout(focusTimer);
+      document.body.style.overflow = prevOverflow;
+      // Restore focus to whatever opened the drawer.
+      (previouslyFocused ?? triggerRef.current)?.focus?.();
+    };
+  }, [open, close]);
+
 
   const drawer = (
     <AnimatePresence>
@@ -43,10 +104,11 @@ export default function SettingsPanel() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setOpen(false)}
+            onClick={close}
           />
           <motion.aside
             key="panel"
+            ref={(el) => { panelRef.current = el as HTMLElement | null; }}
             role="dialog"
             aria-modal="true"
             aria-label="Settings"
@@ -54,12 +116,13 @@ export default function SettingsPanel() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed top-0 right-0 bottom-0 z-[9999] w-full sm:w-[420px] bg-card border-l border-edge shadow-2xl flex flex-col"
+            className="fixed top-0 right-0 bottom-0 z-[9999] w-full sm:w-[420px] bg-card border-l border-edge shadow-2xl flex flex-col outline-none"
             style={{
               paddingTop: "env(safe-area-inset-top)",
               paddingBottom: "env(safe-area-inset-bottom)",
             }}
           >
+
             <header className="flex items-center justify-between px-5 py-4 border-b border-edge/70 shrink-0">
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-primary/15 text-primary">
@@ -71,9 +134,10 @@ export default function SettingsPanel() {
                 </div>
               </div>
               <button
+                ref={closeBtnRef}
                 type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Close"
+                onClick={close}
+                aria-label="Close settings"
                 className="w-8 h-8 rounded-full flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-sunken transition-colors"
               >
                 <X size={16} />
@@ -160,9 +224,12 @@ export default function SettingsPanel() {
   return (
     <>
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open settings"
+        aria-haspopup="dialog"
+        aria-expanded={open}
         className="flex items-center gap-1.5 bg-surface-sunken/80 border border-edge rounded-full px-2.5 py-1 shadow-sm text-ink-muted hover:text-ink transition-colors min-h-8"
       >
         <Settings size={14} aria-hidden="true" />
