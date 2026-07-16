@@ -1,13 +1,14 @@
 import { useMemo } from "react";
 import { motion } from "motion/react";
 import {
-  Zap,
+  Brain,
   CheckCircle2,
   ListTodo,
   Sparkles,
   Inbox,
   Repeat,
   BookOpen,
+  ArrowRight,
 } from "lucide-react";
 import type { Task, Habit, HabitLog } from "../types";
 
@@ -45,7 +46,6 @@ export default function TodayModule({ tasks, habits, habitLog, onOpenTab }: Prop
     habitsDone,
     toSort,
     progressPct,
-    nextAction,
   } = useMemo(() => {
     const scheduledToday = tasks.filter((t) => t.scheduledDate === iso);
     const doneToday = scheduledToday.filter((t) => t.completed).length;
@@ -56,41 +56,9 @@ export default function TodayModule({ tasks, habits, habitLog, onOpenTab }: Prop
     const totalToday = scheduledToday.length;
     const progressPct = totalToday === 0 ? 0 : Math.round((doneToday / totalToday) * 100);
 
-    const priorityRank = { high: 0, medium: 1, low: 2 } as const;
-    const nextTask = [...scheduledToday]
-      .filter((t) => !t.completed)
-      .sort((a, b) => priorityRank[a.priority] - priorityRank[b.priority])[0]
-      ?? [...tasks].filter((t) => !t.completed).sort(
-        (a, b) => priorityRank[a.priority] - priorityRank[b.priority],
-      )[0];
-
-    let nextAction: {
-      headline: string;
-      cta: string;
-      target: Props["onOpenTab"] extends (t: infer U) => void ? U : never;
-    };
-    if (nextTask) {
-      nextAction = {
-        headline: nextTask.title,
-        cta: "Start focus",
-        target: "taskmaster",
-      };
-    } else if (toSort > 0) {
-      nextAction = {
-        headline: `${toSort} idea${toSort === 1 ? "" : "s"} waiting to be sorted`,
-        cta: "Sort inbox",
-        target: "todo",
-      };
-    } else {
-      nextAction = {
-        headline: "Inbox zero. What's next?",
-        cta: "Brain dump something",
-        target: "compiler",
-      };
-    }
-
-    return { doneToday, openTasks, habitsDone, toSort, progressPct, nextAction };
+    return { doneToday, openTasks, habitsDone, toSort, progressPct };
   }, [tasks, habits, habitLog, iso]);
+
 
   const stats: Array<{ label: string; value: string; Icon: typeof CheckCircle2 }> = [
     { label: "Done today", value: String(doneToday), Icon: CheckCircle2 },
@@ -109,7 +77,7 @@ export default function TodayModule({ tasks, habits, habitLog, onOpenTab }: Prop
         Hey. Let's do one thing.
       </h1>
 
-      {/* Next Action */}
+      {/* Brain Dump */}
       <motion.article
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -126,23 +94,25 @@ export default function TodayModule({ tasks, habits, habitLog, onOpenTab }: Prop
         />
         <div className="relative">
           <div className="flex items-center gap-1.5 mb-3">
-            <Zap size={12} className="text-brand" aria-hidden="true" />
+            <Brain size={12} className="text-brand" aria-hidden="true" />
             <span className="text-[10px] font-extrabold text-brand uppercase tracking-[0.18em]">
-              Next action
+              Brain dump
             </span>
           </div>
           <h2 className="font-fredoka text-xl sm:text-2xl font-extrabold text-ink leading-snug mb-4">
-            {nextAction.headline}
+            Empty your head onto the page.
           </h2>
           <button
             type="button"
-            onClick={() => onOpenTab(nextAction.target)}
+            onClick={() => onOpenTab("compiler")}
             className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground text-sm font-bold px-4 py-2 shadow hover:brightness-110 active:scale-[0.98] transition min-h-10"
           >
-            {nextAction.cta}
+            Start brain dump
+            <ArrowRight size={14} aria-hidden="true" />
           </button>
         </div>
       </motion.article>
+
 
       {/* Stat row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
