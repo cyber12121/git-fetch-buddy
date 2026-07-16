@@ -12,8 +12,9 @@ const TaskmasterModule = lazy(() => import("../TaskmasterModule"));
 const CalendarModule = lazy(() => import("../CalendarModule"));
 const WeeklyPlannerModule = lazy(() => import("../WeeklyPlannerModule"));
 const HabitTrackerModule = lazy(() => import("../HabitTrackerModule"));
+const TodayModule = lazy(() => import("../TodayModule"));
 
-export type TabId = "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits";
+export type TabId = "today" | "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits";
 
 type GubbyMood = "happy" | "thoughtful" | "focused" | "cozy" | "excited";
 
