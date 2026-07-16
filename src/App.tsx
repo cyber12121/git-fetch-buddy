@@ -6,6 +6,7 @@ import AppStatusBar from "./components/AppStatusBar";
 
 import ModuleRouter, { MODULE_PREFETCH, type TabId } from "./components/app/ModuleRouter";
 import RightAside from "./components/app/RightAside";
+import FocusPlant from "./components/FocusPlant";
 
 import { useToast } from "./components/Toast";
 import { useCloudSync } from "./hooks/useCloudSync";
@@ -209,6 +210,7 @@ export default function App() {
           {/* RIGHT: Sprig + Today's Quests + rewards (desktop, do-tabs only) */}
           {!isWide && (
             <RightAside
+              activeTab={activeTab}
               tasks={data.tasks}
               onToggleTask={handlers.handleToggleTask}
               showGubby={showGubby}
@@ -232,6 +234,7 @@ export default function App() {
               onHide={hideGubby}
             />
           )}
+          {activeTab === "taskmaster" && <FocusPlant compact />}
         </section>
       </div>
 

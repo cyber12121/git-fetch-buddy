@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 
-export type ThemeId = "cozy-goblin" | "kinetic-dark" | "focus-paper" | "dopamine-arcade";
+export type ThemeId = "cozy-goblin" | "kinetic-dark" | "focus-paper" | "dopamine-arcade" | "sky-peach";
 
 export interface ThemeDef {
   id: ThemeId;
@@ -224,22 +224,77 @@ const ARCADE: ThemeDef = {
   },
 };
 
-export const THEMES: ThemeDef[] = [COZY, KINETIC, FOCUS, ARCADE];
+// Sky & Peach — soft sky-blue canvas with a warm peach-orange accent.
+// Modern Tech pairing: Space Grotesk display, DM Sans body. Airy, roomy,
+// gentle contrast — designed to feel like an open window on a clear morning.
+const SKY_PEACH: ThemeDef = {
+  id: "sky-peach",
+  name: "Sky & Peach",
+  description: "Airy sky blue with a warm peach-orange accent.",
+  swatches: ["#f0f9ff", "#e0f2fe", "#FB923C", "#0c4a6e"],
+  fontSans: "'DM Sans', system-ui, -apple-system, sans-serif",
+  fontDisplay: "'Space Grotesk', 'DM Sans', system-ui, sans-serif",
+  fontMono: "'JetBrains Mono', ui-monospace, Menlo, monospace",
+  vars: {
+    "--background": "#f0f9ff",
+    "--foreground": "#0c4a6e",
+    "--card": "#ffffff",
+    "--card-foreground": "#0c4a6e",
+    "--popover": "#ffffff",
+    "--popover-foreground": "#0c4a6e",
+    "--primary": "#FB923C",
+    "--primary-foreground": "#ffffff",
+    "--secondary": "#e0f2fe",
+    "--secondary-foreground": "#0c4a6e",
+    "--muted": "#e0f2fe",
+    "--muted-foreground": "#0369a1",
+    "--accent": "#F97316",
+    "--accent-foreground": "#ffffff",
+    "--destructive": "#dc2626",
+    "--destructive-foreground": "#ffffff",
+    "--border": "#bae6fd",
+    "--input": "#bae6fd",
+    "--ring": "#FB923C",
+
+    "--color-canvas": "#f0f9ff",
+    "--color-surface": "#ffffff",
+    "--color-surface-sunken": "#e0f2fe",
+    "--color-surface-raised": "#ffffff",
+    "--color-surface-raised2": "#f0f9ff",
+    "--color-surface-disabled": "#e0f2fe",
+    "--color-ink": "#0c4a6e",
+    "--color-ink-2": "#075985",
+    "--color-ink-muted": "#0369a1",
+    "--color-edge": "#bae6fd",
+    "--color-edge-soft": "#e0f2fe",
+    "--color-edge-strong": "#7dd3fc",
+    "--color-brand": "#FB923C",
+    "--color-brand-hover": "#F97316",
+    "--color-brand-soft": "#ffedd5",
+
+    "--theme-glow": "0 12px 40px -12px rgba(251,146,60,0.35)",
+    "color-scheme": "light",
+  },
+};
+
+export const THEMES: ThemeDef[] = [COZY, SKY_PEACH, KINETIC, FOCUS, ARCADE];
 export const THEME_MAP: Record<ThemeId, ThemeDef> = {
   "cozy-goblin": COZY,
   "kinetic-dark": KINETIC,
   "focus-paper": FOCUS,
   "dopamine-arcade": ARCADE,
+  "sky-peach": SKY_PEACH,
 };
 
 const STORAGE_KEY = "goblin_theme";
 const DEFAULT: ThemeId = "cozy-goblin";
+const VALID_IDS: ThemeId[] = ["cozy-goblin", "kinetic-dark", "focus-paper", "dopamine-arcade", "sky-peach"];
 
 export function readStoredTheme(): ThemeId {
   if (typeof window === "undefined") return DEFAULT;
   try {
     const v = window.localStorage.getItem(STORAGE_KEY);
-    if (v === "cozy-goblin" || v === "kinetic-dark" || v === "focus-paper" || v === "dopamine-arcade") return v;
+    if (v && (VALID_IDS as string[]).includes(v)) return v as ThemeId;
   } catch { /* ignore */ }
   return DEFAULT;
 }
