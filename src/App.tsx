@@ -19,7 +19,7 @@ import { toLocalDateKey } from "./lib/constants";
 import { applyTheme, readStoredTheme, subscribeTheme, type ThemeId } from "./lib/themes";
 
 // Valid tab ids, single source of truth for hash-routing + typing.
-const VALID_TABS: readonly TabId[] = ["compiler", "todo", "taskmaster", "calendar", "weekly", "habits"];
+const VALID_TABS: readonly TabId[] = ["today", "compiler", "todo", "taskmaster", "calendar", "weekly", "habits"];
 
 /**
  * Root application shell.
@@ -47,7 +47,7 @@ export default function App() {
   const showGubby = themeId !== "kinetic-dark";
 
   // ── Routing ──────────────────────────────────────────────────────────
-  const { activeTab, setActiveTab, mainRef } = useHashRouting<TabId>(VALID_TABS, "todo");
+  const { activeTab, setActiveTab, mainRef } = useHashRouting<TabId>(VALID_TABS, "today");
 
   // ── Persisted data + Sprig state ─────────────────────────────────────
   const data = useAppData({ pushToast });
@@ -189,6 +189,7 @@ export default function App() {
               onLoadGoogleEvents={loadGoogleEvents}
               onGubbyMessage={gubby.triggerGubbySpeak}
               onGainXp={addXp}
+              onOpenTab={(tab) => setActiveTab(tab as TabId)}
               onAddTask={handlers.handleAddTask}
               onDeleteTask={handlers.handleDeleteTask}
               onToggleTask={handlers.handleToggleTask}

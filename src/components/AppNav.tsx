@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Brain, Play, Calendar, CheckSquare, CalendarDays, Repeat, Sparkles } from "lucide-react";
+import { Brain, Play, Calendar, CheckSquare, CalendarDays, Repeat, Sparkles, Home } from "lucide-react";
 import SettingsPanel from "./SettingsPanel";
 import { useTheme } from "../lib/themes";
 
@@ -15,6 +15,7 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
+  { id: "today", label: "Today", Icon: Home, msg: "One thing at a time. Here's your day at a glance.", mood: "cozy", group: "do" },
   { id: "compiler", label: "Compiler", Icon: Brain, msg: "Dump all those messy thoughts here! Sprig will sweep and filter them.", mood: "thoughtful", group: "do" },
   { id: "todo", label: "To-Do", Icon: CheckSquare, msg: "Here are your active quests! Let's conquer them one micro-step at a time.", mood: "cozy", group: "do" },
   { id: "taskmaster", label: "Focus", Icon: Play, msg: "Welcome to the sensory-friendly Focus Timer! One thing at a time. No clutter.", mood: "focused", group: "do" },

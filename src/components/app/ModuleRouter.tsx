@@ -12,8 +12,9 @@ const TaskmasterModule = lazy(() => import("../TaskmasterModule"));
 const CalendarModule = lazy(() => import("../CalendarModule"));
 const WeeklyPlannerModule = lazy(() => import("../WeeklyPlannerModule"));
 const HabitTrackerModule = lazy(() => import("../HabitTrackerModule"));
+const TodayModule = lazy(() => import("../TodayModule"));
 
-export type TabId = "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits";
+export type TabId = "today" | "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits";
 
 type GubbyMood = "happy" | "thoughtful" | "focused" | "cozy" | "excited";
 
@@ -43,6 +44,7 @@ export interface ModuleRouterProps {
 
   onGubbyMessage: (msg: string, mood: GubbyMood) => void;
   onGainXp: (n: number) => void;
+  onOpenTab: (tab: TabId) => void;
 
   // Task handlers
   onAddTask: (title: string, priority: "low" | "medium" | "high", notes?: string, scheduledDate?: string, estimatedMinutes?: number) => Promise<void> | void;
@@ -85,6 +87,15 @@ function ModuleRouterImpl(p: ModuleRouterProps) {
             transition={{ duration: 0.15 }}
             className="w-full"
           >
+            {p.activeTab === "today" && (
+              <TodayModule
+                tasks={p.tasks}
+                habits={p.habits}
+                habitLog={p.habitLog}
+                onOpenTab={(t) => p.onOpenTab(t as TabId)}
+              />
+            )}
+
             {p.activeTab === "compiler" && (
               <CompilerModule onTasksCompiled={p.onTasksCompiled} onGubbyMessage={p.onGubbyMessage} />
             )}
@@ -177,6 +188,7 @@ export default ModuleRouter;
 
 /** Map of tab id → dynamic import, used to prefetch a module on hover. */
 export const MODULE_PREFETCH: Record<string, () => Promise<unknown>> = {
+  today: () => import("../TodayModule"),
   compiler: () => import("../CompilerModule"),
   todo: () => import("../MagicTodoModule"),
   taskmaster: () => import("../TaskmasterModule"),
