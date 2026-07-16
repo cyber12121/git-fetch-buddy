@@ -74,9 +74,9 @@ function Consent() {
   return (
     <main className="min-h-screen flex items-center justify-center p-6 bg-surface">
       <div className="w-full max-w-md rounded-2xl border border-edge bg-surface-raised p-6 shadow-sm">
-        <h1 className="text-xl font-bold mb-2">Connect {clientName} to Goblin Flow</h1>
+        <h1 className="text-xl font-bold mb-2">Connect {clientName} to Momentum</h1>
         <p className="text-sm text-ink-muted mb-4">
-          This lets {clientName} use Goblin Flow's tools while you are signed in. It does not bypass any app permissions.
+          This lets {clientName} use Momentum's tools while you are signed in. It does not bypass any app permissions.
         </p>
         {redirectUri && (
           <p className="text-xs text-ink-muted mb-4 break-all">
