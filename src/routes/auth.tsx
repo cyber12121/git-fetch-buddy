@@ -7,10 +7,10 @@ export const Route = createFileRoute("/auth")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Sign In — Goblin Flow" },
-      { name: "description", content: "Sign in to Goblin Flow with your Google account to sync tasks, habits and calendar across devices." },
-      { property: "og:title", content: "Sign In — Goblin Flow" },
-      { property: "og:description", content: "Sign in to Goblin Flow with your Google account to sync tasks, habits and calendar across devices." },
+      { title: "Sign In — Momentum" },
+      { name: "description", content: "Sign in to Momentum with your Google account to sync tasks, habits and calendar across devices." },
+      { property: "og:title", content: "Sign In — Momentum" },
+      { property: "og:description", content: "Sign in to Momentum with your Google account to sync tasks, habits and calendar across devices." },
       { name: "robots", content: "noindex" },
     ],
   }),
