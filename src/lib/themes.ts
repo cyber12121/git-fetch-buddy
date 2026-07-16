@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 
-export type ThemeId = "cozy-goblin" | "kinetic-dark" | "focus-paper";
+export type ThemeId = "cozy-goblin" | "kinetic-dark" | "focus-paper" | "dopamine-arcade";
 
 export interface ThemeDef {
   id: ThemeId;
