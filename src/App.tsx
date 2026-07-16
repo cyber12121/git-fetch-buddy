@@ -6,6 +6,7 @@ import AppStatusBar from "./components/AppStatusBar";
 
 import ModuleRouter, { MODULE_PREFETCH, type TabId } from "./components/app/ModuleRouter";
 import RightAside from "./components/app/RightAside";
+import FocusPlant from "./components/FocusPlant";
 
 import { useToast } from "./components/Toast";
 import { useCloudSync } from "./hooks/useCloudSync";
