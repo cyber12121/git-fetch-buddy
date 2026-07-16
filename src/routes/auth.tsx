@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { auth, signInWithGoogle } from "@/lib/firebaseAuth";
+import { enableGuestMode } from "@/lib/guestMode";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -63,9 +64,32 @@ function AuthPage() {
         >
           {busy ? "Signing in…" : "Continue with Google"}
         </button>
+
+        <div className="my-4 flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-ink-muted">
+          <span className="h-px flex-1 bg-edge" />
+          or
+          <span className="h-px flex-1 bg-edge" />
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            enableGuestMode();
+            window.location.href = isSafeNext(next) ? next : "/";
+          }}
+          disabled={busy}
+          className="w-full py-2 rounded-lg border border-edge bg-surface text-ink font-bold text-sm hover:bg-surface-sunken transition disabled:opacity-60"
+        >
+          Continue as guest
+        </button>
+        <p className="mt-2 text-[11px] text-ink-muted text-center leading-snug">
+          Guest data stays on this device — no cloud sync, no Google Calendar.
+        </p>
+
         <div className="mt-4 text-center">
           <Link to="/" className="text-xs text-ink-muted underline">Back to app</Link>
         </div>
+
       </div>
     </main>
   );

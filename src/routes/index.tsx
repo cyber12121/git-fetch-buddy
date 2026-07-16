@@ -6,6 +6,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import App from "../App";
 import { ToastProvider } from "../components/Toast";
 import { auth } from "../lib/firebaseApp";
+import { isGuestMode } from "../lib/guestMode";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -23,8 +24,10 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [user, setUser] = useState<User | null>(auth.currentUser);
   const [ready, setReady] = useState(false);
+  const [guest, setGuest] = useState(false);
 
   useEffect(() => {
+    setGuest(isGuestMode());
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setReady(true);
@@ -40,7 +43,7 @@ function Index() {
     );
   }
 
-  if (!user) {
+  if (!user && !guest) {
     return <Navigate to="/auth" search={{ next: "/" }} />;
   }
 
@@ -50,3 +53,4 @@ function Index() {
     </ToastProvider>
   );
 }
+
