@@ -1,13 +1,14 @@
 import { useMemo } from "react";
 import { motion } from "motion/react";
 import {
-  Zap,
+  Brain,
   CheckCircle2,
   ListTodo,
   Sparkles,
   Inbox,
   Repeat,
   BookOpen,
+  ArrowRight,
 } from "lucide-react";
 import type { Task, Habit, HabitLog } from "../types";
 
