@@ -1,4 +1,4 @@
-import { Brain, Play, Calendar, CheckSquare, CalendarDays, Repeat, Info } from "lucide-react";
+import { Brain, Play, Calendar, CheckSquare, CalendarDays, Repeat, Info, Home } from "lucide-react";
 
 type GubbyMood = "happy" | "thoughtful" | "focused" | "cozy" | "excited";
 
