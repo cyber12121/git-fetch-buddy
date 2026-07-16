@@ -19,12 +19,15 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
   },
   loader: async ({ location }) => {
     const authorizationId = new URLSearchParams(location.search).get("authorization_id")!;
-    // @ts-expect-error auth.oauth is a beta namespace not yet in types
     const { data, error } = await supabase.auth.oauth.getAuthorizationDetails(authorizationId);
     if (error) throw error;
-    const immediate = data?.redirect_url ?? data?.redirect_to;
-    if (immediate && !data?.client) throw redirect({ href: immediate });
-    return data;
+    const anyData = data as Record<string, unknown> | null;
+    const immediate = (anyData?.redirect_url as string | undefined) ?? (anyData?.redirect_to as string | undefined);
+    if (immediate && !anyData?.client) throw redirect({ href: immediate });
+    return anyData as {
+      client?: { name?: string; redirect_uris?: string[] };
+      scope?: string;
+    } | null;
   },
   component: Consent,
   errorComponent: ({ error }) => (
@@ -38,7 +41,7 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
 });
 
 function Consent() {
-  const details = Route.useLoaderData() as { client?: { name?: string; redirect_uris?: string[] }; scope?: string } | null;
+  const details = Route.useLoaderData();
   const { authorization_id } = Route.useSearch();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +49,6 @@ function Consent() {
   async function decide(approve: boolean) {
     setBusy(true);
     setError(null);
-    // @ts-expect-error beta namespace
     const client = supabase.auth.oauth;
     const { data, error } = approve
       ? await client.approveAuthorization(authorization_id)
@@ -56,7 +58,8 @@ function Consent() {
       setError(error.message);
       return;
     }
-    const target = data?.redirect_url ?? data?.redirect_to;
+    const anyData = data as Record<string, unknown> | null;
+    const target = (anyData?.redirect_url as string | undefined) ?? (anyData?.redirect_to as string | undefined);
     if (!target) {
       setBusy(false);
       setError("No redirect URL returned by the authorization server.");
