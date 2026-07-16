@@ -23,6 +23,7 @@ const FOCUSABLE_SELECTOR = [
 export default function SettingsPanel() {
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<ThemeId>("cozy-goblin");
+  const [themeOpen, setThemeOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const triggerRef = useRef<HTMLButtonElement | null>(null);
