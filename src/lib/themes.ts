@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 
-export type ThemeId = "cozy-goblin" | "kinetic-dark";
+export type ThemeId = "cozy-goblin" | "kinetic-dark" | "focus-paper";
 
 export interface ThemeDef {
   id: ThemeId;
@@ -118,10 +118,64 @@ const KINETIC: ThemeDef = {
   },
 };
 
-export const THEMES: ThemeDef[] = [COZY, KINETIC];
+// Focus Paper — minimalist ADHD focus theme. Near-monochrome paper canvas,
+// deep ink text for maximum contrast, one calm blue accent for focus cues,
+// and a neutral system font stack to reduce visual noise.
+const FOCUS: ThemeDef = {
+  id: "focus-paper",
+  name: "Focus Paper",
+  description: "Minimal, low-stimulation, one calm accent.",
+  swatches: ["#F7F7F5", "#111111", "#2563EB", "#E5E5E2"],
+  fontSans: "'Inter', system-ui, -apple-system, sans-serif",
+  fontDisplay: "'Inter', system-ui, -apple-system, sans-serif",
+  fontMono: "ui-monospace, SFMono-Regular, Menlo, monospace",
+  vars: {
+    "--background": "#F7F7F5",
+    "--foreground": "#111111",
+    "--card": "#FFFFFF",
+    "--card-foreground": "#111111",
+    "--popover": "#FFFFFF",
+    "--popover-foreground": "#111111",
+    "--primary": "#2563EB",
+    "--primary-foreground": "#FFFFFF",
+    "--secondary": "#EFEFEC",
+    "--secondary-foreground": "#111111",
+    "--muted": "#EFEFEC",
+    "--muted-foreground": "#5A5A57",
+    "--accent": "#E8EEFB",
+    "--accent-foreground": "#1E40AF",
+    "--destructive": "#B91C1C",
+    "--destructive-foreground": "#FFFFFF",
+    "--border": "#E5E5E2",
+    "--input": "#E5E5E2",
+    "--ring": "#2563EB",
+
+    "--color-canvas": "#F7F7F5",
+    "--color-surface": "#FFFFFF",
+    "--color-surface-sunken": "#F0F0ED",
+    "--color-surface-raised": "#FFFFFF",
+    "--color-surface-raised2": "#EFEFEC",
+    "--color-surface-disabled": "#E5E5E2",
+    "--color-ink": "#111111",
+    "--color-ink-2": "#1F1F1F",
+    "--color-ink-muted": "#5A5A57",
+    "--color-edge": "#E5E5E2",
+    "--color-edge-soft": "#EFEFEC",
+    "--color-edge-strong": "#CFCFCB",
+    "--color-brand": "#2563EB",
+    "--color-brand-hover": "#1D4ED8",
+    "--color-brand-soft": "#E8EEFB",
+
+    "--theme-glow": "0 0 0 rgba(0,0,0,0)",
+    "color-scheme": "light",
+  },
+};
+
+export const THEMES: ThemeDef[] = [COZY, KINETIC, FOCUS];
 export const THEME_MAP: Record<ThemeId, ThemeDef> = {
   "cozy-goblin": COZY,
   "kinetic-dark": KINETIC,
+  "focus-paper": FOCUS,
 };
 
 const STORAGE_KEY = "goblin_theme";
@@ -131,7 +185,7 @@ export function readStoredTheme(): ThemeId {
   if (typeof window === "undefined") return DEFAULT;
   try {
     const v = window.localStorage.getItem(STORAGE_KEY);
-    if (v && (v === "cozy-goblin" || v === "kinetic-dark")) return v;
+    if (v === "cozy-goblin" || v === "kinetic-dark" || v === "focus-paper") return v;
   } catch { /* ignore */ }
   return DEFAULT;
 }
