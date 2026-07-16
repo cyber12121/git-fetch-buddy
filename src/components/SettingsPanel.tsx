@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
-import { Settings, X, Check, Palette, Trophy, ChevronDown } from "lucide-react";
+import { Settings, X, Check, Palette, Trophy, ChevronDown, LogIn, LogOut, User as UserIcon } from "lucide-react";
+import type { User } from "firebase/auth";
 import { THEMES, applyTheme, readStoredTheme, THEME_MAP, type ThemeId } from "../lib/themes";
+import { auth } from "../lib/firebaseApp";
+import { disableGuestMode, isGuestMode } from "../lib/guestMode";
 import RewardHistory from "./RewardHistory";
 
 const FOCUSABLE_SELECTOR = [
@@ -25,6 +28,8 @@ export default function SettingsPanel() {
   const [theme, setTheme] = useState<ThemeId>("cozy-goblin");
   const [themeOpen, setThemeOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [guest, setGuest] = useState(false);
 
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLElement | null>(null);
@@ -33,9 +38,28 @@ export default function SettingsPanel() {
   useEffect(() => {
     setMounted(true);
     setTheme(readStoredTheme());
+    setUser(auth.currentUser);
+    setGuest(isGuestMode());
+    const unsub = auth.onAuthStateChanged((u) => setUser(u));
+    return unsub;
   }, []);
 
   const close = useCallback(() => setOpen(false), []);
+
+  const goSignIn = useCallback(() => {
+    disableGuestMode();
+    window.location.href = "/auth?next=/";
+  }, []);
+
+  const signOut = useCallback(async () => {
+    try {
+      await auth.signOut();
+    } catch {
+      /* ignore */
+    }
+    disableGuestMode();
+    window.location.href = "/auth";
+  }, []);
 
   const pick = (id: ThemeId) => {
     setTheme(id);
@@ -241,6 +265,54 @@ export default function SettingsPanel() {
                 </AnimatePresence>
               </section>
 
+              <section aria-labelledby="settings-account" className="pt-2 border-t border-edge/50">
+                <div className="flex items-center gap-2 mb-3">
+                  <UserIcon size={14} className="text-brand" aria-hidden="true" />
+                  <h3 id="settings-account" className="text-xs font-extrabold text-ink uppercase tracking-widest">
+                    Account
+                  </h3>
+                </div>
+                {user ? (
+                  <div className="flex items-center gap-3 px-3 py-3 rounded-2xl border border-edge bg-surface-sunken">
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-extrabold text-ink truncate">
+                        {user.displayName ?? user.email ?? "Signed in"}
+                      </span>
+                      <span className="block text-[11px] text-ink-muted truncate">
+                        Synced to the cloud
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={signOut}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border border-edge text-ink hover:bg-surface transition-colors"
+                    >
+                      <LogOut size={12} aria-hidden="true" />
+                      Sign out
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 px-3 py-3 rounded-2xl border border-edge bg-surface-sunken">
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-extrabold text-ink truncate">
+                        {guest ? "Guest mode" : "Not signed in"}
+                      </span>
+                      <span className="block text-[11px] text-ink-muted leading-snug">
+                        Sign in to sync quests, habits & calendar across devices.
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={goSignIn}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-primary text-primary-foreground hover:opacity-90 transition-opacity shrink-0"
+                    >
+                      <LogIn size={12} aria-hidden="true" />
+                      Sign in
+                    </button>
+                  </div>
+                )}
+              </section>
+
               <section aria-labelledby="settings-rewards" className="pt-2 border-t border-edge/50">
                 <div className="flex items-center gap-2 mb-3">
                   <Trophy size={14} className="text-brand" aria-hidden="true" />
@@ -250,6 +322,7 @@ export default function SettingsPanel() {
                 </div>
                 <RewardHistory defaultOpen />
               </section>
+
 
               <section aria-labelledby="settings-about" className="pt-2 border-t border-edge/50">
                 <h3 id="settings-about" className="text-[10px] font-extrabold text-ink-muted uppercase tracking-widest mb-2">
