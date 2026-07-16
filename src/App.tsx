@@ -19,7 +19,7 @@ import { toLocalDateKey } from "./lib/constants";
 import { applyTheme, readStoredTheme, subscribeTheme, type ThemeId } from "./lib/themes";
 
 // Valid tab ids, single source of truth for hash-routing + typing.
-const VALID_TABS: readonly TabId[] = ["compiler", "todo", "taskmaster", "calendar", "weekly", "habits"];
+const VALID_TABS: readonly TabId[] = ["today", "compiler", "todo", "taskmaster", "calendar", "weekly", "habits"];
 
 /**
  * Root application shell.
