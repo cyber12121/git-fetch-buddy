@@ -94,18 +94,35 @@ export default function SettingsPanel() {
   }, [open, close]);
 
 
+  const drawer = (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            aria-hidden="true"
+            className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={close}
+          />
+          <motion.aside
+            key="panel"
+            ref={(el) => { panelRef.current = el as HTMLElement | null; }}
+            role="dialog"
             aria-modal="true"
             aria-label="Settings"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed top-0 right-0 bottom-0 z-[9999] w-full sm:w-[420px] bg-card border-l border-edge shadow-2xl flex flex-col"
+            className="fixed top-0 right-0 bottom-0 z-[9999] w-full sm:w-[420px] bg-card border-l border-edge shadow-2xl flex flex-col outline-none"
             style={{
               paddingTop: "env(safe-area-inset-top)",
               paddingBottom: "env(safe-area-inset-bottom)",
             }}
           >
+
             <header className="flex items-center justify-between px-5 py-4 border-b border-edge/70 shrink-0">
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-primary/15 text-primary">
