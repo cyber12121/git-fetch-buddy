@@ -87,6 +87,15 @@ function ModuleRouterImpl(p: ModuleRouterProps) {
             transition={{ duration: 0.15 }}
             className="w-full"
           >
+            {p.activeTab === "today" && (
+              <TodayModule
+                tasks={p.tasks}
+                habits={p.habits}
+                habitLog={p.habitLog}
+                onOpenTab={(t) => p.onOpenTab(t as TabId)}
+              />
+            )}
+
             {p.activeTab === "compiler" && (
               <CompilerModule onTasksCompiled={p.onTasksCompiled} onGubbyMessage={p.onGubbyMessage} />
             )}
