@@ -260,7 +260,7 @@ export default function HabitTrackerModule({
           <div className="min-w-0">
             <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight truncate" style={{ ...headerFont, color: SAGE.ink }}>
               Habit Tracker
-            </h1>
+            </h2>
             <p className="mt-1 text-xs" style={{ color: SAGE.inkMuted }}>
               Small habits. Big change.
             </p>
