@@ -212,9 +212,21 @@ export default function TaskmasterModule({
   }, [activeTaskTitle, tasks, onGubbyMessage]);
 
   useEffect(() => {
-    if (!isRunning) return;
+    if (!isRunning) {
+      // Session stopped/paused/completed — drop the persisted anchor so a
+      // reload doesn't spuriously resume.
+      try { localStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
+      return;
+    }
 
     const endAt = Date.now() + timeLeft * 1000;
+    try {
+      localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify({ endAt, duration, mission: currentMission, mode, pomoPhase } satisfies PersistedSession),
+      );
+    } catch { /* quota / SSR — best-effort */ }
+
     let activeElapsed = activeSessionSeconds;
 
     intervalRef.current = setInterval(() => {
@@ -245,6 +257,7 @@ export default function TaskmasterModule({
       if (remaining <= 0) {
         if (intervalRef.current) clearInterval(intervalRef.current);
         intervalRef.current = null;
+        try { localStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
         handleTimerCompleteRef.current();
       }
     }, 1000);
