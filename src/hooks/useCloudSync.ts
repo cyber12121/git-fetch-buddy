@@ -27,6 +27,8 @@ interface UseCloudSyncArgs {
   manualEvents: CalendarEvent[];
   habits: Habit[];
   habitLog: HabitLog;
+  /** Live XP value — must be in deps so cloud push fires on XP-only changes. */
+  xp: number;
   syncTasks: (tasks: Task[]) => void;
   syncEvents: (events: CalendarEvent[]) => void;
   syncHabits: (habits: Habit[]) => void;
