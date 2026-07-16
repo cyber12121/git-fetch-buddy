@@ -210,6 +210,7 @@ export default function App() {
           {!isWide && (
             <RightAside
               activeTab={activeTab}
+              tasks={data.tasks}
               onToggleTask={handlers.handleToggleTask}
               showGubby={showGubby}
               gubbyHidden={gubby.gubbyHidden}
