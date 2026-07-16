@@ -233,6 +233,7 @@ export default function App() {
               onHide={hideGubby}
             />
           )}
+          {activeTab === "taskmaster" && <FocusPlant compact />}
         </section>
       </div>
 
