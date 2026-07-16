@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { auth, signInWithGoogle } from "@/lib/firebaseAuth";
+import { enableGuestMode } from "@/lib/guestMode";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
