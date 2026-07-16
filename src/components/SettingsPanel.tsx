@@ -147,53 +147,98 @@ export default function SettingsPanel() {
 
             <div className="flex-1 overflow-y-auto p-5 space-y-6">
               <section aria-labelledby="settings-theme">
-                <div className="flex items-center gap-2 mb-3">
-                  <Palette size={14} className="text-brand" aria-hidden="true" />
-                  <h3 id="settings-theme" className="text-xs font-extrabold text-ink uppercase tracking-widest">
-                    Theme
-                  </h3>
-                </div>
-                <ul className="grid grid-cols-1 gap-2">
-                  {THEMES.map((t) => {
-                    const active = t.id === theme;
-                    return (
-                      <li key={t.id}>
-                        <button
-                          type="button"
-                          aria-pressed={active}
-                          onClick={() => pick(t.id)}
-                          className={`w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left border transition-all ${
-                            active
-                              ? "bg-primary/8 border-primary/50 shadow-[0_0_0_3px_var(--color-brand-soft)]"
-                              : "bg-surface-sunken border-edge hover:border-edge-strong"
-                          }`}
-                        >
+                {(() => {
+                  const current = THEME_MAP[theme] ?? THEME_MAP["cozy-goblin"];
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => setThemeOpen((v) => !v)}
+                      aria-expanded={themeOpen}
+                      aria-controls="settings-theme-list"
+                      className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl border border-edge bg-surface-sunken hover:border-edge-strong transition-colors text-left"
+                    >
+                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-primary/15 text-primary shrink-0">
+                        <Palette size={15} aria-hidden="true" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span id="settings-theme" className="block text-xs font-extrabold text-ink uppercase tracking-widest">
+                          Theme
+                        </span>
+                        <span className="block text-[11px] text-ink-muted truncate">
+                          {current.name} — tap to change
+                        </span>
+                      </span>
+                      <span className="flex -space-x-1 shrink-0" aria-hidden="true">
+                        {current.swatches.slice(0, 4).map((c, i) => (
                           <span
-                            className="flex -space-x-1.5 shrink-0 p-1 rounded-full bg-canvas/40"
-                            aria-hidden="true"
-                          >
-                            {t.swatches.map((c, i) => (
+                            key={i}
+                            className="w-4 h-4 rounded-full border border-edge"
+                            style={{ background: c }}
+                          />
+                        ))}
+                      </span>
+                      <ChevronDown
+                        size={16}
+                        aria-hidden="true"
+                        className={`text-ink-muted shrink-0 transition-transform ${themeOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                  );
+                })()}
+
+                <AnimatePresence initial={false}>
+                  {themeOpen && (
+                    <motion.ul
+                      id="settings-theme-list"
+                      key="theme-list"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.22, ease: "easeOut" }}
+                      className="grid grid-cols-1 gap-2 mt-3 overflow-hidden"
+                    >
+                      {THEMES.map((t) => {
+                        const active = t.id === theme;
+                        return (
+                          <li key={t.id}>
+                            <button
+                              type="button"
+                              aria-pressed={active}
+                              onClick={() => pick(t.id)}
+                              className={`w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left border transition-all ${
+                                active
+                                  ? "bg-primary/8 border-primary/50 shadow-[0_0_0_3px_var(--color-brand-soft)]"
+                                  : "bg-surface-sunken border-edge hover:border-edge-strong"
+                              }`}
+                            >
                               <span
-                                key={i}
-                                className="w-5 h-5 rounded-full border border-edge shadow-sm"
-                                style={{ background: c }}
-                              />
-                            ))}
-                          </span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block text-sm font-extrabold text-ink truncate">{t.name}</span>
-                            <span className="block text-[11px] text-ink-muted truncate">{t.description}</span>
-                          </span>
-                          {active && (
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground shrink-0">
-                              <Check size={13} strokeWidth={3} />
-                            </span>
-                          )}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
+                                className="flex -space-x-1.5 shrink-0 p-1 rounded-full bg-canvas/40"
+                                aria-hidden="true"
+                              >
+                                {t.swatches.map((c, i) => (
+                                  <span
+                                    key={i}
+                                    className="w-5 h-5 rounded-full border border-edge shadow-sm"
+                                    style={{ background: c }}
+                                  />
+                                ))}
+                              </span>
+                              <span className="min-w-0 flex-1">
+                                <span className="block text-sm font-extrabold text-ink truncate">{t.name}</span>
+                                <span className="block text-[11px] text-ink-muted truncate">{t.description}</span>
+                              </span>
+                              {active && (
+                                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground shrink-0">
+                                  <Check size={13} strokeWidth={3} />
+                                </span>
+                              )}
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </motion.ul>
+                  )}
+                </AnimatePresence>
               </section>
 
               <section aria-labelledby="settings-rewards" className="pt-2 border-t border-edge/50">
