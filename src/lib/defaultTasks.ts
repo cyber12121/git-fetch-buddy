@@ -38,7 +38,7 @@ export const DEFAULT_TASKS: Task[] = [
   },
   {
     id: "default-task-3",
-    title: "Polish the shiny goblin crown 👑",
+    title: "Polish the shiny crown 👑",
     priority: "low",
     notes: "A quick, satisfying win to boost dopamine!",
     completed: true,
