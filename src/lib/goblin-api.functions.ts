@@ -201,8 +201,7 @@ const breakdownSchema = z.object({
 export const breakdownTask = createServerFn({ method: "POST" })
   .inputValidator((data) => breakdownSchema.parse(data))
   .handler(async ({ data }) => {
-    const ip = "anonymous";
-    if (isRateLimited(ip)) {
+    if (isRateLimited(clientRateKey())) {
       throw new Error("Whoa, too many requests! Take a cozy breath and try again in a moment.");
     }
 
