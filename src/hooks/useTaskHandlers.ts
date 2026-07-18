@@ -4,6 +4,7 @@ import { estimateTaskDuration } from "../lib/constants";
 import { recordReward } from "../lib/rewardHistory";
 import { createGoogleCalendarEvent, deleteGoogleCalendarEvent } from "../lib/googleCalendar";
 import confetti from "canvas-confetti";
+import { logCompletion, unlogCompletion } from "../lib/completionLog";
 import { CONFETTI_COLORS } from "../lib/xpMilestones";
 import type { GubbyMood } from "./useGubbyState";
 
@@ -148,6 +149,7 @@ export function useTaskHandlers(o: Options) {
         setGubbyMessage(`Hurray! Quest "${t.title}" is finished! Gold leaf for you! 🍃✨`);
         pushToast({ icon: "✅", message: "Quest done! +15 XP", tone: "success" });
         recordReward("achievement", "✅", `Quest done: ${t.title}`);
+        logCompletion({ id: t.id, title: t.title, source: "task" });
         confetti({
           particleCount: 80,
           spread: 60,
@@ -156,6 +158,7 @@ export function useTaskHandlers(o: Options) {
         });
       } else {
         addXp(-15);
+        unlogCompletion(t.id);
       }
       return { ...t, completed: nextCompleted };
     });
@@ -267,7 +270,10 @@ export function useTaskHandlers(o: Options) {
       if (t.id !== taskId) return t;
       if (subtaskId) {
         const sub = t.subtasks.find((s) => s.id === subtaskId);
-        if (sub && !sub.completed) addXp(3);
+        if (sub && !sub.completed) {
+          addXp(3);
+          logCompletion({ id: `${t.id}:${sub.id}`, title: `${t.title} ➔ ${sub.title}`, source: "focus" });
+        }
         return {
           ...t,
           subtasks: t.subtasks.map((s) =>
@@ -275,7 +281,11 @@ export function useTaskHandlers(o: Options) {
           ),
         };
       }
-      if (!t.completed) { addXp(15); registerCombo(); }
+      if (!t.completed) {
+        addXp(15);
+        registerCombo();
+        logCompletion({ id: t.id, title: t.title, source: "focus" });
+      }
       return { ...t, completed: true };
     });
     syncTasks(updated);
