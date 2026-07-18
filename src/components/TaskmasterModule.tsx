@@ -183,6 +183,14 @@ export default function TaskmasterModule({
       lastLoadedTaskRef.current = activeTaskTitle;
       setCurrentMission(activeTaskTitle);
 
+      // Only sync the timer duration from the task's estimate when we're in
+      // FOCUS mode. Pomodoro rounds and Break intervals keep their own
+      // configured lengths regardless of which task is loaded.
+      if (mode !== "focus") {
+        onGubbyMessage(`Mission Loaded: "${activeTaskTitle}". 🦉`, "focused");
+        return;
+      }
+
       let matchingMinutes = 25;
       const parentTitle = activeTaskTitle.includes(" ➔ ")
         ? activeTaskTitle.split(" ➔ ")[0].trim()
@@ -204,7 +212,7 @@ export default function TaskmasterModule({
       const estimateText = h > 0 ? `${h}h ${m}m` : `${matchingMinutes}m`;
       onGubbyMessage(`Mission Loaded: "${activeTaskTitle}". Automatically adjusted timer to ${estimateText}! ⏱️🦉`, "focused");
     }
-  }, [activeTaskTitle, tasks, onGubbyMessage]);
+  }, [activeTaskTitle, tasks, mode, onGubbyMessage]);
 
   useEffect(() => {
     if (!isRunning) {
