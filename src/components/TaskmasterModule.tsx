@@ -277,6 +277,27 @@ export default function TaskmasterModule({
       return;
     }
     const nextState = !isRunning;
+
+    // On Start in FOCUS mode, snap the timer to the selected task's estimate
+    // so it shows the right duration immediately (only when timer isn't
+    // already mid-session).
+    if (nextState && mode === "focus" && timeLeft === duration) {
+      const parentTitle = currentMission.includes(" ➔ ")
+        ? currentMission.split(" ➔ ")[0].trim()
+        : currentMission.trim();
+      const matchedTask = tasks.find(
+        t => t.title.trim().toLowerCase() === parentTitle.toLowerCase()
+      );
+      const taskMinutes = matchedTask?.estimatedMinutes;
+      if (taskMinutes && taskMinutes > 0) {
+        const secs = taskMinutes * 60;
+        if (secs !== duration) {
+          setDuration(secs);
+          setTimeLeft(secs);
+        }
+      }
+    }
+
     setIsRunning(nextState);
     playChime(nextState ? "start" : "pause");
     if (nextState) {
