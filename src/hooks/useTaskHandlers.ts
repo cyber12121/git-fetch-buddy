@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import type { Task, CalendarEvent, Habit, HabitLog, HabitDayStatus } from "../types";
 import { estimateTaskDuration } from "../lib/constants";
-import { recordReward } from "../lib/rewardHistory";
+import { recordReward, removeRewardByMessage } from "../lib/rewardHistory";
 import { createGoogleCalendarEvent, deleteGoogleCalendarEvent } from "../lib/googleCalendar";
 import confetti from "canvas-confetti";
 import { logCompletion, unlogCompletion } from "../lib/completionLog";
