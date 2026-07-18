@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Play, Pause, RotateCcw, CheckCircle, Volume2, VolumeX, Plus, Award, Flame, Settings as SettingsIcon } from "lucide-react";
+import { Play, Pause, RotateCcw, CheckCircle, Volume2, VolumeX, Plus, Award, Flame, Settings as SettingsIcon, Maximize2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Task } from "../types";
 import BreathingOverlay from "./BreathingOverlay";
@@ -35,6 +35,7 @@ import ModeTabs from "./taskmaster/ModeTabs";
 import HistoryPanel from "./taskmaster/HistoryPanel";
 import SummaryView from "./taskmaster/SummaryView";
 import QuestPicker from "./taskmaster/QuestPicker";
+import FullscreenTimer from "./taskmaster/FullscreenTimer";
 
 interface TaskmasterModuleProps {
   activeTaskTitle: string | null;
@@ -107,6 +108,7 @@ export default function TaskmasterModule({
   const [showBreathing, setShowBreathing] = useState(false);
   const [history, setHistory] = useState<SessionRecord[]>(() => loadHistory());
   const [showHistory, setShowHistory] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const stats = useMemo(() => computeStats(history), [history]);
 
   const { playChime, playTickSound } = useFocusAudio(soundEnabled);
@@ -495,6 +497,18 @@ export default function TaskmasterModule({
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {isFullscreen && (
+          <FullscreenTimer
+            timeLeft={timeLeft}
+            isRunning={isRunning}
+            onToggle={handleStartPause}
+            onReset={handleReset}
+            onClose={() => setIsFullscreen(false)}
+          />
+        )}
+      </AnimatePresence>
+
       <div className="flex items-center justify-between mb-6">
         <div
           className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-ink-muted"
@@ -523,6 +537,15 @@ export default function TaskmasterModule({
             className="text-[11px] font-bold text-ink-muted hover:text-ink flex items-center gap-1.5 cursor-pointer transition-colors"
           >
             <Award size={12} /> Recap
+          </button>
+          <button
+            id="timer-fullscreen-btn"
+            onClick={() => setIsFullscreen(true)}
+            className="text-ink-muted hover:text-ink cursor-pointer transition-colors"
+            aria-label="Enter fullscreen timer"
+            title="Fullscreen"
+          >
+            <Maximize2 size={13} />
           </button>
           <button
             id="timer-settings-btn"
