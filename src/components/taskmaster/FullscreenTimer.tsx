@@ -21,8 +21,7 @@ function FlipDigit({ digit }: { digit: string }) {
         perspective: 600,
       }}
     >
-      {/* center seam */}
-      <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-black/70 z-20 -translate-y-[1px]" />
+      {/* seam removed for a cleaner look */}
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={digit}
