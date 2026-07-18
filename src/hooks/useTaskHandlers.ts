@@ -159,6 +159,7 @@ export function useTaskHandlers(o: Options) {
       } else {
         addXp(-15);
         unlogCompletion(t.id);
+        removeRewardByMessage(`Quest done: ${t.title}`);
       }
       return { ...t, completed: nextCompleted };
     });
