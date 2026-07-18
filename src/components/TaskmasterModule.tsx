@@ -497,6 +497,18 @@ export default function TaskmasterModule({
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {isFullscreen && (
+          <FullscreenTimer
+            timeLeft={timeLeft}
+            isRunning={isRunning}
+            onToggle={handleStartPause}
+            onReset={handleReset}
+            onClose={() => setIsFullscreen(false)}
+          />
+        )}
+      </AnimatePresence>
+
       <div className="flex items-center justify-between mb-6">
         <div
           className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-ink-muted"
