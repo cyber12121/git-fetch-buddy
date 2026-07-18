@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Play, Pause, RotateCcw, CheckCircle, Volume2, VolumeX, Plus, Award, Flame, Settings as SettingsIcon } from "lucide-react";
+import { Play, Pause, RotateCcw, CheckCircle, Volume2, VolumeX, Plus, Award, Flame, Settings as SettingsIcon, Maximize2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Task } from "../types";
 import BreathingOverlay from "./BreathingOverlay";
