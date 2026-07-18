@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { getCompletionsForDay, subscribeCompletionLog } from "../lib/completionLog";
 import { motion } from "motion/react";
 import {
   Brain,
@@ -40,6 +41,12 @@ export default function TodayModule({ tasks, habits, habitLog, onOpenTab }: Prop
   const iso = todayISO();
   const dateLabel = `${WEEKDAY[today.getDay()]}, ${MONTH[today.getMonth()]} ${today.getDate()}`;
 
+  // Track cross-app completions so "Done today" survives sweeping.
+  const [loggedToday, setLoggedToday] = useState<number>(() => getCompletionsForDay(iso).length);
+  useEffect(() => {
+    return subscribeCompletionLog(() => setLoggedToday(getCompletionsForDay(iso).length));
+  }, [iso]);
+
   const {
     doneToday,
     openTasks,
@@ -48,16 +55,19 @@ export default function TodayModule({ tasks, habits, habitLog, onOpenTab }: Prop
     progressPct,
   } = useMemo(() => {
     const scheduledToday = tasks.filter((t) => t.scheduledDate === iso);
-    const doneToday = scheduledToday.filter((t) => t.completed).length;
+    // Prefer the persisted completion log (survives "Sweep done"); fall
+    // back to counting from tasks[] when the log hasn't captured anything.
+    const doneFromTasks = scheduledToday.filter((t) => t.completed).length;
+    const doneToday = Math.max(loggedToday, doneFromTasks);
     const openTasks = tasks.filter((t) => !t.completed).length;
     const habitsDone = habits.filter((h) => habitLog[`${h.id}:${iso}`] === "done").length;
     const toSort = tasks.filter((t) => !t.scheduledDate && !t.completed).length;
 
-    const totalToday = scheduledToday.length;
-    const progressPct = totalToday === 0 ? 0 : Math.round((doneToday / totalToday) * 100);
+    const denom = Math.max(scheduledToday.length, doneToday);
+    const progressPct = denom === 0 ? 0 : Math.round((doneToday / denom) * 100);
 
     return { doneToday, openTasks, habitsDone, toSort, progressPct };
-  }, [tasks, habits, habitLog, iso]);
+  }, [tasks, habits, habitLog, iso, loggedToday]);
 
 
   const stats: Array<{ label: string; value: string; Icon: typeof CheckCircle2 }> = [
