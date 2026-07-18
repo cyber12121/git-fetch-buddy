@@ -108,6 +108,7 @@ export default function TaskmasterModule({
   const [showBreathing, setShowBreathing] = useState(false);
   const [history, setHistory] = useState<SessionRecord[]>(() => loadHistory());
   const [showHistory, setShowHistory] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const stats = useMemo(() => computeStats(history), [history]);
 
   const { playChime, playTickSound } = useFocusAudio(soundEnabled);
