@@ -11,35 +11,37 @@ interface FullscreenTimerProps {
   onClose: () => void;
 }
 
-function FlipCard({ value }: { value: string }) {
+function FlipDigit({ digit }: { digit: string }) {
   return (
     <div
-      className="relative flex items-center justify-center rounded-2xl bg-neutral-900 overflow-hidden shadow-[0_20px_60px_-10px_rgba(0,0,0,0.9)]"
+      className="relative rounded-xl bg-neutral-900 overflow-hidden shadow-[0_10px_40px_-10px_rgba(0,0,0,0.9)]"
       style={{
-        width: "min(38vw, 30vh)",
-        height: "min(38vw, 30vh)",
+        width: "min(14vw, 14vh)",
+        height: "min(20vw, 20vh)",
+        perspective: 600,
       }}
     >
-      {/* center divider */}
-      <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-black/80 z-20 -translate-y-[1px]" />
+      {/* center seam */}
+      <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-black/70 z-20 -translate-y-[1px]" />
       <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span
-          key={value}
-          initial={{ rotateX: -90, opacity: 0 }}
-          animate={{ rotateX: 0, opacity: 1 }}
-          exit={{ rotateX: 90, opacity: 0 }}
-          transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-          className="font-bold tabular-nums text-neutral-100 select-none"
+        <motion.div
+          key={digit}
+          initial={{ rotateX: -80, opacity: 0, y: "-8%" }}
+          animate={{ rotateX: 0, opacity: 1, y: 0 }}
+          exit={{ rotateX: 70, opacity: 0, y: "6%" }}
+          transition={{ duration: 0.28, ease: [0.32, 0.72, 0.28, 1] }}
+          className="absolute inset-0 flex items-center justify-center font-bold tabular-nums text-neutral-100 select-none"
           style={{
-            fontSize: "min(24vw, 20vh)",
+            fontSize: "min(16vw, 16vh)",
             lineHeight: 1,
             fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-            letterSpacing: "-0.04em",
-            transformStyle: "preserve-3d",
+            letterSpacing: "-0.05em",
+            transformOrigin: "center",
+            backfaceVisibility: "hidden",
           }}
         >
-          {value}
-        </motion.span>
+          {digit}
+        </motion.div>
       </AnimatePresence>
     </div>
   );
@@ -53,6 +55,7 @@ export default function FullscreenTimer({
   onClose,
 }: FullscreenTimerProps) {
   const [mm, ss] = formatTime(timeLeft).split(":");
+  const digits = [mm[0], mm[1], ss[0], ss[1]];
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -85,9 +88,17 @@ export default function FullscreenTimer({
         <Minimize2 size={16} />
       </button>
 
-      <div className="flex items-center gap-4 sm:gap-6" style={{ perspective: 1000 }}>
-        <FlipCard value={mm} />
-        <FlipCard value={ss} />
+      <div className="flex items-center gap-2 sm:gap-3">
+        <FlipDigit digit={digits[0]} />
+        <FlipDigit digit={digits[1]} />
+        <div
+          className="font-bold text-neutral-500 select-none"
+          style={{ fontSize: "min(14vw, 14vh)", lineHeight: 1 }}
+        >
+          :
+        </div>
+        <FlipDigit digit={digits[2]} />
+        <FlipDigit digit={digits[3]} />
       </div>
 
       <div className="mt-14 flex items-center gap-3">
