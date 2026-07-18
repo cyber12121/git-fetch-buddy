@@ -35,6 +35,7 @@ import ModeTabs from "./taskmaster/ModeTabs";
 import HistoryPanel from "./taskmaster/HistoryPanel";
 import SummaryView from "./taskmaster/SummaryView";
 import QuestPicker from "./taskmaster/QuestPicker";
+import FullscreenTimer from "./taskmaster/FullscreenTimer";
 
 interface TaskmasterModuleProps {
   activeTaskTitle: string | null;
