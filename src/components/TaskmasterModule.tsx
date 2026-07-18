@@ -325,7 +325,12 @@ export default function TaskmasterModule({
     setMode(next);
     setPomoPhase("focus");
     setPomoRound(1);
-    const dur = next === "break" ? BREAK_SECS : next === "pomodoro" ? POMODORO_FOCUS_SECS : settings.focusMinutes * 60;
+    let dur = next === "break" ? BREAK_SECS : next === "pomodoro" ? POMODORO_FOCUS_SECS : settings.focusMinutes * 60;
+    if (next === "focus" && activeTaskId) {
+      const t = tasks.find((x) => x.id === activeTaskId);
+      const mins = t?.estimatedMinutes;
+      if (typeof mins === "number" && mins > 0) dur = mins * 60;
+    }
     setDuration(dur);
     setTimeLeft(dur);
     setActiveSessionSeconds(0);
