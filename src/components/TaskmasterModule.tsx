@@ -351,9 +351,11 @@ export default function TaskmasterModule({
       logSession("focus", currentMission, elapsed);
       if (activeTaskId) {
         onCompleteActiveTask(activeTaskId, activeSubtaskId ?? undefined);
+      } else {
+        // Ad-hoc mission (no linked task) — record it in the shared log
+        // so today's Recap still credits it.
+        logCompletion({ id: `mission-${Date.now()}`, title: currentMission, source: "mission" });
       }
-      const completedTask = currentMission;
-      setCompletedMissions((prev) => (prev.includes(completedTask) ? prev : [...prev, completedTask]));
       setCurrentMission("");
       setTempFocusTitle("");
     }
@@ -387,13 +389,11 @@ export default function TaskmasterModule({
     playChime("victory");
     if (mode !== "break" && activeTaskId) {
       onCompleteActiveTask(activeTaskId, activeSubtaskId ?? undefined);
+    } else if (mode !== "break") {
+      logCompletion({ id: `mission-${Date.now()}`, title: currentMission, source: "mission" });
     }
     onGubbyMessage(`Amazing! Quest "${currentMission}" completed! Victory dance! 🦖💃`, "happy");
     logSession(mode === "break" ? "break" : mode === "pomodoro" ? "pomodoro" : "focus", currentMission, elapsed);
-    const completedTask = currentMission;
-    if (mode !== "break") {
-      setCompletedMissions((prev) => (prev.includes(completedTask) ? prev : [...prev, completedTask]));
-    }
     setCurrentMission("");
     setTempFocusTitle("");
     setActiveSessionSeconds(0);
