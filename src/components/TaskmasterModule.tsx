@@ -10,6 +10,11 @@ import {
   type SessionRecord,
 } from "../lib/focusHistory";
 import {
+  getTodayCompletions,
+  logCompletion,
+  subscribeCompletionLog,
+} from "../lib/completionLog";
+import {
   BODY_FONT,
   DEFAULT_SETTINGS,
   MONO_FONT,
@@ -122,25 +127,17 @@ export default function TaskmasterModule({
     return 0;
   });
 
-  const [completedMissions, setCompletedMissions] = useState<string[]>(() => {
-    if (typeof window === "undefined") return [];
-    const key = `goblin_focus_completed_${getTodayKey()}`;
-    const saved = localStorage.getItem(key);
-    if (saved !== null) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed as string[];
-      } catch { /* fall through */ }
-    }
-    const legacy = localStorage.getItem("goblin_session_completed");
-    if (legacy !== null) {
-      try {
-        const parsed = JSON.parse(legacy);
-        if (Array.isArray(parsed)) return parsed as string[];
-      } catch { /* fall through */ }
-    }
-    return [];
-  });
+  // Recap "cleared today" is sourced from the shared completion log so it
+  // reflects tasks completed via checkbox, timer, or ad-hoc missions —
+  // and survives "Sweep done" (which deletes rows from tasks[]).
+  const [completedMissions, setCompletedMissions] = useState<string[]>(() =>
+    getTodayCompletions().map((e) => e.title),
+  );
+  useEffect(() => {
+    return subscribeCompletionLog(() => {
+      setCompletedMissions(getTodayCompletions().map((e) => e.title));
+    });
+  }, []);
 
   const [showSummary, setShowSummary] = useState(false);
   const [activeSessionSeconds, setActiveSessionSeconds] = useState<number>(0);
@@ -148,10 +145,6 @@ export default function TaskmasterModule({
   useEffect(() => {
     localStorage.setItem(`goblin_focus_seconds_${getTodayKey()}`, sessionFocusSeconds.toString());
   }, [sessionFocusSeconds]);
-
-  useEffect(() => {
-    localStorage.setItem(`goblin_focus_completed_${getTodayKey()}`, JSON.stringify(completedMissions));
-  }, [completedMissions]);
 
   useEffect(() => {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
