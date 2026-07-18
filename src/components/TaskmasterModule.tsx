@@ -527,6 +527,15 @@ export default function TaskmasterModule({
             <Award size={12} /> Recap
           </button>
           <button
+            id="timer-fullscreen-btn"
+            onClick={() => setIsFullscreen(true)}
+            className="text-ink-muted hover:text-ink cursor-pointer transition-colors"
+            aria-label="Enter fullscreen timer"
+            title="Fullscreen"
+          >
+            <Maximize2 size={13} />
+          </button>
+          <button
             id="timer-settings-btn"
             onClick={() => setShowSettings(true)}
             className="text-ink-muted hover:text-ink cursor-pointer transition-colors"
