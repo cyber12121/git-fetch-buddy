@@ -326,9 +326,15 @@ export default function TaskmasterModule({
     setPomoPhase("focus");
     setPomoRound(1);
     let dur = next === "break" ? BREAK_SECS : next === "pomodoro" ? POMODORO_FOCUS_SECS : settings.focusMinutes * 60;
-    if (next === "focus" && activeTaskId) {
-      const t = tasks.find((x) => x.id === activeTaskId);
-      const mins = t?.estimatedMinutes;
+    if (next === "focus") {
+      let matched = activeTaskId ? tasks.find((x) => x.id === activeTaskId) : undefined;
+      if (!matched && activeTaskTitle) {
+        const parentTitle = activeTaskTitle.includes(" ➔ ")
+          ? activeTaskTitle.split(" ➔ ")[0].trim()
+          : activeTaskTitle.trim();
+        matched = tasks.find((x) => x.title.trim().toLowerCase() === parentTitle.toLowerCase());
+      }
+      const mins = matched?.estimatedMinutes;
       if (typeof mins === "number" && mins > 0) dur = mins * 60;
     }
     setDuration(dur);
