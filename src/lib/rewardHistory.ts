@@ -45,6 +45,15 @@ export function recordReward(kind: RewardKind, icon: string, message: string) {
   emit();
 }
 
+export function removeRewardByMessage(message: string) {
+  hydrate();
+  const idx = entries.findIndex((e) => e.message === message);
+  if (idx === -1) return;
+  entries = [...entries.slice(0, idx), ...entries.slice(idx + 1)];
+  writeJSON(KEY, entries);
+  emit();
+}
+
 export function getRewardHistory(): RewardEntry[] {
   hydrate();
   return entries;
