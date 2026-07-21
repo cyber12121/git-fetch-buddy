@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Task, SubTask } from "../../types";
 import { estimateTaskDuration, toLocalDateKey } from "../../lib/constants";
 import { breakdownTask } from "../../lib/goblin-api.functions";
+import { recordReward, removeRewardByMessage } from "../../lib/rewardHistory";
+
 
 type GubbyMood = "happy" | "thoughtful" | "focused" | "cozy" | "excited";
 
