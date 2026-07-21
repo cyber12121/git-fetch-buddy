@@ -23,8 +23,29 @@ export interface UserData {
   profile?: UserProfile;
 }
 
+/**
+ * Recursively strip `undefined` values. Firestore's setDoc rejects any
+ * undefined field with "Function setDoc() called with invalid data", which
+ * happens whenever an optional task field (googleEventId, scheduledDate,
+ * notes, …) is missing on some rows.
+ */
+function stripUndefined<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((v) => stripUndefined(v)) as unknown as T;
+  }
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      if (v === undefined) continue;
+      out[k] = stripUndefined(v);
+    }
+    return out as T;
+  }
+  return value;
+}
+
 function sanitize(d: Partial<UserData>): UserData {
-  return {
+  return stripUndefined({
     tasks: Array.isArray(d.tasks) ? (d.tasks as Task[]) : [],
     manualEvents: Array.isArray(d.manualEvents) ? (d.manualEvents as CalendarEvent[]) : [],
     habits: Array.isArray(d.habits) ? (d.habits as Habit[]) : [],
@@ -32,7 +53,7 @@ function sanitize(d: Partial<UserData>): UserData {
     xp: typeof d.xp === "number" && d.xp >= 0 ? d.xp : 0,
     updatedAt: typeof d.updatedAt === "number" ? d.updatedAt : Date.now(),
     profile: d.profile && typeof d.profile === "object" ? d.profile : undefined,
-  };
+  });
 }
 
 /** Load a user's saved data. Returns null if they have nothing stored yet. */
@@ -46,5 +67,5 @@ export async function loadUserData(uid: string): Promise<UserData | null> {
 /** Save (merge) a user's data. Throws on network/permission failure. */
 export async function saveUserData(uid: string, data: UserData): Promise<void> {
   const ref = doc(db, "users", uid);
-  await setDoc(ref, data, { merge: true });
+  await setDoc(ref, sanitize(data), { merge: true });
 }
