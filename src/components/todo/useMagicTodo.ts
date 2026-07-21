@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Task, SubTask } from "../../types";
 import { estimateTaskDuration, toLocalDateKey } from "../../lib/constants";
 import { breakdownTask } from "../../lib/goblin-api.functions";
+import { recordReward, removeRewardByMessage } from "../../lib/rewardHistory";
+
 
 type GubbyMood = "happy" | "thoughtful" | "focused" | "cozy" | "excited";
 
@@ -143,13 +145,18 @@ export function useMagicTodo({
     );
     onUpdateTask(taskId, { subtasks: updated });
     const newlyCompleted = updated.find(s => s.id === subtaskId)?.completed;
+    const subTitle = task.subtasks.find(s => s.id === subtaskId)?.title ?? "";
+    const rewardMsg = `Micro-step: ${subTitle}`;
     if (newlyCompleted) {
       onGubbyMessage("Yay! Micro-step completed! You are rolling!", "happy");
       onGainXp?.(3);
+      recordReward("achievement", "✨", rewardMsg);
     } else {
       onGainXp?.(-3);
+      removeRewardByMessage(rewardMsg);
     }
   }, [tasks, onUpdateTask, onGubbyMessage, onGainXp]);
+
 
   const handleDeleteSubtask = useCallback((taskId: string, subtaskId: string) => {
     const task = tasks.find(t => t.id === taskId);
