@@ -31,10 +31,11 @@ export function useXpSystem({ pushToast, onLevelUp }: Options) {
       const saved = Number(localStorage.getItem("goblin_xp") || "0");
       if (Number.isFinite(saved) && saved > 0) setXp(saved);
     } catch { /* ignore */ }
-    // Mark hydrated on the *next* tick so the level-effect that observes
-    // the hydrated value still sees hydratedRef=false and skips celebration.
-    queueMicrotask(() => { hydratedRef.current = true; });
+    // hydratedRef flips true only when a real live increment happens
+    // (addXp call). This prevents the level-up effect from firing on the
+    // hydration/cloud-merge XP jump after a page reload.
   }, []);
+
 
   const addXp = useCallback((amount: number) => {
     setXp((prev) => {
