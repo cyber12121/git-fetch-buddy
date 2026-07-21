@@ -38,8 +38,10 @@ export function useXpSystem({ pushToast, onLevelUp }: Options) {
 
 
   const addXp = useCallback((amount: number) => {
+    hydratedRef.current = true;
     setXp((prev) => {
       const next = Math.max(0, prev + amount);
+
       try { localStorage.setItem("goblin_xp", String(next)); } catch { /* ignore */ }
       if (amount > 0) {
         for (const m of XP_MILESTONES) {
