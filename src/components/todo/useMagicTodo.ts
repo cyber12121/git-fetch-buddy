@@ -145,13 +145,18 @@ export function useMagicTodo({
     );
     onUpdateTask(taskId, { subtasks: updated });
     const newlyCompleted = updated.find(s => s.id === subtaskId)?.completed;
+    const subTitle = task.subtasks.find(s => s.id === subtaskId)?.title ?? "";
+    const rewardMsg = `Micro-step: ${subTitle}`;
     if (newlyCompleted) {
       onGubbyMessage("Yay! Micro-step completed! You are rolling!", "happy");
       onGainXp?.(3);
+      recordReward("achievement", "✨", rewardMsg);
     } else {
       onGainXp?.(-3);
+      removeRewardByMessage(rewardMsg);
     }
   }, [tasks, onUpdateTask, onGubbyMessage, onGainXp]);
+
 
   const handleDeleteSubtask = useCallback((taskId: string, subtaskId: string) => {
     const task = tasks.find(t => t.id === taskId);
