@@ -26,7 +26,7 @@ interface Props {
  */
 function RightAsideImpl(p: Props) {
   const isFocus = p.activeTab === "taskmaster";
-  const isToday = p.activeTab === "today";
+  const isToday = p.activeTab === "daily";
   const isCompiler = p.activeTab === "compiler";
 
   return (
