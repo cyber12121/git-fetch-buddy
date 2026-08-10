@@ -201,8 +201,6 @@ export default function DailyPlannerModule({
 
   const nowHour = new Date().getHours();
 
-  const tasksRef = useRef(tasks);
-  tasksRef.current = tasks;
 
   // A task added straight into an hour block is created first, then given its
   // time. Creation may be async, so we retry until the new task shows up —
