@@ -210,15 +210,11 @@ export default function DailyPlannerModule({
     setAddingHour(null);
     if (!title) return;
     void Promise.resolve(onAddTask(title, "medium", undefined, date, 25)).then(() => {
-      window.setTimeout(() => {
-        const created = [...tasksRef.current]
-          .reverse()
-          .find((t) => t.title === title && t.scheduledDate === date && !t.scheduledTime);
-        if (created) void onUpdateTask(created.id, { scheduledTime: time });
-      }, 60);
+      setPending({ title, time, tries: 0 });
     });
     onGubbyMessage(`Blocked "${title}" at ${time}. One thing at a time 🌱`, "cozy");
   };
+
 
   const commitTrayAdd = () => {
     const title = trayDraft.trim();
