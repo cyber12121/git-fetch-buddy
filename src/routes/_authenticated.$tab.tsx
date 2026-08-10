@@ -1,8 +1,8 @@
-import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect, useNavigate } from "@tanstack/react-router";
 import App from "../App";
 import type { TabId } from "../components/app/ModuleRouter";
 
-const TABS = ["today", "compiler", "todo", "taskmaster", "calendar", "daily", "weekly", "habits"] as const;
+const TABS = ["daily", "compiler", "todo", "taskmaster", "calendar", "weekly", "habits"] as const;
 type Tab = (typeof TABS)[number];
 
 /**
@@ -11,10 +11,6 @@ type Tab = (typeof TABS)[number];
  * all inherited the root's "Momentum — Cozy Focus OS" metadata.
  */
 const TAB_META: Record<Tab, { title: string; description: string }> = {
-  today: {
-    title: "Today — Momentum",
-    description: "Your daily focus dashboard: quests, habits, and momentum for ADHD brains.",
-  },
   compiler: {
     title: "Brain Dump — Momentum",
     description: "De-clutter messy thoughts into ordered, actionable quests with Sprig.",
@@ -32,7 +28,7 @@ const TAB_META: Record<Tab, { title: string; description: string }> = {
     description: "Month view of quests, manual events, and Google Calendar sync.",
   },
   daily: {
-    title: "Daily Planner - Momentum",
+    title: "Today — Momentum",
     description: "Plan one day at a time with hour-by-hour ADHD time blocks and an unscheduled tray.",
   },
   weekly: {
@@ -55,10 +51,12 @@ export const Route = createFileRoute("/_authenticated/$tab")({
   // Reject unknown tab segments at match time so `/gibberish` renders the
   // shared 404 instead of a blank App shell.
   beforeLoad: ({ params }) => {
+    // The old Today dashboard was folded into the Daily planner.
+    if (params.tab === "today") throw redirect({ to: "/$tab", params: { tab: "daily" } });
     if (!isTab(params.tab)) throw notFound();
   },
   head: ({ params }) => {
-    const tab = isTab(params.tab) ? params.tab : "today";
+    const tab = isTab(params.tab) ? params.tab : "daily";
     const meta = TAB_META[tab];
     const url = `${BASE_URL}/${tab}`;
     return {
@@ -94,7 +92,7 @@ export const Route = createFileRoute("/_authenticated/$tab")({
 function TabPage() {
   const { tab } = Route.useParams();
   const navigate = useNavigate();
-  const activeTab = (isTab(tab) ? tab : "today") as TabId;
+  const activeTab = (isTab(tab) ? tab : "daily") as TabId;
   return (
     <App
       activeTab={activeTab}

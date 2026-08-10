@@ -26,7 +26,7 @@ export const Route = createFileRoute("/")({
 });
 
 const KNOWN_TABS = new Set([
-  "today",
+  "daily",
   "compiler",
   "todo",
   "taskmaster",
@@ -69,7 +69,7 @@ function Index() {
     );
   }
 
-  const target = legacyTab ?? "today";
+  const target = legacyTab ?? "daily";
 
   if (!user && !guest) {
     return <Navigate to="/auth" search={{ next: `/${target}` }} />;

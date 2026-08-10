@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Brain, Play, Calendar, CheckSquare, CalendarDays, CalendarClock, Repeat, Sparkles, Home } from "lucide-react";
+import { Brain, Play, Calendar, CheckSquare, CalendarDays, Repeat, Sparkles, Home } from "lucide-react";
 import SettingsPanel from "./SettingsPanel";
 import { useTheme } from "../lib/themes";
 
@@ -15,12 +15,11 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-  { id: "today", label: "Today", Icon: Home, msg: "One thing at a time. Here's your day at a glance.", mood: "cozy", group: "do" },
+  { id: "daily", label: "Today", Icon: Home, msg: "One day, one block at a time. Here's your plan.", mood: "focused", group: "do" },
   { id: "compiler", label: "Compiler", Icon: Brain, msg: "Dump all those messy thoughts here! Sprig will sweep and filter them.", mood: "thoughtful", group: "do" },
   { id: "todo", label: "To-Do", Icon: CheckSquare, msg: "Here are your active quests! Let's conquer them one micro-step at a time.", mood: "cozy", group: "do" },
   { id: "taskmaster", label: "Focus", Icon: Play, msg: "Welcome to the sensory-friendly Focus Timer! One thing at a time. No clutter.", mood: "focused", group: "do" },
   { id: "calendar", label: "Calendar", Icon: Calendar, msg: "Take a high-level look at your days! Plot tasks easily.", mood: "cozy", group: "plan" },
-  { id: "daily", label: "Daily", Icon: CalendarClock, msg: "One day, one block at a time.", mood: "focused", group: "plan" },
   { id: "weekly", label: "Weekly", Icon: CalendarDays, msg: "Let's map out your week!", mood: "cozy", group: "plan" },
   { id: "habits", label: "Habits", Icon: Repeat, msg: "Build tiny daily chains! Even a 1-day streak is a win 🌱", mood: "happy", group: "plan" },
 ];
