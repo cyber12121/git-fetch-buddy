@@ -178,7 +178,9 @@ export default function DailyPlannerModule({
   const unscheduled = useMemo(() => dayTasks.filter((t) => !t.scheduledTime), [dayTasks]);
   const dayEvents = useMemo(() => manualEvents.filter((e) => e.date === date), [manualEvents, date]);
 
-  const missions = useMemo(() => dayTasks.slice(0, 3), [dayTasks]);
+  // Missions are the day's *unscheduled* tasks — anything painted into an hour
+  // block lives in the timeline instead, so it never shows up in both places.
+  const missions = useMemo(() => unscheduled.slice(0, 3), [unscheduled]);
   const done = dayTasks.filter((t) => t.completed).length;
 
   // Day score: one thing (40) + missions (40) + energy logged (20).
@@ -199,8 +201,30 @@ export default function DailyPlannerModule({
 
   const nowHour = new Date().getHours();
 
-  const tasksRef = useRef(tasks);
-  tasksRef.current = tasks;
+
+  // A task added straight into an hour block is created first, then given its
+  // time. Creation may be async, so we retry until the new task shows up —
+  // otherwise it stays unscheduled and pops out in the missions list instead.
+  const [pending, setPending] = useState<{ title: string; time: string; tries: number } | null>(null);
+
+  useEffect(() => {
+    if (!pending) return;
+    const match = [...tasks]
+      .reverse()
+      .find((t) => t.title === pending.title && t.scheduledDate === date && !t.scheduledTime);
+    if (match) {
+      setPending(null);
+      void onUpdateTask(match.id, { scheduledTime: pending.time });
+      return;
+    }
+    if (pending.tries > 20) {
+      setPending(null);
+      return;
+    }
+    const id = window.setTimeout(() => setPending((p) => (p ? { ...p, tries: p.tries + 1 } : p)), 100);
+    return () => window.clearTimeout(id);
+  }, [pending, tasks, date, onUpdateTask]);
+
 
   const commitHourAdd = (time: string) => {
     const title = draft.trim();
@@ -208,15 +232,11 @@ export default function DailyPlannerModule({
     setAddingHour(null);
     if (!title) return;
     void Promise.resolve(onAddTask(title, "medium", undefined, date, 25)).then(() => {
-      window.setTimeout(() => {
-        const created = [...tasksRef.current]
-          .reverse()
-          .find((t) => t.title === title && t.scheduledDate === date && !t.scheduledTime);
-        if (created) void onUpdateTask(created.id, { scheduledTime: time });
-      }, 60);
+      setPending({ title, time, tries: 0 });
     });
     onGubbyMessage(`Blocked "${title}" at ${time}. One thing at a time 🌱`, "cozy");
   };
+
 
   const commitTrayAdd = () => {
     const title = trayDraft.trim();
