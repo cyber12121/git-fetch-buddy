@@ -204,6 +204,30 @@ export default function DailyPlannerModule({
   const tasksRef = useRef(tasks);
   tasksRef.current = tasks;
 
+  // A task added straight into an hour block is created first, then given its
+  // time. Creation may be async, so we retry until the new task shows up —
+  // otherwise it stays unscheduled and pops out in the missions list instead.
+  const [pending, setPending] = useState<{ title: string; time: string; tries: number } | null>(null);
+
+  useEffect(() => {
+    if (!pending) return;
+    const match = [...tasks]
+      .reverse()
+      .find((t) => t.title === pending.title && t.scheduledDate === date && !t.scheduledTime);
+    if (match) {
+      setPending(null);
+      void onUpdateTask(match.id, { scheduledTime: pending.time });
+      return;
+    }
+    if (pending.tries > 20) {
+      setPending(null);
+      return;
+    }
+    const id = window.setTimeout(() => setPending((p) => (p ? { ...p, tries: p.tries + 1 } : p)), 100);
+    return () => window.clearTimeout(id);
+  }, [pending, tasks, date, onUpdateTask]);
+
+
   const commitHourAdd = (time: string) => {
     const title = draft.trim();
     setDraft("");
