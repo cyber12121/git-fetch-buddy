@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 
-export type ThemeId = "cozy-goblin" | "kinetic-dark" | "focus-paper" | "dopamine-arcade" | "sky-peach" | "quiet-mono";
+export type ThemeId = "cozy-goblin" | "kinetic-dark" | "quiet-mono";
 
 export interface ThemeDef {
   id: ThemeId;
@@ -118,164 +118,8 @@ const KINETIC: ThemeDef = {
   },
 };
 
-// Focus Paper — minimalist ADHD focus theme. Near-monochrome paper canvas,
-// deep ink text for maximum contrast, one calm blue accent for focus cues,
-// and a neutral system font stack to reduce visual noise.
-const FOCUS: ThemeDef = {
-  id: "focus-paper",
-  name: "Focus Paper",
-  description: "Minimal, low-stimulation, one calm accent.",
-  swatches: ["#F7F7F5", "#111111", "#2563EB", "#E5E5E2"],
-  fontSans: "'Inter', system-ui, -apple-system, sans-serif",
-  fontDisplay: "'Inter', system-ui, -apple-system, sans-serif",
-  fontMono: "ui-monospace, SFMono-Regular, Menlo, monospace",
-  vars: {
-    "--background": "#F7F7F5",
-    "--foreground": "#111111",
-    "--card": "#FFFFFF",
-    "--card-foreground": "#111111",
-    "--popover": "#FFFFFF",
-    "--popover-foreground": "#111111",
-    "--primary": "#2563EB",
-    "--primary-foreground": "#FFFFFF",
-    "--secondary": "#EFEFEC",
-    "--secondary-foreground": "#111111",
-    "--muted": "#EFEFEC",
-    "--muted-foreground": "#5A5A57",
-    "--accent": "#E8EEFB",
-    "--accent-foreground": "#1E40AF",
-    "--destructive": "#B91C1C",
-    "--destructive-foreground": "#FFFFFF",
-    "--border": "#E5E5E2",
-    "--input": "#E5E5E2",
-    "--ring": "#2563EB",
 
-    "--color-canvas": "#F7F7F5",
-    "--color-surface": "#FFFFFF",
-    "--color-surface-sunken": "#F0F0ED",
-    "--color-surface-raised": "#FFFFFF",
-    "--color-surface-raised2": "#EFEFEC",
-    "--color-surface-disabled": "#E5E5E2",
-    "--color-ink": "#111111",
-    "--color-ink-2": "#1F1F1F",
-    "--color-ink-muted": "#5A5A57",
-    "--color-edge": "#E5E5E2",
-    "--color-edge-soft": "#EFEFEC",
-    "--color-edge-strong": "#CFCFCB",
-    "--color-brand": "#2563EB",
-    "--color-brand-hover": "#1D4ED8",
-    "--color-brand-soft": "#E8EEFB",
 
-    "--theme-glow": "0 0 0 rgba(0,0,0,0)",
-    "color-scheme": "light",
-  },
-};
-
-// Dopamine Arcade — high-contrast, saturated, playful. Built for ADHD brains
-// that want the reward loop to *feel* electric: black-violet canvas, hot
-// magenta primary, electric cyan accent, sunshine highlight. Big glows.
-const ARCADE: ThemeDef = {
-  id: "dopamine-arcade",
-  name: "Dopamine Arcade",
-  description: "High-contrast neon — every win feels like a jackpot.",
-  swatches: ["#0a0514", "#ff2d75", "#22d3ee", "#fde047"],
-  fontSans: "'Space Grotesk', 'DM Sans', system-ui, sans-serif",
-  fontDisplay: "'Space Grotesk', 'DM Sans', system-ui, sans-serif",
-  fontMono: "'JetBrains Mono', ui-monospace, Menlo, monospace",
-  vars: {
-    "--background": "#0a0514",
-    "--foreground": "#fef6ff",
-    "--card": "#150a24",
-    "--card-foreground": "#fef6ff",
-    "--popover": "#150a24",
-    "--popover-foreground": "#fef6ff",
-    "--primary": "#ff2d75",
-    "--primary-foreground": "#0a0514",
-    "--secondary": "#1a0f2e",
-    "--secondary-foreground": "#fef6ff",
-    "--muted": "#1a0f2e",
-    "--muted-foreground": "#b8a5d4",
-    "--accent": "#22d3ee",
-    "--accent-foreground": "#0a0514",
-    "--destructive": "#f43f5e",
-    "--destructive-foreground": "#0a0514",
-    "--border": "rgba(255,45,117,0.20)",
-    "--input": "rgba(255,255,255,0.10)",
-    "--ring": "#ff2d75",
-
-    "--color-canvas": "#0a0514",
-    "--color-surface": "#150a24",
-    "--color-surface-sunken": "#0f0720",
-    "--color-surface-raised": "#1f1236",
-    "--color-surface-raised2": "#261645",
-    "--color-surface-disabled": "#1a0f2e",
-    "--color-ink": "#fef6ff",
-    "--color-ink-2": "#f0e0ff",
-    "--color-ink-muted": "#b8a5d4",
-    "--color-edge": "rgba(255,45,117,0.20)",
-    "--color-edge-soft": "rgba(255,255,255,0.06)",
-    "--color-edge-strong": "rgba(34,211,238,0.35)",
-    "--color-brand": "#ff2d75",
-    "--color-brand-hover": "#ff5a92",
-    "--color-brand-soft": "rgba(255,45,117,0.18)",
-
-    "--theme-glow": "0 0 40px rgba(255,45,117,0.45)",
-    "color-scheme": "dark",
-  },
-};
-
-// Sky & Peach — soft sky-blue canvas with a warm peach-orange accent.
-// Modern Tech pairing: Space Grotesk display, DM Sans body. Airy, roomy,
-// gentle contrast — designed to feel like an open window on a clear morning.
-const SKY_PEACH: ThemeDef = {
-  id: "sky-peach",
-  name: "Sky & Peach",
-  description: "Airy sky blue with a warm peach-orange accent.",
-  swatches: ["#f0f9ff", "#e0f2fe", "#FB923C", "#0c4a6e"],
-  fontSans: "'DM Sans', system-ui, -apple-system, sans-serif",
-  fontDisplay: "'Space Grotesk', 'DM Sans', system-ui, sans-serif",
-  fontMono: "'JetBrains Mono', ui-monospace, Menlo, monospace",
-  vars: {
-    "--background": "#f0f9ff",
-    "--foreground": "#0c4a6e",
-    "--card": "#ffffff",
-    "--card-foreground": "#0c4a6e",
-    "--popover": "#ffffff",
-    "--popover-foreground": "#0c4a6e",
-    "--primary": "#FB923C",
-    "--primary-foreground": "#ffffff",
-    "--secondary": "#e0f2fe",
-    "--secondary-foreground": "#0c4a6e",
-    "--muted": "#e0f2fe",
-    "--muted-foreground": "#0369a1",
-    "--accent": "#F97316",
-    "--accent-foreground": "#ffffff",
-    "--destructive": "#dc2626",
-    "--destructive-foreground": "#ffffff",
-    "--border": "#bae6fd",
-    "--input": "#bae6fd",
-    "--ring": "#FB923C",
-
-    "--color-canvas": "#f0f9ff",
-    "--color-surface": "#ffffff",
-    "--color-surface-sunken": "#e0f2fe",
-    "--color-surface-raised": "#ffffff",
-    "--color-surface-raised2": "#f0f9ff",
-    "--color-surface-disabled": "#e0f2fe",
-    "--color-ink": "#0c4a6e",
-    "--color-ink-2": "#075985",
-    "--color-ink-muted": "#0369a1",
-    "--color-edge": "#bae6fd",
-    "--color-edge-soft": "#e0f2fe",
-    "--color-edge-strong": "#7dd3fc",
-    "--color-brand": "#FB923C",
-    "--color-brand-hover": "#F97316",
-    "--color-brand-soft": "#ffedd5",
-
-    "--theme-glow": "0 12px 40px -12px rgba(251,146,60,0.35)",
-    "color-scheme": "light",
-  },
-};
 
 // Quiet Mono — pure minimalist theme, engineered against ADHD visual overload.
 // Research-backed choices: warm off-white (not pure #FFF) to cut screen glare,
@@ -333,19 +177,16 @@ const QUIET_MONO: ThemeDef = {
   },
 };
 
-export const THEMES: ThemeDef[] = [COZY, SKY_PEACH, KINETIC, FOCUS, ARCADE, QUIET_MONO];
+export const THEMES: ThemeDef[] = [COZY, KINETIC, QUIET_MONO];
 export const THEME_MAP: Record<ThemeId, ThemeDef> = {
   "cozy-goblin": COZY,
   "kinetic-dark": KINETIC,
-  "focus-paper": FOCUS,
-  "dopamine-arcade": ARCADE,
-  "sky-peach": SKY_PEACH,
   "quiet-mono": QUIET_MONO,
 };
 
 const STORAGE_KEY = "goblin_theme";
 const DEFAULT: ThemeId = "cozy-goblin";
-const VALID_IDS: ThemeId[] = ["cozy-goblin", "kinetic-dark", "focus-paper", "dopamine-arcade", "sky-peach", "quiet-mono"];
+const VALID_IDS: ThemeId[] = ["cozy-goblin", "kinetic-dark", "quiet-mono"];
 
 export function readStoredTheme(): ThemeId {
   if (typeof window === "undefined") return DEFAULT;
@@ -375,7 +216,7 @@ export function applyTheme(id: ThemeId) {
   }
   root.dataset.theme = id;
   // Toggle Tailwind's `dark` variant so any `dark:` utilities behave correctly.
-  if (id === "kinetic-dark" || id === "dopamine-arcade") root.classList.add("dark");
+  if (id === "kinetic-dark") root.classList.add("dark");
   else root.classList.remove("dark");
   try { window.localStorage.setItem(STORAGE_KEY, id); } catch { /* ignore */ }
   window.dispatchEvent(new CustomEvent("goblin:theme-change", { detail: id }));
