@@ -1,4 +1,4 @@
-import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect, useNavigate } from "@tanstack/react-router";
 import App from "../App";
 import type { TabId } from "../components/app/ModuleRouter";
 
@@ -51,6 +51,8 @@ export const Route = createFileRoute("/_authenticated/$tab")({
   // Reject unknown tab segments at match time so `/gibberish` renders the
   // shared 404 instead of a blank App shell.
   beforeLoad: ({ params }) => {
+    // The old Today dashboard was folded into the Daily planner.
+    if (params.tab === "today") throw redirect({ to: "/$tab", params: { tab: "daily" } });
     if (!isTab(params.tab)) throw notFound();
   },
   head: ({ params }) => {

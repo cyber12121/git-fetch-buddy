@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Brain, Play, Calendar, CheckSquare, CalendarDays, CalendarClock, Repeat, Sparkles, Home } from "lucide-react";
+import { Brain, Play, Calendar, CheckSquare, CalendarDays, Repeat, Sparkles, Home } from "lucide-react";
 import SettingsPanel from "./SettingsPanel";
 import { useTheme } from "../lib/themes";
 
