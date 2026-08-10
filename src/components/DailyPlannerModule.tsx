@@ -178,7 +178,9 @@ export default function DailyPlannerModule({
   const unscheduled = useMemo(() => dayTasks.filter((t) => !t.scheduledTime), [dayTasks]);
   const dayEvents = useMemo(() => manualEvents.filter((e) => e.date === date), [manualEvents, date]);
 
-  const missions = useMemo(() => dayTasks.slice(0, 3), [dayTasks]);
+  // Missions are the day's *unscheduled* tasks — anything painted into an hour
+  // block lives in the timeline instead, so it never shows up in both places.
+  const missions = useMemo(() => unscheduled.slice(0, 3), [unscheduled]);
   const done = dayTasks.filter((t) => t.completed).length;
 
   // Day score: one thing (40) + missions (40) + energy logged (20).
