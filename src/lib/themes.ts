@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 
-export type ThemeId = "cozy-goblin" | "kinetic-dark" | "quiet-mono";
+export type ThemeId = "cozy-goblin" | "kinetic-dark" | "neon-dark";
 
 export interface ThemeDef {
   id: ThemeId;
@@ -121,72 +121,69 @@ const KINETIC: ThemeDef = {
 
 
 
-// Quiet Mono — pure minimalist theme, engineered against ADHD visual overload.
-// Research-backed choices: warm off-white (not pure #FFF) to cut screen glare,
-// soft charcoal ink (not #000) to reduce contrast fatigue, ONE muted sage
-// accent used sparingly, hairline borders, zero glows/shadows, and a calm
-// humanist serif for headings paired with a neutral sans for body. No color
-// on non-essential elements — the eye lands only where action is required.
-const QUIET_MONO: ThemeDef = {
-  id: "quiet-mono",
-  name: "Quiet Mono",
-  description: "Pure minimalist. Warm paper, soft ink, one sage cue. Built to prevent overload.",
-  swatches: ["#FAFAF7", "#2A2A28", "#7C8B6F", "#EAEAE5"],
-  fontSans: "'Inter', system-ui, -apple-system, sans-serif",
-  fontDisplay: "'Newsreader', 'Cormorant Garamond', Georgia, serif",
-  fontMono: "'IBM Plex Mono', ui-monospace, Menlo, monospace",
+
+// Neon Dark — near-black canvas with electric cyan + magenta edge lighting.
+// Cyberpunk terminal energy: inky surfaces, luminous hairlines, glowing brand.
+const NEON: ThemeDef = {
+  id: "neon-dark",
+  name: "Neon Dark",
+  description: "Inky black with electric cyan and magenta glow.",
+  swatches: ["#05060a", "#00E5FF", "#FF2E9A", "#B4FF39"],
+  fontSans: "'Space Grotesk', 'DM Sans', system-ui, sans-serif",
+  fontDisplay: "'Space Grotesk', 'DM Sans', system-ui, sans-serif",
+  fontMono: "'JetBrains Mono', ui-monospace, Menlo, monospace",
   vars: {
-    "--background": "#FAFAF7",
-    "--foreground": "#2A2A28",
-    "--card": "#FFFFFF",
-    "--card-foreground": "#2A2A28",
-    "--popover": "#FFFFFF",
-    "--popover-foreground": "#2A2A28",
-    "--primary": "#2A2A28",
-    "--primary-foreground": "#FAFAF7",
-    "--secondary": "#F1F1EC",
-    "--secondary-foreground": "#2A2A28",
-    "--muted": "#F1F1EC",
-    "--muted-foreground": "#6B6B66",
-    "--accent": "#7C8B6F",
-    "--accent-foreground": "#FAFAF7",
-    "--destructive": "#8A3A2E",
-    "--destructive-foreground": "#FAFAF7",
-    "--border": "#EAEAE5",
-    "--input": "#EAEAE5",
-    "--ring": "#7C8B6F",
+    "--background": "#05060a",
+    "--foreground": "#E6FBFF",
+    "--card": "#0b0e16",
+    "--card-foreground": "#E6FBFF",
+    "--popover": "#0b0e16",
+    "--popover-foreground": "#E6FBFF",
+    "--primary": "#00E5FF",
+    "--primary-foreground": "#03060a",
+    "--secondary": "#131826",
+    "--secondary-foreground": "#E6FBFF",
+    "--muted": "#101521",
+    "--muted-foreground": "#7C8DA6",
+    "--accent": "#FF2E9A",
+    "--accent-foreground": "#05060a",
+    "--destructive": "#FF3B6B",
+    "--destructive-foreground": "#05060a",
+    "--border": "rgba(0,229,255,0.16)",
+    "--input": "rgba(0,229,255,0.22)",
+    "--ring": "#00E5FF",
 
-    "--color-canvas": "#FAFAF7",
-    "--color-surface": "#FFFFFF",
-    "--color-surface-sunken": "#F4F4EF",
-    "--color-surface-raised": "#FFFFFF",
-    "--color-surface-raised2": "#F1F1EC",
-    "--color-surface-disabled": "#EAEAE5",
-    "--color-ink": "#2A2A28",
-    "--color-ink-2": "#3A3A36",
-    "--color-ink-muted": "#6B6B66",
-    "--color-edge": "#EAEAE5",
-    "--color-edge-soft": "#F1F1EC",
-    "--color-edge-strong": "#D6D6D0",
-    "--color-brand": "#7C8B6F",
-    "--color-brand-hover": "#6A7A5D",
-    "--color-brand-soft": "#E8ECE2",
+    "--color-canvas": "#05060a",
+    "--color-surface": "#0b0e16",
+    "--color-surface-sunken": "#080a11",
+    "--color-surface-raised": "#131826",
+    "--color-surface-raised2": "#101521",
+    "--color-surface-disabled": "#101521",
+    "--color-ink": "#E6FBFF",
+    "--color-ink-2": "#C7E9F5",
+    "--color-ink-muted": "#7C8DA6",
+    "--color-edge": "rgba(0,229,255,0.16)",
+    "--color-edge-soft": "rgba(0,229,255,0.08)",
+    "--color-edge-strong": "rgba(255,46,154,0.35)",
+    "--color-brand": "#00E5FF",
+    "--color-brand-hover": "#5CF2FF",
+    "--color-brand-soft": "rgba(0,229,255,0.18)",
 
-    "--theme-glow": "0 0 0 rgba(0,0,0,0)",
-    "color-scheme": "light",
+    "--theme-glow": "0 0 34px rgba(0,229,255,0.40)",
+    "color-scheme": "dark",
   },
 };
 
-export const THEMES: ThemeDef[] = [COZY, KINETIC, QUIET_MONO];
+export const THEMES: ThemeDef[] = [COZY, KINETIC, NEON];
 export const THEME_MAP: Record<ThemeId, ThemeDef> = {
   "cozy-goblin": COZY,
   "kinetic-dark": KINETIC,
-  "quiet-mono": QUIET_MONO,
+  "neon-dark": NEON,
 };
 
 const STORAGE_KEY = "goblin_theme";
 const DEFAULT: ThemeId = "cozy-goblin";
-const VALID_IDS: ThemeId[] = ["cozy-goblin", "kinetic-dark", "quiet-mono"];
+const VALID_IDS: ThemeId[] = ["cozy-goblin", "kinetic-dark", "neon-dark"];
 
 export function readStoredTheme(): ThemeId {
   if (typeof window === "undefined") return DEFAULT;
@@ -216,7 +213,7 @@ export function applyTheme(id: ThemeId) {
   }
   root.dataset.theme = id;
   // Toggle Tailwind's `dark` variant so any `dark:` utilities behave correctly.
-  if (id === "kinetic-dark") root.classList.add("dark");
+  if (id === "kinetic-dark" || id === "neon-dark") root.classList.add("dark");
   else root.classList.remove("dark");
   try { window.localStorage.setItem(STORAGE_KEY, id); } catch { /* ignore */ }
   window.dispatchEvent(new CustomEvent("goblin:theme-change", { detail: id }));
