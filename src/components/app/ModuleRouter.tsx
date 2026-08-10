@@ -13,8 +13,9 @@ const CalendarModule = lazy(() => import("../CalendarModule"));
 const WeeklyPlannerModule = lazy(() => import("../WeeklyPlannerModule"));
 const HabitTrackerModule = lazy(() => import("../HabitTrackerModule"));
 const TodayModule = lazy(() => import("../TodayModule"));
+const DailyPlannerModule = lazy(() => import("../DailyPlannerModule"));
 
-export type TabId = "today" | "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits";
+export type TabId = "today" | "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits" | "daily";
 
 type GubbyMood = "happy" | "thoughtful" | "focused" | "cozy" | "excited";
 
@@ -155,6 +156,21 @@ function ModuleRouterImpl(p: ModuleRouterProps) {
               />
             )}
 
+            {p.activeTab === "daily" && (
+              <DailyPlannerModule
+                tasks={p.tasks}
+                manualEvents={p.manualEvents}
+                selectedDate={p.selectedDate}
+                onSelectDate={p.onSelectDate}
+                onAddTask={p.onAddTask}
+                onUpdateTask={p.onUpdateTask}
+                onToggleTask={p.onToggleTask}
+                onDeleteTask={p.onDeleteTask}
+                onFocusTask={p.onFocusTask}
+                onGubbyMessage={p.onGubbyMessage}
+              />
+            )}
+
             {p.activeTab === "weekly" && (
               <WeeklyPlannerModule
                 tasks={p.tasks}
@@ -196,6 +212,7 @@ export const MODULE_PREFETCH: Record<string, () => Promise<unknown>> = {
   todo: () => import("../MagicTodoModule"),
   taskmaster: () => import("../TaskmasterModule"),
   calendar: () => import("../CalendarModule"),
+  daily: () => import("../DailyPlannerModule"),
   weekly: () => import("../WeeklyPlannerModule"),
   habits: () => import("../HabitTrackerModule"),
 };

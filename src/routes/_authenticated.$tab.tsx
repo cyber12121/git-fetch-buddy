@@ -2,7 +2,7 @@ import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import App from "../App";
 import type { TabId } from "../components/app/ModuleRouter";
 
-const TABS = ["today", "compiler", "todo", "taskmaster", "calendar", "weekly", "habits"] as const;
+const TABS = ["today", "compiler", "todo", "taskmaster", "calendar", "daily", "weekly", "habits"] as const;
 type Tab = (typeof TABS)[number];
 
 /**
@@ -30,6 +30,10 @@ const TAB_META: Record<Tab, { title: string; description: string }> = {
   calendar: {
     title: "Calendar — Momentum",
     description: "Month view of quests, manual events, and Google Calendar sync.",
+  },
+  daily: {
+    title: "Daily Planner - Momentum",
+    description: "Plan one day at a time with hour-by-hour ADHD time blocks and an unscheduled tray.",
   },
   weekly: {
     title: "Weekly Planner — Momentum",
@@ -79,7 +83,7 @@ export const Route = createFileRoute("/_authenticated/$tab")({
         <div className="text-3xl mb-2" aria-hidden="true">🍄</div>
         <h1 className="text-lg font-bold text-ink mb-1">Unknown workspace</h1>
         <p className="text-sm text-ink-muted">
-          That tab doesn't exist. Try Today, Quests, Focus, Calendar, Weekly, Habits, or Brain Dump.
+          That tab doesn't exist. Try Today, Quests, Focus, Calendar, Daily, Weekly, Habits, or Brain Dump.
         </p>
       </div>
     </main>

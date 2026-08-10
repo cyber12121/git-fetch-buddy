@@ -1,4 +1,4 @@
-import { Brain, Play, Calendar, CheckSquare, CalendarDays, Repeat, Info, Home } from "lucide-react";
+import { Brain, Play, Calendar, CheckSquare, CalendarDays, CalendarClock, Repeat, Info, Home } from "lucide-react";
 
 type GubbyMood = "happy" | "thoughtful" | "focused" | "cozy" | "excited";
 
@@ -17,6 +17,7 @@ const TABS: TabDef[] = [
   { id: "todo", label: "Quest Log", Icon: CheckSquare, msg: "Here are your active quests!", mood: "cozy", group: "do" },
   { id: "taskmaster", label: "Focus Timer", Icon: Play, msg: "One thing at a time. No clutter.", mood: "focused", group: "do" },
   { id: "calendar", label: "Calendar", Icon: Calendar, msg: "Plot your days.", mood: "cozy", group: "plan" },
+  { id: "daily", label: "Daily Planner", Icon: CalendarClock, msg: "One day, one block at a time.", mood: "focused", group: "plan" },
   { id: "weekly", label: "Weekly", Icon: CalendarDays, msg: "Let's map out your week!", mood: "cozy", group: "plan" },
   { id: "habits", label: "Habits", Icon: Repeat, msg: "Build tiny daily chains 🌱", mood: "happy", group: "plan" },
 ];
