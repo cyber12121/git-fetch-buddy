@@ -374,9 +374,11 @@ export default function DailyPlannerModule({
           />
         </div>
       </section>
+      </div>
 
       {/* Top 3 missions */}
-      <section className="py-5 border-t border-edge">
+      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow">
+
         <div className="flex items-center justify-between mb-3">
           <p className={`text-[10px] text-ink-muted ${mono}`}>// Top 3 missions</p>
           <span className={`text-[10px] text-ink-muted ${mono}`}>
