@@ -430,7 +430,7 @@ export default function DailyPlannerModule({
       </section>
 
       {/* Time blocks */}
-      <section className="py-5 border-t border-edge">
+      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow">
         <div className="flex items-center justify-between mb-3">
           <p className={`text-[10px] text-ink-muted ${mono}`}>// Time blocks</p>
           {Object.keys(meta.blocks).length > 0 && (
@@ -609,7 +609,7 @@ export default function DailyPlannerModule({
       </section>
 
       {/* Unscheduled tray */}
-      <section className="py-5 border-t border-edge">
+      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow">
         <p className={`text-[10px] text-ink-muted ${mono} mb-3`}>// Not yet blocked</p>
         <div
           onDragOver={(e) => e.preventDefault()}
