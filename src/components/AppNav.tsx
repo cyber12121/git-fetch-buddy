@@ -157,7 +157,7 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
 
-        <ul className="grid grid-cols-6">
+        <ul className="grid grid-cols-7">
           {TABS.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
