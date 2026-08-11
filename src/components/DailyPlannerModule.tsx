@@ -266,10 +266,11 @@ export default function DailyPlannerModule({
   const mono = "font-mono tracking-[0.16em] uppercase";
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-5xl mx-auto space-y-4">
       {/* Header */}
-      <header className="mb-6">
+      <header className="rounded-3xl border border-edge bg-surface p-5 sm:p-6 card-shadow">
         <div className="h-[3px] rounded-full bg-surface-sunken overflow-hidden mb-4">
+
           <div
             className="h-full bg-brand transition-[width] duration-500"
             style={{ width: `${score}%` }}
