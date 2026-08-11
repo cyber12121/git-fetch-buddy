@@ -266,10 +266,11 @@ export default function DailyPlannerModule({
   const mono = "font-mono tracking-[0.16em] uppercase";
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-5xl mx-auto space-y-4">
       {/* Header */}
-      <header className="mb-6">
+      <header className="rounded-3xl border border-edge bg-surface p-5 sm:p-6 card-shadow">
         <div className="h-[3px] rounded-full bg-surface-sunken overflow-hidden mb-4">
+
           <div
             className="h-full bg-brand transition-[width] duration-500"
             style={{ width: `${score}%` }}
@@ -317,8 +318,10 @@ export default function DailyPlannerModule({
         </div>
       </header>
 
+      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
       {/* Energy */}
-      <section className="py-5 border-t border-edge">
+      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow">
+
         <p className={`text-[10px] text-ink-muted ${mono} mb-3`}>// Energy level</p>
         <div className="flex flex-wrap gap-2">
           {ENERGY.map((e) => {
@@ -345,7 +348,8 @@ export default function DailyPlannerModule({
       </section>
 
       {/* One thing */}
-      <section className="py-5 border-t border-edge">
+      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow">
+
         <p className={`text-[10px] text-ink-muted ${mono} mb-3`}>// Non-negotiable</p>
         <div className="flex items-center gap-3">
           <button
@@ -370,9 +374,11 @@ export default function DailyPlannerModule({
           />
         </div>
       </section>
+      </div>
 
       {/* Top 3 missions */}
-      <section className="py-5 border-t border-edge">
+      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow">
+
         <div className="flex items-center justify-between mb-3">
           <p className={`text-[10px] text-ink-muted ${mono}`}>// Top 3 missions</p>
           <span className={`text-[10px] text-ink-muted ${mono}`}>
@@ -424,7 +430,7 @@ export default function DailyPlannerModule({
       </section>
 
       {/* Time blocks */}
-      <section className="py-5 border-t border-edge">
+      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow">
         <div className="flex items-center justify-between mb-3">
           <p className={`text-[10px] text-ink-muted ${mono}`}>// Time blocks</p>
           {Object.keys(meta.blocks).length > 0 && (
@@ -603,7 +609,7 @@ export default function DailyPlannerModule({
       </section>
 
       {/* Unscheduled tray */}
-      <section className="py-5 border-t border-edge">
+      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow">
         <p className={`text-[10px] text-ink-muted ${mono} mb-3`}>// Not yet blocked</p>
         <div
           onDragOver={(e) => e.preventDefault()}
@@ -662,7 +668,7 @@ export default function DailyPlannerModule({
       </section>
 
       {/* Reflection */}
-      <section className="py-5 border-t border-edge grid sm:grid-cols-2 gap-5">
+      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow grid sm:grid-cols-2 gap-5">
         <div>
           <p className={`text-[10px] text-brand ${mono} mb-2`}>Win of the day</p>
           <input

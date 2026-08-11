@@ -142,7 +142,7 @@ export default function App({ activeTab, onNavigate }: AppProps) {
   const showGubbyAgain = useCallback(() => gubby.updateGubbyHidden(false), [gubby]);
 
   // ── Layout decisions ─────────────────────────────────────────────────
-  const isWide = activeTab === "weekly" || activeTab === "calendar" || activeTab === "habits";
+  const isWide = activeTab === "weekly" || activeTab === "calendar" || activeTab === "habits" || activeTab === "daily";
   const rootBgClass = activeTab === "weekly" || activeTab === "calendar"
     ? "bg-canvas text-ink pb-20 md:pb-0"
     : "bg-canvas text-ink-2 pb-24 md:pb-16";
