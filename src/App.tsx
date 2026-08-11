@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import GubbyCompanion from "./components/GubbyCompanion";
 import AppNav from "./components/AppNav";
-import SideNav from "./components/SideNav";
 import AppStatusBar from "./components/AppStatusBar";
 
 import ModuleRouter, { MODULE_PREFETCH, type TabId } from "./components/app/ModuleRouter";
@@ -142,16 +141,17 @@ export default function App({ activeTab, onNavigate }: AppProps) {
   const showGubbyAgain = useCallback(() => gubby.updateGubbyHidden(false), [gubby]);
 
   // ── Layout decisions ─────────────────────────────────────────────────
-  const isWide = activeTab === "weekly" || activeTab === "calendar" || activeTab === "habits" || activeTab === "daily";
+  const isFullWidth = activeTab === "weekly" || activeTab === "calendar" || activeTab === "habits" || activeTab === "daily";
+  const hasRightAside = activeTab === "compiler" || activeTab === "todo" || activeTab === "taskmaster";
   const rootBgClass = activeTab === "weekly" || activeTab === "calendar"
     ? "bg-canvas text-ink pb-20 md:pb-0"
     : "bg-canvas text-ink-2 pb-24 md:pb-16";
-  const containerClass = isWide
-    ? (activeTab === "weekly" ? "p-0" : "max-w-[1400px] mx-auto px-4 mt-6")
+  const containerClass = activeTab === "weekly"
+    ? "p-0"
     : "max-w-[1400px] mx-auto px-4 mt-6";
-  const gridClass = isWide
+  const gridClass = isFullWidth
     ? "block"
-    : "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)_20rem] lg:gap-6 lg:items-start";
+    : "lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-6 lg:items-start";
 
   return (
     <div
@@ -168,24 +168,13 @@ export default function App({ activeTab, onNavigate }: AppProps) {
 
       <div className={`flex-1 w-full ${containerClass}`}>
         <div className={gridClass}>
-          {/* LEFT: sidebar (desktop, do-tabs only) */}
-          {!isWide && (
-            <SideNav
-              activeTab={activeTab}
-              onTabChange={(tab) => setActiveTab(tab as TabId)}
-              onGubbyMessage={gubby.triggerGubbySpeak}
-              onPrefetchTab={handlePrefetchTab}
-              taskCount={data.tasks.filter((t) => !t.completed).length}
-            />
-          )}
-
           {/* CENTER: active module */}
           <main
             ref={mainRef}
             id="tabpanel-main"
             tabIndex={-1}
             aria-live="polite"
-            className={`min-w-0 outline-none scroll-mt-24 ${isWide ? "w-full" : ""}`}
+            className={`min-w-0 outline-none scroll-mt-24 ${isFullWidth ? "w-full" : ""}`}
           >
             <ModuleRouter
               activeTab={activeTab}
@@ -227,7 +216,7 @@ export default function App({ activeTab, onNavigate }: AppProps) {
           </main>
 
           {/* RIGHT: Sprig + Today's Quests + rewards (desktop, do-tabs only) */}
-          {!isWide && (
+          {hasRightAside && (
             <RightAside
               activeTab={activeTab}
               tasks={data.tasks}
@@ -245,7 +234,7 @@ export default function App({ activeTab, onNavigate }: AppProps) {
 
         {/* Mobile/tablet: inline Sprig below the module. Rewards live in Settings. */}
         <section aria-label="Extras" className="lg:hidden mt-6 space-y-4">
-          {showGubby && !isWide && !gubby.gubbyHidden && (
+          {showGubby && hasRightAside && !gubby.gubbyHidden && (
             <GubbyCompanion
               mood={gubby.gubbyMood}
               customMessage={gubby.gubbyMessage}
