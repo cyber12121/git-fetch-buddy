@@ -668,7 +668,7 @@ export default function DailyPlannerModule({
       </section>
 
       {/* Reflection */}
-      <section className="py-5 border-t border-edge grid sm:grid-cols-2 gap-5">
+      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow grid sm:grid-cols-2 gap-5">
         <div>
           <p className={`text-[10px] text-brand ${mono} mb-2`}>Win of the day</p>
           <input
