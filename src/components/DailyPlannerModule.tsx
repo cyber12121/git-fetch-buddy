@@ -348,7 +348,8 @@ export default function DailyPlannerModule({
       </section>
 
       {/* One thing */}
-      <section className="py-5 border-t border-edge">
+      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow">
+
         <p className={`text-[10px] text-ink-muted ${mono} mb-3`}>// Non-negotiable</p>
         <div className="flex items-center gap-3">
           <button
