@@ -318,8 +318,10 @@ export default function DailyPlannerModule({
         </div>
       </header>
 
+      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
       {/* Energy */}
-      <section className="py-5 border-t border-edge">
+      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow">
+
         <p className={`text-[10px] text-ink-muted ${mono} mb-3`}>// Energy level</p>
         <div className="flex flex-wrap gap-2">
           {ENERGY.map((e) => {
