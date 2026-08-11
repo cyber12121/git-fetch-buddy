@@ -169,24 +169,13 @@ export default function App({ activeTab, onNavigate }: AppProps) {
 
       <div className={`flex-1 w-full ${containerClass}`}>
         <div className={gridClass}>
-          {/* LEFT: sidebar (desktop, do-tabs only) */}
-          {!isWide && (
-            <SideNav
-              activeTab={activeTab}
-              onTabChange={(tab) => setActiveTab(tab as TabId)}
-              onGubbyMessage={gubby.triggerGubbySpeak}
-              onPrefetchTab={handlePrefetchTab}
-              taskCount={data.tasks.filter((t) => !t.completed).length}
-            />
-          )}
-
           {/* CENTER: active module */}
           <main
             ref={mainRef}
             id="tabpanel-main"
             tabIndex={-1}
             aria-live="polite"
-            className={`min-w-0 outline-none scroll-mt-24 ${isWide ? "w-full" : ""}`}
+            className={`min-w-0 outline-none scroll-mt-24 ${isFullWidth ? "w-full" : ""}`}
           >
             <ModuleRouter
               activeTab={activeTab}
@@ -228,7 +217,7 @@ export default function App({ activeTab, onNavigate }: AppProps) {
           </main>
 
           {/* RIGHT: Sprig + Today's Quests + rewards (desktop, do-tabs only) */}
-          {!isWide && (
+          {hasRightAside && (
             <RightAside
               activeTab={activeTab}
               tasks={data.tasks}
@@ -246,7 +235,7 @@ export default function App({ activeTab, onNavigate }: AppProps) {
 
         {/* Mobile/tablet: inline Sprig below the module. Rewards live in Settings. */}
         <section aria-label="Extras" className="lg:hidden mt-6 space-y-4">
-          {showGubby && !isWide && !gubby.gubbyHidden && (
+          {showGubby && hasRightAside && !gubby.gubbyHidden && (
             <GubbyCompanion
               mood={gubby.gubbyMood}
               customMessage={gubby.gubbyMessage}
