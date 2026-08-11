@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import GubbyCompanion from "./components/GubbyCompanion";
 import AppNav from "./components/AppNav";
-import SideNav from "./components/SideNav";
 import AppStatusBar from "./components/AppStatusBar";
 
 import ModuleRouter, { MODULE_PREFETCH, type TabId } from "./components/app/ModuleRouter";
