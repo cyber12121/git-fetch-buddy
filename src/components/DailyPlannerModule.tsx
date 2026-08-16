@@ -557,9 +557,21 @@ export default function DailyPlannerModule({
                       >
                         {t.title}
                       </span>
-                      <span className="text-[10px] font-bold text-ink-muted shrink-0">
-                        {t.estimatedMinutes ?? 25}m
-                      </span>
+                      <label className="relative shrink-0" onClick={(e) => e.stopPropagation()}>
+                        <span className="text-[10px] font-bold text-ink-muted hover:text-brand cursor-pointer tabular-nums">
+                          {t.estimatedMinutes ?? 25}m
+                        </span>
+                        <select
+                          aria-label={`Set duration for ${t.title}`}
+                          value={t.estimatedMinutes ?? 25}
+                          onChange={(e) => onUpdateTask(t.id, { estimatedMinutes: Number(e.target.value) })}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        >
+                          {DURATIONS.map((d) => (
+                            <option key={d} value={d}>{d}m</option>
+                          ))}
+                        </select>
+                      </label>
                       <button
                         type="button"
                         aria-label={`Focus on ${t.title}`}
