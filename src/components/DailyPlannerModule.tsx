@@ -635,6 +635,8 @@ export default function DailyPlannerModule({
               </div>
             );
           })}
+          </div>
+          ))}
         </div>
       </section>
 
