@@ -50,7 +50,17 @@ export interface DailyPlannerModuleProps {
 }
 
 const START_HOUR = 6;
-const END_HOUR = 22;
+const END_HOUR = 23;
+
+/** The day is split into three energy segments instead of one long list. */
+const SEGMENTS = [
+  { key: "morning", label: "Morning", note: "till 1 PM", from: 6, to: 12, color: "#22C55E" },
+  { key: "afternoon", label: "Afternoon", note: "till 6 PM", from: 13, to: 17, color: "#0EA5E9" },
+  { key: "evening", label: "Evening", note: "till 12 AM", from: 18, to: 23, color: "#A78BFA" },
+];
+
+/** Duration presets shown when clicking a task's minute chip. */
+const DURATIONS = [5, 10, 15, 25, 30, 45, 60, 90, 120];
 
 const ENERGY = [
   { v: 1, label: "Depleted", color: "#94A3B8" },
