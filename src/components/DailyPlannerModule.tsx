@@ -473,8 +473,16 @@ export default function DailyPlannerModule({
           })}
         </div>
 
-        <div className="flex flex-col gap-1">
-          {hours.map((h) => {
+        <div className="flex flex-col gap-5">
+          {SEGMENTS.map((seg) => (
+          <div key={seg.key} className="flex flex-col gap-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-2 h-2 rounded-full shrink-0" style={{ background: seg.color }} />
+              <span className={`text-[10px] font-bold text-ink ${mono}`}>{seg.label}</span>
+              <span className="text-[10px] text-ink-muted">{seg.note}</span>
+              <span className="flex-1 h-px bg-edge" />
+            </div>
+          {hours.filter((h) => h >= seg.from && h <= seg.to).map((h) => {
             const key = hourKey(h);
             const items = scheduled.get(key) ?? [];
             const events = dayEvents.filter((e) => e.time?.startsWith(String(h).padStart(2, "0")));
