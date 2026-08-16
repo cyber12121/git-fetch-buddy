@@ -50,7 +50,17 @@ export interface DailyPlannerModuleProps {
 }
 
 const START_HOUR = 6;
-const END_HOUR = 22;
+const END_HOUR = 23;
+
+/** The day is split into three energy segments instead of one long list. */
+const SEGMENTS = [
+  { key: "morning", label: "Morning", note: "till 1 PM", from: 6, to: 12, color: "#22C55E" },
+  { key: "afternoon", label: "Afternoon", note: "till 6 PM", from: 13, to: 17, color: "#0EA5E9" },
+  { key: "evening", label: "Evening", note: "till 12 AM", from: 18, to: 23, color: "#A78BFA" },
+];
+
+/** Duration presets shown when clicking a task's minute chip. */
+const DURATIONS = [5, 10, 15, 25, 30, 45, 60, 90, 120];
 
 const ENERGY = [
   { v: 1, label: "Depleted", color: "#94A3B8" },
@@ -463,8 +473,16 @@ export default function DailyPlannerModule({
           })}
         </div>
 
-        <div className="flex flex-col gap-1">
-          {hours.map((h) => {
+        <div className="flex flex-col gap-5">
+          {SEGMENTS.map((seg) => (
+          <div key={seg.key} className="flex flex-col gap-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-2 h-2 rounded-full shrink-0" style={{ background: seg.color }} />
+              <span className={`text-[10px] font-bold text-ink ${mono}`}>{seg.label}</span>
+              <span className="text-[10px] text-ink-muted">{seg.note}</span>
+              <span className="flex-1 h-px bg-edge" />
+            </div>
+          {hours.filter((h) => h >= seg.from && h <= seg.to).map((h) => {
             const key = hourKey(h);
             const items = scheduled.get(key) ?? [];
             const events = dayEvents.filter((e) => e.time?.startsWith(String(h).padStart(2, "0")));
@@ -547,9 +565,21 @@ export default function DailyPlannerModule({
                       >
                         {t.title}
                       </span>
-                      <span className="text-[10px] font-bold text-ink-muted shrink-0">
-                        {t.estimatedMinutes ?? 25}m
-                      </span>
+                      <label className="relative shrink-0" onClick={(e) => e.stopPropagation()}>
+                        <span className="text-[10px] font-bold text-ink-muted hover:text-brand cursor-pointer tabular-nums">
+                          {t.estimatedMinutes ?? 25}m
+                        </span>
+                        <select
+                          aria-label={`Set duration for ${t.title}`}
+                          value={t.estimatedMinutes ?? 25}
+                          onChange={(e) => onUpdateTask(t.id, { estimatedMinutes: Number(e.target.value) })}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        >
+                          {DURATIONS.map((d) => (
+                            <option key={d} value={d}>{d}m</option>
+                          ))}
+                        </select>
+                      </label>
                       <button
                         type="button"
                         aria-label={`Focus on ${t.title}`}
@@ -605,6 +635,8 @@ export default function DailyPlannerModule({
               </div>
             );
           })}
+          </div>
+          ))}
         </div>
       </section>
 
