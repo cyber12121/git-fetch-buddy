@@ -23,24 +23,24 @@ export default function DurationAdjuster({ mode, pomoPhase, settings, onChange }
     onChange((s) => ({ ...s, [cfg.key]: next }));
   };
   return (
-    <div className="flex items-center justify-center gap-3 mb-6" style={{ fontFamily: MONO_FONT }}>
-      <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-ink-muted">{cfg.label}</span>
+    <div className="flex items-center justify-center gap-1.5" style={{ fontFamily: MONO_FONT }}>
+      <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-ink-muted">{cfg.label}</span>
       <button
         type="button"
         onClick={() => bump(-cfg.step)}
-        className="h-7 w-7 flex items-center justify-center rounded-full border border-edge text-ink-muted hover:text-ink hover:bg-surface-sunken cursor-pointer"
+        className="h-6 w-6 flex items-center justify-center rounded-full border border-edge text-ink-muted hover:text-ink hover:bg-surface-sunken cursor-pointer transition-colors"
         aria-label={`Decrease ${cfg.label} by ${cfg.step} min`}
       >
-        <Minus size={12} />
+        <Minus size={11} />
       </button>
-      <span className="text-sm font-bold text-ink tabular-nums w-14 text-center">{value}m</span>
+      <span className="text-[11px] font-bold text-ink tabular-nums w-9 text-center">{value}m</span>
       <button
         type="button"
         onClick={() => bump(cfg.step)}
-        className="h-7 w-7 flex items-center justify-center rounded-full border border-edge text-ink-muted hover:text-ink hover:bg-surface-sunken cursor-pointer"
+        className="h-6 w-6 flex items-center justify-center rounded-full border border-edge text-ink-muted hover:text-ink hover:bg-surface-sunken cursor-pointer transition-colors"
         aria-label={`Increase ${cfg.label} by ${cfg.step} min`}
       >
-        <Plus size={12} />
+        <Plus size={11} />
       </button>
     </div>
   );

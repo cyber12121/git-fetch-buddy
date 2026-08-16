@@ -17,7 +17,7 @@ const TABS = [
 export default function ModeTabs({ mode, onSwitchMode, onBreathe }: Props) {
   return (
     <div
-      className="mb-8 mx-auto max-w-xl"
+      className="mb-5 mx-auto max-w-xl"
       style={{ fontFamily: MONO_FONT }}
     >
       <div
