@@ -501,7 +501,7 @@ export default function TaskmasterModule({
   const openTasks = tasks.filter(t => !t.completed);
 
   return (
-    <div id="taskmaster-module" className="max-w-xl mx-auto px-1 sm:px-0 pb-10" style={{ fontFamily: BODY_FONT }}>
+    <div id="taskmaster-module" className="max-w-xl mx-auto px-1 sm:px-0 pb-10 space-y-4" style={{ fontFamily: BODY_FONT }}>
       <AnimatePresence>
         {pendingAction && (
           <PendingActionModal
@@ -549,225 +549,205 @@ export default function TaskmasterModule({
         )}
       </AnimatePresence>
 
-      <div className="flex items-center justify-between mb-6">
+      <section className="rounded-3xl border border-edge bg-surface card-shadow p-5 sm:p-6">
+        <div className="flex items-center justify-between gap-3 mb-5">
+          <div
+            className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-ink-muted min-w-0 truncate"
+            style={{ fontFamily: MONO_FONT }}
+          >
+            <span
+              className={`shrink-0 w-1.5 h-1.5 rounded-full ${
+                isRunning ? "bg-success animate-pulse" : status === "paused" ? "bg-warn" : "bg-ink-muted/50"
+              }`}
+            />
+            {mode === "pomodoro" ? `pomo r${pomoRound} · ${pomoPhase}` : mode} · {status}
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              id="timer-view-summary-btn"
+              onClick={() => { setIsRunning(false); setShowSummary(true); }}
+              className="h-8 px-2.5 inline-flex items-center gap-1.5 rounded-lg text-[10px] font-bold uppercase tracking-[0.18em] text-ink-muted hover:text-ink hover:bg-surface-sunken cursor-pointer transition-colors"
+              style={{ fontFamily: MONO_FONT }}
+            >
+              <Award size={12} /> Recap
+            </button>
+            <button
+              id="timer-fullscreen-btn"
+              onClick={() => setIsFullscreen(true)}
+              className="h-8 w-8 inline-flex items-center justify-center rounded-lg text-ink-muted hover:text-ink hover:bg-surface-sunken cursor-pointer transition-colors"
+              aria-label="Enter fullscreen timer"
+              title="Fullscreen"
+            >
+              <Maximize2 size={13} />
+            </button>
+            <button
+              id="timer-settings-btn"
+              onClick={() => setShowSettings(true)}
+              className="h-8 w-8 inline-flex items-center justify-center rounded-lg text-ink-muted hover:text-ink hover:bg-surface-sunken cursor-pointer transition-colors"
+              aria-label="Timer settings"
+              title="Timer settings"
+            >
+              <SettingsIcon size={13} />
+            </button>
+          </div>
+        </div>
+
+        <ModeTabs mode={mode} onSwitchMode={switchMode} onBreathe={() => setShowBreathing(true)} />
+
+        <div className="text-center min-h-[3rem] mb-5">
+          <AnimatePresence mode="wait">
+            {currentMission ? (
+              <motion.h2
+                key={currentMission}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="text-lg sm:text-xl font-semibold text-ink leading-snug break-words"
+              >
+                {currentMission}
+              </motion.h2>
+            ) : (
+              <motion.form
+                key="quick"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                onSubmit={handleCreateTempMission}
+                className="flex items-center gap-2 max-w-md mx-auto"
+              >
+                <input
+                  id="quick-focus-input"
+                  type="text"
+                  value={tempFocusTitle}
+                  onChange={(e) => setTempFocusTitle(e.target.value)}
+                  placeholder="One thing. What is it?"
+                  className="flex-1 min-w-0 bg-transparent border-b border-edge focus:border-brand outline-none text-center text-base font-semibold text-ink placeholder:text-ink-muted/50 py-2 transition-colors"
+                />
+                {tempFocusTitle.trim() && (
+                  <button
+                    id="load-quick-focus-btn"
+                    type="submit"
+                    aria-label="Set mission"
+                    className="shrink-0 p-2 text-brand hover:text-brand-hover cursor-pointer"
+                  >
+                    <Plus size={18} />
+                  </button>
+                )}
+              </motion.form>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="text-center mb-4">
+          <div
+            role="timer"
+            aria-live="polite"
+            aria-label={`${formatTime(timeLeft)} remaining, ${status}`}
+            className="font-bold tabular-nums leading-none tracking-tight select-none transition-colors duration-700"
+            style={{
+              fontFamily: MONO_FONT,
+              fontSize: "clamp(3rem, 13vw, 6.5rem)",
+              color: zoneColor,
+              textShadow: isRunning ? `0 0 40px ${zoneColor}33` : "none",
+              letterSpacing: "-0.03em",
+            }}
+          >
+            {formatTime(timeLeft)}
+          </div>
+        </div>
+
+        <div className="h-[3px] w-full bg-surface-sunken relative overflow-hidden rounded-full mb-6">
+          <motion.div
+            className="h-full absolute inset-y-0 left-0 rounded-full"
+            style={{ backgroundColor: zoneColor, boxShadow: `0 0 10px ${zoneColor}` }}
+            animate={{ width: `${donePct}%` }}
+            transition={{ duration: 0.6, ease: "linear" }}
+          />
+        </div>
+
+        <div className="flex items-center justify-center gap-3 mb-6">
+          <button
+            id="timer-reset-btn"
+            onClick={handleReset}
+            className="h-12 w-12 flex items-center justify-center bg-transparent hover:bg-surface-sunken border border-edge rounded-full text-ink-muted transition-colors cursor-pointer"
+            title="Reset"
+            aria-label="Reset timer"
+          >
+            <RotateCcw size={15} />
+          </button>
+
+          <button
+            id="timer-play-pause-btn"
+            onClick={handleStartPause}
+            aria-label={isRunning ? "Pause" : "Start"}
+            className={`h-16 w-16 flex items-center justify-center rounded-full text-primary-foreground transition-all active:scale-95 cursor-pointer ${
+              isRunning ? "bg-warn hover:opacity-90" : "bg-brand hover:bg-brand-hover"
+            }`}
+            style={{ boxShadow: isRunning ? "none" : "var(--theme-glow)" }}
+          >
+            {isRunning ? <Pause size={22} className="fill-current" /> : <Play size={22} className="fill-current ml-0.5" />}
+          </button>
+
+          {currentMission ? (
+            <button
+              id="timer-complete-btn"
+              onClick={handleCompleteMission}
+              className="h-12 w-12 flex items-center justify-center bg-transparent hover:bg-success-soft border border-success/40 rounded-full text-success transition-colors cursor-pointer"
+              title="Finish mission"
+              aria-label="Mark mission complete"
+            >
+              <CheckCircle size={15} />
+            </button>
+          ) : (
+            <div className="h-12 w-12" aria-hidden="true" />
+          )}
+        </div>
+
+        {/* One consistent control strip: length, progress, sound, pacing. */}
         <div
-          className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-ink-muted"
+          className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 pt-4 border-t border-edge text-[10px] font-bold uppercase tracking-[0.18em] text-ink-muted"
           style={{ fontFamily: MONO_FONT }}
         >
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${
-              isRunning ? "bg-success animate-pulse" : status === "paused" ? "bg-warn" : "bg-ink-muted/50"
-            }`}
-          />
-          {mode === "pomodoro" ? `pomo r${pomoRound} · ${pomoPhase}` : mode} · {status}
-        </div>
-        <div className="flex items-center gap-3">
-          {stats.streak > 0 && (
-            <div
-              className="flex items-center gap-1 text-[11px] font-bold text-brand"
-              style={{ fontFamily: MONO_FONT }}
-              title="Consecutive days with a counted focus session"
-            >
-              <Flame size={12} /> {stats.streak}d
-            </div>
-          )}
-          <button
-            id="timer-view-summary-btn"
-            onClick={() => { setIsRunning(false); setShowSummary(true); }}
-            className="text-[11px] font-bold text-ink-muted hover:text-ink flex items-center gap-1.5 cursor-pointer transition-colors"
-          >
-            <Award size={12} /> Recap
-          </button>
-          <button
-            id="timer-fullscreen-btn"
-            onClick={() => setIsFullscreen(true)}
-            className="text-ink-muted hover:text-ink cursor-pointer transition-colors"
-            aria-label="Enter fullscreen timer"
-            title="Fullscreen"
-          >
-            <Maximize2 size={13} />
-          </button>
-          <button
-            id="timer-settings-btn"
-            onClick={() => setShowSettings(true)}
-            className="text-ink-muted hover:text-ink cursor-pointer transition-colors"
-            aria-label="Timer settings"
-            title="Timer settings"
-          >
-            <SettingsIcon size={13} />
-          </button>
-        </div>
-      </div>
-
-      <ModeTabs mode={mode} onSwitchMode={switchMode} onBreathe={() => setShowBreathing(true)} />
-
-      {!isRunning && status !== "paused" && (
-        <DurationAdjuster mode={mode} pomoPhase={pomoPhase} settings={settings} onChange={setSettings} />
-      )}
-
-      <div className="mb-8 text-center min-h-[3rem]">
-        <AnimatePresence mode="wait">
-          {currentMission ? (
-            <motion.h2
-              key={currentMission}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              className="text-lg sm:text-xl font-semibold text-ink leading-snug break-words"
-            >
-              {currentMission}
-            </motion.h2>
+          {!isRunning && status !== "paused" ? (
+            <DurationAdjuster mode={mode} pomoPhase={pomoPhase} settings={settings} onChange={setSettings} />
           ) : (
-            <motion.form
-              key="quick"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onSubmit={handleCreateTempMission}
-              className="flex items-center gap-2 max-w-md mx-auto"
-            >
-              <input
-                id="quick-focus-input"
-                type="text"
-                value={tempFocusTitle}
-                onChange={(e) => setTempFocusTitle(e.target.value)}
-                placeholder="One thing. What is it?"
-                className="flex-1 min-w-0 bg-transparent border-b border-edge focus:border-brand outline-none text-center text-base font-semibold text-ink placeholder:text-ink-muted/50 py-2 transition-colors"
-              />
-              {tempFocusTitle.trim() && (
-                <button
-                  id="load-quick-focus-btn"
-                  type="submit"
-                  aria-label="Set mission"
-                  className="shrink-0 p-2 text-brand hover:text-brand-hover cursor-pointer"
-                >
-                  <Plus size={18} />
-                </button>
-              )}
-            </motion.form>
+            <span>{Math.floor(duration / 60)}m goal</span>
           )}
-        </AnimatePresence>
-      </div>
-
-      <div className="text-center mb-6">
-        <div
-          role="timer"
-          aria-live="polite"
-          aria-label={`${formatTime(timeLeft)} remaining, ${status}`}
-          className="font-bold tabular-nums leading-none tracking-tight select-none transition-colors duration-700"
-          style={{
-            fontFamily: MONO_FONT,
-            fontSize: "clamp(3rem, 13vw, 6.5rem)",
-            color: zoneColor,
-            textShadow: isRunning ? `0 0 40px ${zoneColor}33` : "none",
-            letterSpacing: "-0.03em",
-          }}
-        >
-          {formatTime(timeLeft)}
-        </div>
-      </div>
-
-      <div className="h-[2px] w-full bg-edge/50 relative overflow-hidden rounded-full mb-10">
-        <motion.div
-          className="h-full absolute inset-y-0 left-0 rounded-full"
-          style={{ backgroundColor: zoneColor, boxShadow: `0 0 10px ${zoneColor}` }}
-          animate={{ width: `${donePct}%` }}
-          transition={{ duration: 0.6, ease: "linear" }}
-        />
-      </div>
-
-      <div className="flex items-center justify-center gap-3 mb-8">
-        <button
-          id="timer-reset-btn"
-          onClick={handleReset}
-          className="h-12 w-12 flex items-center justify-center bg-transparent hover:bg-surface-sunken border border-edge rounded-full text-ink-muted transition-colors cursor-pointer"
-          title="Reset"
-          aria-label="Reset timer"
-        >
-          <RotateCcw size={15} />
-        </button>
-
-        <button
-          id="timer-play-pause-btn"
-          onClick={handleStartPause}
-          aria-label={isRunning ? "Pause" : "Start"}
-          className={`h-16 w-16 flex items-center justify-center rounded-full text-primary-foreground transition-all active:scale-95 cursor-pointer ${
-            isRunning ? "bg-warn hover:opacity-90" : "bg-brand hover:bg-brand-hover"
-          }`}
-          style={{ boxShadow: isRunning ? "none" : "var(--theme-glow)" }}
-        >
-          {isRunning ? <Pause size={22} className="fill-current" /> : <Play size={22} className="fill-current ml-0.5" />}
-        </button>
-
-        {currentMission ? (
+          <span className="text-ink-muted/40" aria-hidden="true">·</span>
+          <span className="tabular-nums">{donePct}%</span>
+          <span className="text-ink-muted/40" aria-hidden="true">·</span>
           <button
-            id="timer-complete-btn"
-            onClick={handleCompleteMission}
-            className="h-12 w-12 flex items-center justify-center bg-transparent hover:bg-success-soft border border-success/40 rounded-full text-success transition-colors cursor-pointer"
-            title="Finish mission"
-            aria-label="Mark mission complete"
+            id="sound-fx-toggle"
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            aria-label={soundEnabled ? "Mute chimes" : "Enable chimes"}
+            className={`inline-flex items-center gap-1 hover:text-ink transition-colors cursor-pointer ${soundEnabled ? "text-brand" : ""}`}
           >
-            <CheckCircle size={15} />
+            {soundEnabled ? <Volume2 size={11} /> : <VolumeX size={11} />}
+            <span>sound</span>
           </button>
-        ) : (
-          <div className="h-12 w-12" aria-hidden="true" />
+          <span className="text-ink-muted/40" aria-hidden="true">·</span>
+          <button
+            id="body-double-pacing-toggle"
+            onClick={() => setPacingEnabled(!pacingEnabled)}
+            aria-label={pacingEnabled ? "Turn off body-double tick" : "Turn on body-double tick"}
+            className={`inline-flex items-center hover:text-ink transition-colors cursor-pointer ${pacingEnabled ? "text-brand" : ""}`}
+          >
+            tick
+          </button>
+        </div>
+
+        {activeSessionSeconds > 0 && (
+          <p
+            className={`mt-3 text-center text-[10px] font-bold tracking-[0.18em] uppercase ${
+              activeSessionSeconds >= 600 ? "text-success" : "text-brand"
+            }`}
+            style={{ fontFamily: MONO_FONT }}
+          >
+            {activeSessionSeconds >= 600
+              ? "this run is counted"
+              : `run ${Math.floor(activeSessionSeconds / 60)}m ${activeSessionSeconds % 60}s / 10m to count`}
+          </p>
         )}
-      </div>
-
-      <div
-        className="flex items-center justify-center gap-3 text-[10px] font-bold uppercase tracking-[0.25em] text-ink-muted mb-10"
-        style={{ fontFamily: MONO_FONT }}
-      >
-        <span>{donePct}%</span>
-        <span className="text-ink-muted/40">·</span>
-        <span>{Math.floor(duration / 60)}m goal</span>
-        <span className="text-ink-muted/40">·</span>
-        <button
-          id="sound-fx-toggle"
-          onClick={() => setSoundEnabled(!soundEnabled)}
-          aria-label={soundEnabled ? "Mute chimes" : "Enable chimes"}
-          className={`inline-flex items-center hover:text-ink transition-colors cursor-pointer ${soundEnabled ? "text-brand" : ""}`}
-        >
-          {soundEnabled ? <Volume2 size={11} /> : <VolumeX size={11} />}
-        </button>
-        <button
-          id="body-double-pacing-toggle"
-          onClick={() => setPacingEnabled(!pacingEnabled)}
-          aria-label={pacingEnabled ? "Turn off body-double tick" : "Turn on body-double tick"}
-          className={`inline-flex items-center hover:text-ink transition-colors cursor-pointer ${pacingEnabled ? "text-brand" : ""}`}
-        >
-          <span className="text-[10px]">tick</span>
-        </button>
-      </div>
-
-      <div className="grid grid-cols-2 border-t border-b border-edge">
-        <div className="py-4 px-4 text-center border-r border-edge">
-          <div className="text-[9px] font-bold uppercase tracking-[0.25em] text-ink-muted" style={{ fontFamily: MONO_FONT }}>
-            Focused today
-          </div>
-          <div className="text-2xl font-bold text-ink tabular-nums mt-1" style={{ fontFamily: MONO_FONT }}>
-            {formatFocusDuration(sessionFocusSeconds)}
-          </div>
-        </div>
-        <div className="py-4 px-4 text-center">
-          <div className="text-[9px] font-bold uppercase tracking-[0.25em] text-ink-muted" style={{ fontFamily: MONO_FONT }}>
-            Cleared
-          </div>
-          <div className="text-2xl font-bold text-ink tabular-nums mt-1" style={{ fontFamily: MONO_FONT }}>
-            {completedMissions.length}
-          </div>
-        </div>
-      </div>
-
-      {activeSessionSeconds > 0 && activeSessionSeconds < 600 && (
-        <div className="mt-3 text-center text-[10px] font-bold text-brand" style={{ fontFamily: MONO_FONT }}>
-          run {Math.floor(activeSessionSeconds / 60)}m {activeSessionSeconds % 60}s / 10m to count
-        </div>
-      )}
-      {activeSessionSeconds >= 600 && (
-        <div className="mt-3 text-center text-[10px] font-bold text-success" style={{ fontFamily: MONO_FONT }}>
-          this run is counted
-        </div>
-      )}
+      </section>
 
       {!currentMission && <QuestPicker openTasks={openTasks} onPick={handlePickTask} />}
 
@@ -775,12 +755,9 @@ export default function TaskmasterModule({
         stats={stats}
         history={history}
         showHistory={showHistory}
+        cleared={completedMissions.length}
         onToggle={() => setShowHistory((v) => !v)}
       />
-
-      <p className="mt-8 text-center text-[10px] text-ink-muted/70" style={{ fontFamily: MONO_FONT }}>
-        sessions ≥ 10min count · deep flow gets the credit
-      </p>
     </div>
   );
 }
