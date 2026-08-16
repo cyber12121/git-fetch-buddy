@@ -1,5 +1,5 @@
 import { Coffee, Target, Timer, Wind } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { MONO_FONT, type TimerMode } from "./constants";
 
 interface Props {
