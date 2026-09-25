@@ -24,6 +24,8 @@ import {
   Inbox,
   Eraser,
 } from "lucide-react";
+
+import FocusBloom from "./FocusBloom";
 import type { Task, CalendarEvent } from "../types";
 import { toLocalDateKey } from "../lib/constants";
 import { readJSON, writeJSON } from "../lib/safeStorage";
@@ -266,7 +268,8 @@ export default function DailyPlannerModule({
   const mono = "font-mono tracking-[0.16em] uppercase";
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <>
+      <div className="w-full max-w-3xl mx-auto">
       {/* Header */}
       <header className="mb-6">
         <div className="h-[3px] rounded-full bg-surface-sunken overflow-hidden mb-4">
@@ -711,5 +714,15 @@ export default function DailyPlannerModule({
         </div>
       </div>
     </div>
+
+    {/* Focus Bloom - Celebration for completed tasks */}
+    <FocusBloom
+      completedTasks={dayTasks}
+      maxTasks={12}
+      onBloomComplete={() => {
+        onGubbyMessage("Focus bloom achieved! 🌸", "excited");
+      }}
+    />
+    </>
   );
 }

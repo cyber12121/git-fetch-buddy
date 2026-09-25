@@ -1,0 +1,170 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5] [cursor=pointer]: August 2026
+      - generic [ref=e6]:
+        - generic [ref=e7] [cursor=pointer]: 
+        - generic [ref=e8] [cursor=pointer]: 
+        - generic [ref=e9] [cursor=pointer]: 
+        - generic [ref=e10] [cursor=pointer]: 
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - generic [ref=e17]: 10 Aug
+            - generic [ref=e18]: Mon
+          - generic [ref=e20]:
+            - button [ref=e22]:
+              - generic [ref=e23]: Hover to complete
+            - button [ref=e25]:
+              - generic [ref=e26]: Click to edit
+            - button [ref=e28]:
+              - generic [ref=e29]: Drag to other day
+            - textbox [ref=e31]
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - generic [ref=e35]: 11 Aug
+            - generic [ref=e36]: Tue
+          - generic [ref=e38]:
+            - button [ref=e40]:
+              - generic [ref=e41]: Choose from colors
+            - button [ref=e43]:
+              - generic [ref=e44]: Hope you like 😉
+            - textbox [ref=e46]
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - generic [ref=e50]: 12 Aug
+            - generic [ref=e51]: Wed
+          - generic [ref=e53]:
+            - button [ref=e55]:
+              - generic [ref=e56]: That's all!
+            - textbox [ref=e58]
+        - generic [ref=e60]:
+          - generic [ref=e61]:
+            - generic [ref=e62]: 13 Aug
+            - generic [ref=e63]: Thu
+          - textbox [ref=e67]
+        - generic [ref=e69]:
+          - generic [ref=e70]:
+            - generic [ref=e71]: 14 Aug
+            - generic [ref=e72]: Fri
+          - generic [ref=e74]:
+            - button [ref=e76]:
+              - generic [ref=e77]: Remember to save 👆🏿
+            - textbox [ref=e79]
+        - generic [ref=e80]:
+          - generic [ref=e82]:
+            - generic [ref=e83]:
+              - generic [ref=e84]: 15 Aug
+              - generic [ref=e85]: Sat
+            - textbox [ref=e89]
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - generic [ref=e93]: 16 Aug
+              - generic [ref=e94]: Sun
+            - textbox [ref=e98]
+      - generic [ref=e100]:
+        - generic [ref=e102]:
+          - generic [ref=e103]: Someday
+          - textbox [ref=e108]
+        - textbox [ref=e116]
+        - textbox [ref=e124]
+  - dialog [ref=e129]:
+    - button [active]
+    - generic [ref=e130]:
+      - generic [ref=e131]:
+        - generic [ref=e132]:
+          - img "Tweek logo" [ref=e133]
+          - generic [ref=e134] [cursor=pointer]:
+            - generic: 
+            - generic [ref=e135]: English
+        - generic [ref=e136]: Tweek is a minimal weekly planner & todo list app
+        - generic [ref=e138]: Super simple planner without the fuss. Tweek feels as natural as pen and paper.
+        - generic [ref=e139]: 83 203 tasks, 17 330 active users / 24h
+        - generic [ref=e140]:
+          - button "Start now" [ref=e141] [cursor=pointer]
+          - button "Log in" [ref=e143] [cursor=pointer]
+      - generic [ref=e145]:
+        - generic [ref=e149]:
+          - img "Month, Week or Day view" [ref=e156]
+          - img "Sync Google, Outlook, Apple calendars" [ref=e163]
+          - img "Search" [ref=e170]
+          - img "Task" [ref=e177]
+          - img "Endless colors" [ref=e184]
+          - img "Notes, Attaches, Subtasks" [ref=e191]
+          - img "Recurring tasks" [ref=e198]
+          - img "Reminders" [ref=e205]
+          - img "Automate" [ref=e212]
+          - img "Themes" [ref=e219]
+          - img "Mac or iPad" [ref=e226]
+        - generic [ref=e228]:
+          - button [disabled] [ref=e229]
+          - generic [ref=e232]:
+            - button [ref=e233] [cursor=pointer]
+            - button [ref=e234] [cursor=pointer]
+            - button [ref=e235] [cursor=pointer]
+            - button [ref=e236] [cursor=pointer]
+            - button [ref=e237] [cursor=pointer]
+            - button [ref=e238] [cursor=pointer]
+            - button [ref=e239] [cursor=pointer]
+            - button [ref=e240] [cursor=pointer]
+            - button [ref=e241] [cursor=pointer]
+            - button [ref=e242] [cursor=pointer]
+            - button [ref=e243] [cursor=pointer]
+          - button [ref=e244] [cursor=pointer]
+        - generic [ref=e247]:
+          - generic [ref=e248]: Month, Week or Day view
+          - generic [ref=e249]: By default, Tweek shows a weekly view — simple and focused. You can always switch to a month or use the Day view to zoom in and stay on track.
+      - generic [ref=e250]:
+        - generic [ref=e251]:
+          - generic [ref=e252]: "4.8"
+          - generic [ref=e259]: App Store 5 900 reviews
+        - generic [ref=e260]:
+          - img "The Verge logo" [ref=e261]
+          - generic [ref=e262]: “Tweek is one of my favorite super simple planner apps.”
+        - generic [ref=e264]:
+          - img "Fast Company logo" [ref=e265]
+          - generic [ref=e266]: “If you’re overwhelmed by traditional to-do lists, Tweek is a welcome antidote”
+        - generic [ref=e268]:
+          - img "Enterpreneur logo" [ref=e269]
+          - generic [ref=e270]: “Tweek is a welcome cure for those overwhelmed by traditional to-do lists.”
+      - generic [ref=e271]:
+        - img "Tweek app example" [ref=e272]
+        - generic [ref=e273]: Download Tweek for your device
+        - generic [ref=e274]:
+          - link "iPhone & iPad" [ref=e275] [cursor=pointer]:
+            - /url: https://apps.apple.com/us/app/tweek-minimal-to-do-list/id1535438855
+          - link "Android" [ref=e278] [cursor=pointer]:
+            - /url: https://play.google.com/store/apps/details?id=so.tweek.android
+        - generic [ref=e281]: Or use the desktop version
+      - generic [ref=e282]:
+        - generic [ref=e283]: Got questions?
+        - button "Can I make my calendar shared and collaborative?" [ref=e285] [cursor=pointer]
+        - button "Is Tweek’s weekly to-do list template printable? Can I use it as a paper calendar?" [ref=e292] [cursor=pointer]
+        - button "Can I use Tweek for task management for a project?" [ref=e299] [cursor=pointer]
+        - button "Can I have the subtask, checklist, and shopping list functionality in Tweek?" [ref=e306] [cursor=pointer]
+        - button "How can I better organize my life and work with Tweek Calendar?" [ref=e313] [cursor=pointer]
+        - button "How is my data secured?" [ref=e320] [cursor=pointer]
+        - button "Does Tweek use AI, GPT?" [ref=e327] [cursor=pointer]
+        - button "Does Tweek have built-in integrations and an API?" [ref=e334] [cursor=pointer]
+      - generic [ref=e339]:
+        - generic [ref=e340]: "Subscribe to our product updates & news:"
+        - generic [ref=e341]:
+          - link "Threads" [ref=e342] [cursor=pointer]:
+            - /url: https://www.threads.com/@tweek.so
+          - link "x.com" [ref=e345] [cursor=pointer]:
+            - /url: https://x.com/tweekhq
+      - generic [ref=e348]:
+        - link "Features" [ref=e349] [cursor=pointer]:
+          - /url: https://tweek.so/calendar/features
+        - link "Printable" [ref=e350] [cursor=pointer]:
+          - /url: /calendar/printable
+        - link "Workflow" [ref=e351] [cursor=pointer]:
+          - /url: /calendar/workflow
+        - link "Pricing" [ref=e352] [cursor=pointer]:
+          - /url: https://tweek.so/calendar/pricing
+        - link "Privacy Policy" [ref=e353] [cursor=pointer]:
+          - /url: /calendar/privacy
+        - link "Terms of Use" [ref=e354] [cursor=pointer]:
+          - /url: /calendar/terms
+      - generic [ref=e355]: © 2020-2026 Tweek. All rights reserved.
