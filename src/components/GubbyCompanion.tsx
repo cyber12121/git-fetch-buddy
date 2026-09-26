@@ -21,7 +21,7 @@ function levelTitleFor(level: number): string {
 const GOBLIN_QUOTES = [
   "Done is better than perfect! Let's make a giant mess of perfect!",
   "Feeling frozen? Break it down so small it feels silly. If 'Write email' is too hard, try 'Open laptop'.",
-  "Is your brain a buzzing beehive? Dump it in the Compiler! Sprig will help clean it up.",
+  "Is your brain a buzzing beehive? Block out one hour in your Today planner! Sprig will help keep it cozy.",
   "You opened the app! That's a huge victory. Seriously, starting is the hardest part.",
   "Drink a tiny sip of water right now. Sprig is watching and holding a leaf cup! 🍃",
   "Your worth isn't defined by your checklist. You're a wonderful goblin just for being you.",
@@ -29,7 +29,7 @@ const GOBLIN_QUOTES = [
   "If a task feels heavy, it's not because you are lazy—it's just a little scary. Let's make it small!",
   "Sprig is so proud of you for showing up today. Yes, you!",
   "Take a slow, deep breath... hold it... blow out all the noisy thoughts.",
-  "Object permanence is hard! If you forgot what you were doing, check the Magic Todo list.",
+  "Object permanence is hard! If you forgot what you were doing, check your Today plan.",
   "Time blindness is real! That's why Sprig added timers. We can beat time together ⏱️",
   "Hyperfocus is a superpower, but remember to stretch your goblin legs every now and then!",
   "Did you eat something today? A tiny snack counts! Even a single cracker.",
@@ -38,7 +38,7 @@ const GOBLIN_QUOTES = [
   "You don't have to earn rest. Rest is a biological requirement, like blinking! 🦦",
   "Look at all these buttons! Don't worry, just focus on one quest right now. Just one.",
   "Wandering mind? Let it wander! Then bring it back gently. No scolding allowed.",
-  "If it takes 2 minutes, do it now. If it takes longer... put it in the Compiler!"
+  "If it takes 2 minutes, do it now. If it takes longer... drop it in Today's planner!"
 ];
 
 export default function GubbyCompanion({ mood = "cozy", customMessage, xp = 0, onHide }: GubbyCompanionProps) {

@@ -1,19 +1,4 @@
-/**
- * DailyPlannerModule — an "ADHD Daily OS" single-day console.
- *
- *  header: date + live clock + day XP bar
- *  ── energy level
- *  ── the one non-negotiable
- *  ── top 3 missions (today's tasks)
- *  ── hour blocks (6am → 10pm) with a colour palette + drag/drop tasks
- *  ── unscheduled tray
- *  ── end-of-day reflection
- *  ── day score card
- *
- * Tasks are the existing global Task objects — a task belongs to this day
- * when `scheduledDate` matches, and sits in an hour slot via `scheduledTime`.
- */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -21,8 +6,11 @@ import {
   Trash2,
   Plus,
   Play,
-  Inbox,
-  Eraser,
+  Clock,
+  Sparkles,
+  GripVertical,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 
 import FocusBloom from "./FocusBloom";
@@ -43,6 +31,7 @@ export interface DailyPlannerModuleProps {
     notes?: string,
     scheduledDate?: string,
     estimatedMinutes?: number,
+    scheduledTime?: string
   ) => Promise<void> | void;
   onUpdateTask: (id: string, updates: Partial<Task>) => Promise<void> | void;
   onToggleTask: (id: string) => void;
@@ -54,14 +43,6 @@ export interface DailyPlannerModuleProps {
 const START_HOUR = 6;
 const END_HOUR = 23;
 
-/** The day is split into three energy segments instead of one long list. */
-const SEGMENTS = [
-  { key: "morning", label: "Morning", note: "till 1 PM", from: 6, to: 12, color: "#22C55E" },
-  { key: "afternoon", label: "Afternoon", note: "till 6 PM", from: 13, to: 17, color: "#0EA5E9" },
-  { key: "evening", label: "Evening", note: "till 12 AM", from: 18, to: 23, color: "#A78BFA" },
-];
-
-/** Duration presets shown when clicking a task's minute chip. */
 const DURATIONS = [5, 10, 15, 25, 30, 45, 60, 90, 120];
 
 const ENERGY = [
@@ -72,13 +53,11 @@ const ENERGY = [
   { v: 5, label: "Beast mode", color: "#F97316" },
 ];
 
-const PALETTE = [
-  { label: "DEEP WORK", color: "#0EA5E9" },
-  { label: "ADMIN", color: "#A78BFA" },
-  { label: "MOVE", color: "#22C55E" },
-  { label: "REST", color: "#F59E0B" },
-  { label: "PEOPLE", color: "#F43F5E" },
-];
+interface CheckItem {
+  id: string;
+  text: string;
+  done: boolean;
+}
 
 interface DayMeta {
   energy: number;
@@ -86,8 +65,23 @@ interface DayMeta {
   oneThingDone: boolean;
   win: string;
   drag: string;
+  goodDeed?: string;
   blocks: Record<string, { label: string; color: string }>;
+  bedtime?: CheckItem[];
+  thoughts?: CheckItem[];
 }
+
+const DEFAULT_BEDTIME: CheckItem[] = [
+  { id: "b1", text: "Set phone to do-not-disturb", done: false },
+  { id: "b2", text: "Fill water bottle for morning", done: false },
+  { id: "b3", text: "Brush & floss teeth", done: false },
+];
+
+const DEFAULT_THOUGHTS: CheckItem[] = [
+  { id: "t1", text: "Feeling proud of finishing my main goal", done: false },
+  { id: "t2", text: "Need to buy new gym shoes this weekend", done: false },
+  { id: "t3", text: "Idea for holiday recipe", done: false },
+];
 
 const EMPTY_META: DayMeta = {
   energy: 0,
@@ -95,7 +89,10 @@ const EMPTY_META: DayMeta = {
   oneThingDone: false,
   win: "",
   drag: "",
+  goodDeed: "",
   blocks: {},
+  bedtime: DEFAULT_BEDTIME,
+  thoughts: DEFAULT_THOUGHTS,
 };
 
 const metaKey = (d: string) => `daily-os:${d}`;
@@ -107,7 +104,7 @@ function hourKey(h: number) {
 function hourLabel(h: number) {
   const suffix = h < 12 ? "AM" : "PM";
   const base = h % 12 === 0 ? 12 : h % 12;
-  return `${base}${suffix}`;
+  return `${base} ${suffix}`;
 }
 
 function shiftDay(dateStr: string, delta: number) {
@@ -120,7 +117,7 @@ function shiftDay(dateStr: string, delta: number) {
 function prettyDate(dateStr: string) {
   const [y, m, d] = dateStr.split("-").map(Number);
   const dt = new Date(y, (m ?? 1) - 1, d ?? 1);
-  return dt.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+  return dt.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 }
 
 export default function DailyPlannerModule({
@@ -139,30 +136,87 @@ export default function DailyPlannerModule({
   const date = selectedDate || today;
   const isToday = date === today;
 
-  const [addingHour, setAddingHour] = useState<string | null>(null);
-  const [draft, setDraft] = useState("");
-  const [trayDraft, setTrayDraft] = useState("");
   const [dragId, setDragId] = useState<string | null>(null);
   const [dragOverHour, setDragOverHour] = useState<string | null>(null);
-  const [activePalette, setActivePalette] = useState<string | null>(null);
   const [meta, setMeta] = useState<DayMeta>(EMPTY_META);
   const [clock, setClock] = useState("--:--");
-  const addRef = useRef<HTMLInputElement | null>(null);
 
-  // Live clock (client only).
+  // Inline drafting for schedule hours
+  const [addingHour, setAddingHour] = useState<string | null>(null);
+  const [hourDraft, setHourDraft] = useState("");
+
+  // Inline drafting for to-do tiers
+  const [greatDraft, setGreatDraft] = useState("");
+  const [specialDraft, setSpecialDraft] = useState("");
+  const [commonDraft, setCommonDraft] = useState("");
+
+  // Inline drafting for bottom cards
+  const [newBedtimeDraft, setNewBedtimeDraft] = useState("");
+  const [newThoughtDraft, setNewThoughtDraft] = useState("");
+
+  // Inline editing state for task title
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState("");
+
+  // Fullscreen view mode
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = () => {
+    setIsFullscreen((prev) => {
+      const next = !prev;
+      if (next) {
+        if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+      } else {
+        if (document.exitFullscreen && document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    const onFsChange = () => {
+      if (!document.fullscreenElement) {
+        setIsFullscreen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isFullscreen) {
+        setIsFullscreen(false);
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      }
+    };
+    document.addEventListener("fullscreenchange", onFsChange);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("fullscreenchange", onFsChange);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isFullscreen]);
+
+  // Live clock
   useEffect(() => {
     const tick = () =>
       setClock(
-        new Date().toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: false }),
+        new Date().toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: false })
       );
     tick();
     const id = window.setInterval(tick, 1000 * 20);
     return () => window.clearInterval(id);
   }, []);
 
-  // Per-day metadata is local and lightweight — energy, one thing, reflection.
+  // Per-day metadata
   useEffect(() => {
-    setMeta(readJSON<DayMeta>(metaKey(date), EMPTY_META));
+    const loaded = readJSON<DayMeta>(metaKey(date), EMPTY_META);
+    setMeta({
+      ...EMPTY_META,
+      ...loaded,
+      bedtime: Array.isArray(loaded.bedtime) ? loaded.bedtime : DEFAULT_BEDTIME,
+      thoughts: Array.isArray(loaded.thoughts) ? loaded.thoughts : DEFAULT_THOUGHTS,
+    });
   }, [date]);
 
   const patchMeta = (patch: Partial<DayMeta>) => {
@@ -173,8 +227,23 @@ export default function DailyPlannerModule({
     });
   };
 
-  const dayTasks = useMemo(() => tasks.filter((t) => t.scheduledDate === date), [tasks, date]);
+  // Filter tasks for this day (or unscheduled tasks if viewing today)
+  const dayTasks = useMemo(() => {
+    return tasks.filter((t) => (t.scheduledDate ? t.scheduledDate === date : isToday));
+  }, [tasks, date, isToday]);
 
+  // Priority splits for the 2-3-5 ADHD rule
+  const greatTasks = useMemo(() => dayTasks.filter((t) => t.priority === "high"), [dayTasks]);
+  const specialTasks = useMemo(() => dayTasks.filter((t) => t.priority === "medium"), [dayTasks]);
+  const commonTasks = useMemo(
+    () =>
+      dayTasks.filter(
+        (t) => t.priority === "low" || (!t.priority && t.priority !== "high" && t.priority !== "medium")
+      ),
+    [dayTasks]
+  );
+
+  // Scheduled tasks mapping by hour
   const scheduled = useMemo(() => {
     const map = new Map<string, Task[]>();
     for (const t of dayTasks) {
@@ -187,23 +256,17 @@ export default function DailyPlannerModule({
     return map;
   }, [dayTasks]);
 
-  const unscheduled = useMemo(() => dayTasks.filter((t) => !t.scheduledTime), [dayTasks]);
   const dayEvents = useMemo(() => manualEvents.filter((e) => e.date === date), [manualEvents, date]);
 
-  // Missions are the day's *unscheduled* tasks — anything painted into an hour
-  // block lives in the timeline instead, so it never shows up in both places.
-  const missions = useMemo(() => unscheduled.slice(0, 3), [unscheduled]);
-  const done = dayTasks.filter((t) => t.completed).length;
+  const doneCount = dayTasks.filter((t) => t.completed).length;
 
-  // Day score: one thing (40) + missions (40) + energy logged (20).
+  // Day score calculation
   const score = useMemo(() => {
-    let s = 0;
-    if (meta.oneThingDone) s += 40;
-    const m = missions.length || 1;
-    s += Math.round((missions.filter((t) => t.completed).length / m) * 40);
-    if (meta.energy > 0) s += 20;
-    return Math.min(100, s);
-  }, [meta.oneThingDone, meta.energy, missions]);
+    if (dayTasks.length === 0) return meta.energy > 0 ? 20 : 0;
+    const taskScore = Math.round((doneCount / dayTasks.length) * 80);
+    const energyBonus = meta.energy > 0 ? 20 : 0;
+    return Math.min(100, taskScore + energyBonus);
+  }, [doneCount, dayTasks.length, meta.energy]);
 
   const hours = useMemo(() => {
     const out: number[] = [];
@@ -211,50 +274,104 @@ export default function DailyPlannerModule({
     return out;
   }, []);
 
-  const nowHour = new Date().getHours();
+  // Day of week index (0 = Sunday, 1 = Monday, etc.)
+  const dayOfWeekIndex = useMemo(() => {
+    const [y, m, d] = date.split("-").map(Number);
+    return new Date(y, (m ?? 1) - 1, d ?? 1).getDay();
+  }, [date]);
 
+  const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
-  // A task added straight into an hour block is created first, then given its
-  // time. Creation may be async, so we retry until the new task shows up —
-  // otherwise it stays unscheduled and pops out in the missions list instead.
-  const [pending, setPending] = useState<{ title: string; time: string; tries: number } | null>(null);
-
-  useEffect(() => {
-    if (!pending) return;
-    const match = [...tasks]
-      .reverse()
-      .find((t) => t.title === pending.title && t.scheduledDate === date && !t.scheduledTime);
-    if (match) {
-      setPending(null);
-      void onUpdateTask(match.id, { scheduledTime: pending.time });
+  // Add task directly to a specific hour
+  const commitHourAdd = (h: number) => {
+    const title = hourDraft.trim();
+    if (!title) {
+      setAddingHour(null);
       return;
     }
-    if (pending.tries > 20) {
-      setPending(null);
-      return;
-    }
-    const id = window.setTimeout(() => setPending((p) => (p ? { ...p, tries: p.tries + 1 } : p)), 100);
-    return () => window.clearTimeout(id);
-  }, [pending, tasks, date, onUpdateTask]);
-
-
-  const commitHourAdd = (time: string) => {
-    const title = draft.trim();
-    setDraft("");
+    const time = hourKey(h);
+    setHourDraft("");
     setAddingHour(null);
-    if (!title) return;
-    void Promise.resolve(onAddTask(title, "medium", undefined, date, 25)).then(() => {
-      setPending({ title, time, tries: 0 });
-    });
-    onGubbyMessage(`Blocked "${title}" at ${time}. One thing at a time 🌱`, "cozy");
+    void onAddTask(title, "medium", undefined, date, 25, time);
+    onGubbyMessage(`Scheduled "${title}" at ${hourLabel(h)} ⏰`, "cozy");
   };
 
+  // Add tasks into tiers
+  const handleAddGreat = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!greatDraft.trim()) return;
+    const title = greatDraft.trim();
+    setGreatDraft("");
+    void onAddTask(title, "high", undefined, date, 25);
+    onGubbyMessage(`High priority quest locked in: "${title}"! 🌟`, "focused");
+  };
 
-  const commitTrayAdd = () => {
-    const title = trayDraft.trim();
-    if (!title) return;
-    setTrayDraft("");
+  const handleAddSpecial = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!specialDraft.trim()) return;
+    const title = specialDraft.trim();
+    setSpecialDraft("");
     void onAddTask(title, "medium", undefined, date, 25);
+    onGubbyMessage(`Special focus quest added: "${title}"! 🎯`, "focused");
+  };
+
+  const handleAddCommon = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!commonDraft.trim()) return;
+    const title = commonDraft.trim();
+    setCommonDraft("");
+    void onAddTask(title, "low", undefined, date, 15);
+    onGubbyMessage(`Routine quest added: "${title}". Steady rhythm! 🌱`, "cozy");
+  };
+
+  // Bedtime checklist handlers
+  const toggleBedtime = (id: string) => {
+    const updated = (meta.bedtime || DEFAULT_BEDTIME).map((b) =>
+      b.id === id ? { ...b, done: !b.done } : b
+    );
+    patchMeta({ bedtime: updated });
+  };
+
+  const deleteBedtimeItem = (id: string) => {
+    const current = meta.bedtime || DEFAULT_BEDTIME;
+    const updated = current.filter((b) => b.id !== id);
+    patchMeta({ bedtime: updated });
+  };
+
+  const addBedtimeItem = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newBedtimeDraft.trim()) return;
+    const updated = [
+      ...(meta.bedtime || DEFAULT_BEDTIME),
+      { id: `b_${Date.now()}`, text: newBedtimeDraft.trim(), done: false },
+    ];
+    setNewBedtimeDraft("");
+    patchMeta({ bedtime: updated });
+  };
+
+  // Thoughts / Brain Dump handlers
+  const toggleThought = (id: string) => {
+    const updated = (meta.thoughts || DEFAULT_THOUGHTS).map((t) =>
+      t.id === id ? { ...t, done: !t.done } : t
+    );
+    patchMeta({ thoughts: updated });
+  };
+
+  const deleteThoughtItem = (id: string) => {
+    const current = meta.thoughts || DEFAULT_THOUGHTS;
+    const updated = current.filter((t) => t.id !== id);
+    patchMeta({ thoughts: updated });
+  };
+
+  const addThoughtItem = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newThoughtDraft.trim()) return;
+    const updated = [
+      ...(meta.thoughts || DEFAULT_THOUGHTS),
+      { id: `t_${Date.now()}`, text: newThoughtDraft.trim(), done: false },
+    ];
+    setNewThoughtDraft("");
+    patchMeta({ thoughts: updated });
   };
 
   const dropOnHour = (time: string | undefined) => {
@@ -264,316 +381,467 @@ export default function DailyPlannerModule({
     setDragOverHour(null);
   };
 
-  const paintHour = (key: string) => {
-    if (!activePalette) return false;
-    const entry = PALETTE.find((p) => p.label === activePalette)!;
-    const current = meta.blocks[key];
-    const blocks = { ...meta.blocks };
-    if (current && current.label === entry.label) delete blocks[key];
-    else blocks[key] = { label: entry.label, color: entry.color };
-    patchMeta({ blocks });
-    return true;
-  };
-
-  const mono = "font-mono tracking-[0.16em] uppercase";
-
   return (
-<<<<<<< HEAD
-    <>
-      <div className="w-full max-w-3xl mx-auto">
-=======
-    <div className="w-full max-w-4xl mx-auto space-y-4 lg:space-y-5 pb-8">
->>>>>>> 1974ae3d6dfb58220856413e5f8f3177a3cc818f
-      {/* Header */}
-      <header className="rounded-3xl border border-edge bg-surface p-5 sm:p-6 card-shadow">
-        <div className="h-[3px] rounded-full bg-surface-sunken overflow-hidden mb-4">
-
-          <div
-            className="h-full bg-brand transition-[width] duration-500"
-            style={{ width: `${score}%` }}
-          />
+    <div
+      className={
+        isFullscreen
+          ? "fixed inset-0 z-[100] overflow-y-auto bg-[#e8f1e8] p-3 sm:p-6 md:p-8 flex justify-center items-start"
+          : "w-full max-w-6xl xl:max-w-7xl mx-auto pb-16 font-sans transition-all"
+      }
+    >
+      {/* Outer iPad bezel container for tactile digital aesthetic */}
+      <div
+        className={`relative bg-white rounded-[2rem] p-4 sm:p-7 md:p-8 shadow-xl border border-slate-200/80 overflow-hidden w-full ${
+          isFullscreen ? "max-w-6xl xl:max-w-7xl my-auto" : ""
+        }`}
+      >
+        {/* Decorative Golden Sparkles */}
+        <div className="absolute top-5 left-5 pointer-events-none select-none text-amber-400 opacity-80 animate-pulse">
+          <Sparkles size={22} />
         </div>
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <p className={`text-[10px] text-ink-muted ${mono} mb-1`}>ADHD Daily OS</p>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-ink font-fredoka">
-              {isToday ? "Today" : prettyDate(date)}
+        <div className="absolute top-5 right-5 pointer-events-none select-none text-amber-400 opacity-80 animate-pulse">
+          <Sparkles size={22} />
+        </div>
+
+        {/* ============================================================ */}
+        {/* HEADER SECTION: TITLE & DATE SELECTOR BAR                    */}
+        {/* ============================================================ */}
+        <header className="text-center mb-5">
+          <div className="flex items-center justify-between gap-4 mb-3 flex-wrap">
+            <div className="w-28 hidden sm:flex items-center">
+              {isFullscreen && (
+                <button
+                  type="button"
+                  onClick={toggleFullscreen}
+                  className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
+                >
+                  <Minimize2 size={13} />
+                  <span>Exit</span>
+                </button>
+              )}
+            </div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-wider uppercase text-slate-900 font-fredoka flex-1 text-center">
+              Daily Planner
             </h1>
-            {isToday && <p className="text-sm text-ink-muted mt-0.5">{prettyDate(date)}</p>}
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-lg font-bold text-brand tabular-nums">{clock}</span>
-            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border border-brand text-brand ${mono}`}>
-              {score}% day
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-1 mt-3">
-          <button
-            type="button"
-            aria-label="Previous day"
-            onClick={() => onSelectDate(shiftDay(date, -1))}
-            className="p-2 rounded-xl border border-edge text-ink-muted hover:text-ink hover:bg-surface-sunken transition-colors"
-          >
-            <ChevronLeft size={16} />
-          </button>
-          <button
-            type="button"
-            onClick={() => onSelectDate(today)}
-            className="px-3 py-1.5 rounded-xl border border-edge text-xs font-bold text-ink-muted hover:text-ink hover:bg-surface-sunken transition-colors"
-          >
-            Today
-          </button>
-          <button
-            type="button"
-            aria-label="Next day"
-            onClick={() => onSelectDate(shiftDay(date, 1))}
-            className="p-2 rounded-xl border border-edge text-ink-muted hover:text-ink hover:bg-surface-sunken transition-colors"
-          >
-            <ChevronRight size={16} />
-          </button>
-        </div>
-      </header>
-
-      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
-      {/* Energy */}
-      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow">
-
-        <p className={`text-[10px] text-ink-muted ${mono} mb-3`}>// Energy level</p>
-        <div className="flex flex-wrap gap-2">
-          {ENERGY.map((e) => {
-            const on = meta.energy === e.v;
-            return (
-              <button
-                key={e.v}
-                type="button"
-                onClick={() => patchMeta({ energy: on ? 0 : e.v })}
-                className={`font-mono text-[11px] font-bold uppercase tracking-[0.1em] px-3.5 py-2 rounded-lg border transition-colors ${
-                  on ? "" : "border-edge text-ink-muted hover:text-ink"
-                }`}
-                style={
-                  on
-                    ? { borderColor: e.color, color: e.color, background: `${e.color}1F` }
-                    : undefined
-                }
-              >
-                {e.label}
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* One thing */}
-      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow">
-
-        <p className={`text-[10px] text-ink-muted ${mono} mb-3`}>// Non-negotiable</p>
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            aria-label={meta.oneThingDone ? "Mark not done" : "Mark done"}
-            onClick={() => patchMeta({ oneThingDone: !meta.oneThingDone })}
-            className={`w-7 h-7 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${
-              meta.oneThingDone
-                ? "bg-brand border-brand text-surface"
-                : "border-edge text-transparent hover:border-brand"
-            }`}
-          >
-            <Check size={14} strokeWidth={3} />
-          </button>
-          <input
-            value={meta.oneThing}
-            onChange={(e) => patchMeta({ oneThing: e.target.value })}
-            placeholder="The ONE thing that must happen today…"
-            className={`flex-1 bg-transparent outline-none text-lg font-extrabold font-fredoka placeholder:text-ink-muted/60 ${
-              meta.oneThingDone ? "line-through text-ink-muted" : "text-ink"
-            }`}
-          />
-        </div>
-      </section>
-      </div>
-
-      {/* Top 3 missions */}
-      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow">
-
-        <div className="flex items-center justify-between mb-3">
-          <p className={`text-[10px] text-ink-muted ${mono}`}>// Top 3 missions</p>
-          <span className={`text-[10px] text-ink-muted ${mono}`}>
-            {missions.filter((t) => t.completed).length}/{missions.length || 3} done
-          </span>
-        </div>
-        <div className="space-y-2">
-          {missions.map((t, i) => (
-            <div
-              key={t.id}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${
-                t.completed ? "border-brand/40 bg-brand/10" : "border-edge bg-surface-sunken"
-              }`}
-            >
-              <span className="font-mono text-[11px] text-ink-muted w-4">{i + 1}</span>
-              <button
-                type="button"
-                aria-label={t.completed ? "Mark not done" : "Mark done"}
-                onClick={() => onToggleTask(t.id)}
-                className={`w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${
-                  t.completed ? "bg-brand border-brand text-surface" : "border-edge text-transparent hover:border-brand"
-                }`}
-              >
-                <Check size={11} strokeWidth={3} />
-              </button>
-              <span
-                className={`flex-1 min-w-0 truncate text-sm font-semibold ${
-                  t.completed ? "line-through text-ink-muted" : "text-ink"
-                }`}
-              >
-                {t.title}
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-sm font-bold text-slate-700 tabular-nums bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200">
+                {clock}
+              </span>
+              <span className="text-xs font-extrabold text-purple-700 bg-purple-100 px-3 py-1 rounded-full border border-purple-200">
+                {score}% done
               </span>
               <button
                 type="button"
-                aria-label={`Focus on ${t.title}`}
-                onClick={() => onFocusTask(t.title, undefined, t.id)}
-                className="p-1 rounded-md text-ink-muted hover:text-brand transition-colors"
+                onClick={toggleFullscreen}
+                className="h-8 w-8 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-800 flex items-center justify-center transition-colors cursor-pointer"
+                title={isFullscreen ? "Exit Fullscreen (Esc)" : "Fullscreen Mode"}
               >
-                <Play size={12} />
+                {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
               </button>
             </div>
-          ))}
-          {missions.length === 0 && (
-            <p className="text-xs text-ink-muted italic">
-              No missions yet — add one below and it becomes today's top 3.
-            </p>
-          )}
-        </div>
-      </section>
+          </div>
 
-      {/* Time blocks */}
-      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow">
-        <div className="flex items-center justify-between mb-3">
-          <p className={`text-[10px] text-ink-muted ${mono}`}>// Time blocks</p>
-          {Object.keys(meta.blocks).length > 0 && (
-            <button
-              type="button"
-              onClick={() => patchMeta({ blocks: {} })}
-              className={`flex items-center gap-1 text-[10px] text-ink-muted hover:text-ink ${mono}`}
-            >
-              <Eraser size={11} /> clear
-            </button>
-          )}
-        </div>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {PALETTE.map((p) => {
-            const on = activePalette === p.label;
-            return (
-              <button
-                key={p.label}
-                type="button"
-                onClick={() => setActivePalette(on ? null : p.label)}
-                className={`flex items-center gap-1.5 font-mono text-[10px] tracking-[0.1em] px-3 py-1.5 rounded-lg border transition-colors ${
-                  on ? "" : "border-edge text-ink-muted hover:text-ink"
-                }`}
-                style={on ? { borderColor: p.color, color: p.color, background: `${p.color}1F` } : undefined}
-              >
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: p.color }} />
-                {p.label}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="flex flex-col gap-5">
-          {SEGMENTS.map((seg) => (
-          <div key={seg.key} className="flex flex-col gap-1">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full shrink-0" style={{ background: seg.color }} />
-              <span className={`text-[10px] font-bold text-ink ${mono}`}>{seg.label}</span>
-              <span className="text-[10px] text-ink-muted">{seg.note}</span>
-              <span className="flex-1 h-px bg-edge" />
-            </div>
-          {hours.filter((h) => h >= seg.from && h <= seg.to).map((h) => {
-            const key = hourKey(h);
-            const items = scheduled.get(key) ?? [];
-            const events = dayEvents.filter((e) => e.time?.startsWith(String(h).padStart(2, "0")));
-            const isNow = isToday && h === nowHour;
-            const paint = meta.blocks[key];
-            return (
-              <div key={key} className="flex items-start gap-2.5">
-                <span
-                  className={`font-mono text-[10px] w-11 text-right pt-2.5 shrink-0 tabular-nums ${
-                    isNow ? "text-brand font-bold" : "text-ink-muted"
-                  }`}
+          {/* Date & Day of Week Bar (Lavender Card) */}
+          <div className="bg-[#f0dcfa] border border-[#e2c1f3] rounded-xl px-4 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+            {/* Date navigation */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <span className="font-extrabold text-slate-800 text-sm">Date:</span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  aria-label="Previous day"
+                  onClick={() => onSelectDate(shiftDay(date, -1))}
+                  className="p-1 rounded-lg text-slate-700 hover:bg-purple-200 transition-colors cursor-pointer"
                 >
-                  {hourLabel(h)}
+                  <ChevronLeft size={16} />
+                </button>
+                <span className="font-bold text-slate-800 text-sm sm:text-base border-b-2 border-purple-400 px-2 py-0.5">
+                  {prettyDate(date)}
                 </span>
-                <div
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setDragOverHour(key);
-                  }}
-                  onDragLeave={() => setDragOverHour((k) => (k === key ? null : k))}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    dropOnHour(key);
-                  }}
-                  onClick={() => {
-                    if (paintHour(key)) return;
-                    setAddingHour(key);
-                    setDraft("");
-                    window.setTimeout(() => addRef.current?.focus(), 10);
-                  }}
-                  className={`group flex-1 min-w-0 rounded-lg border border-l-[3px] px-3 py-1.5 min-h-10 space-y-1 transition-colors ${
-                    dragOverHour === key ? "bg-surface-sunken" : "bg-surface-sunken/50"
-                  } ${activePalette ? "cursor-crosshair" : "cursor-pointer"}`}
-                  style={{
-                    borderColor: paint ? `${paint.color}55` : undefined,
-                    borderLeftColor: paint ? paint.color : isNow ? "var(--brand, currentColor)" : undefined,
-                    background: paint ? `${paint.color}14` : undefined,
-                  }}
+                <button
+                  type="button"
+                  aria-label="Next day"
+                  onClick={() => onSelectDate(shiftDay(date, 1))}
+                  className="p-1 rounded-lg text-slate-700 hover:bg-purple-200 transition-colors cursor-pointer"
                 >
-                  {paint && (
-                    <span
-                      className="font-mono text-[10px] tracking-[0.14em]"
-                      style={{ color: paint.color }}
-                    >
-                      {paint.label}
-                    </span>
-                  )}
-                  {events.map((evt) => (
+                  <ChevronRight size={16} />
+                </button>
+                {!isToday && (
+                  <button
+                    type="button"
+                    onClick={() => onSelectDate(today)}
+                    className="text-xs font-bold text-purple-700 hover:text-purple-900 underline ml-1 cursor-pointer"
+                  >
+                    Today
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Day of Week Selector Buttons */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              {DAYS.map((d, idx) => {
+                const isSelected = idx === dayOfWeekIndex;
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      const diff = idx - dayOfWeekIndex;
+                      onSelectDate(shiftDay(date, diff));
+                    }}
+                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-slate-700 flex items-center justify-center text-xs font-bold transition-all cursor-pointer ${
+                      isSelected
+                        ? "bg-slate-800 text-white shadow-sm scale-105"
+                        : "text-slate-800 hover:bg-purple-200"
+                    }`}
+                  >
+                    {d}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Energy level selector strip */}
+          <div className="flex items-center justify-center gap-2 mt-3 flex-wrap">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider font-mono">
+              Energy:
+            </span>
+            {ENERGY.map((e) => {
+              const on = meta.energy === e.v;
+              return (
+                <button
+                  key={e.v}
+                  type="button"
+                  onClick={() => patchMeta({ energy: on ? 0 : e.v })}
+                  className={`text-xs font-bold px-3 py-1 rounded-full border transition-all cursor-pointer ${
+                    on ? "text-white shadow-sm scale-105" : "border-slate-300 text-slate-600 hover:bg-slate-100"
+                  }`}
+                  style={on ? { backgroundColor: e.color, borderColor: e.color } : undefined}
+                >
+                  {e.label}
+                </button>
+              );
+            })}
+          </div>
+        </header>
+
+        {/* ============================================================ */}
+        {/* MAIN 2-COLUMN GRID: SCHEDULE & PRIORITIZED TO-DO LIST        */}
+        {/* ============================================================ */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+          {/* COLUMN 1: SCHEDULE OF ACTIVITIES */}
+          <section className="flex flex-col">
+            <h2 className="text-xs sm:text-sm font-black text-center tracking-wider uppercase text-slate-800 mb-2 font-mono">
+              Schedule of Activities
+            </h2>
+
+            {/* Schedule Lavender Container */}
+            <div className="bg-[#fceeff] border border-[#f3c8fc] rounded-2xl p-3 sm:p-4 flex-1 flex flex-col shadow-sm">
+              <div className="space-y-2">
+                {hours.map((h) => {
+                  const key = hourKey(h);
+                  const items = scheduled.get(key) ?? [];
+                  const events = dayEvents.filter((e) => e.time?.startsWith(String(h).padStart(2, "0")));
+                  const isNow = isToday && new Date().getHours() === h;
+                  const isHover = dragOverHour === key;
+
+                  return (
                     <div
-                      key={evt.id}
-                      className="text-[12px] font-semibold px-2 py-1 rounded-lg border border-dashed border-edge text-ink-muted"
+                      key={h}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setDragOverHour(key);
+                      }}
+                      onDragLeave={() => setDragOverHour((curr) => (curr === key ? null : curr))}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        dropOnHour(key);
+                      }}
+                      className={`flex items-start gap-2.5 py-1 px-1.5 rounded-lg border-b border-purple-200/70 transition-colors ${
+                        isHover ? "bg-purple-200/60" : isNow ? "bg-purple-100/60" : ""
+                      }`}
                     >
-                      📅 {evt.title}
+                      <div className="w-16 flex items-center justify-between shrink-0 pt-0.5 select-none">
+                        <span className="text-xs font-extrabold text-slate-800">
+                          {hourLabel(h)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAddingHour(key);
+                            setHourDraft("");
+                          }}
+                          className="opacity-40 hover:opacity-100 text-purple-700 p-0.5 rounded hover:bg-purple-200 transition-opacity cursor-pointer"
+                          title={`Add activity at ${hourLabel(h)}`}
+                        >
+                          <Plus size={11} />
+                        </button>
+                      </div>
+
+                      <div className="flex-1 min-w-0 space-y-1">
+                        {/* Events from calendar */}
+                        {events.map((ev) => (
+                          <div
+                            key={ev.id}
+                            className="text-xs font-bold text-slate-800 bg-white/80 border border-purple-200 px-2 py-1 rounded-md shadow-xs flex items-center gap-1.5"
+                          >
+                            <Clock size={12} className="text-purple-600 shrink-0" />
+                            <span className="truncate">{ev.title}</span>
+                          </div>
+                        ))}
+
+                        {/* Scheduled Tasks */}
+                        {items.map((t) => (
+                          <div
+                            key={t.id}
+                            className={`group text-xs font-semibold text-slate-800 bg-white border border-purple-300 px-2 py-1.5 rounded-lg shadow-xs flex items-center justify-between gap-1.5 transition-all ${
+                              t.completed ? "opacity-60 line-through" : ""
+                            }`}
+                          >
+                            <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                              <div
+                                draggable
+                                onDragStart={() => setDragId(t.id)}
+                                className="cursor-grab active:cursor-grabbing text-purple-300 hover:text-purple-600 shrink-0"
+                                title="Drag to reschedule"
+                              >
+                                <GripVertical size={13} />
+                              </div>
+                              <button
+                                type="button"
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onToggleTask(t.id);
+                                }}
+                                className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 cursor-pointer ${
+                                  t.completed ? "bg-slate-800 border-slate-800 text-white" : "border-slate-400 hover:border-slate-700"
+                                }`}
+                              >
+                                {t.completed && <Check size={10} strokeWidth={3} />}
+                              </button>
+
+                              {editingTaskId === t.id ? (
+                                <input
+                                  autoFocus
+                                  value={editingTitle}
+                                  onChange={(e) => setEditingTitle(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      if (editingTitle.trim()) void onUpdateTask(t.id, { title: editingTitle.trim() });
+                                      setEditingTaskId(null);
+                                    }
+                                    if (e.key === "Escape") setEditingTaskId(null);
+                                  }}
+                                  onBlur={() => {
+                                    if (editingTitle.trim()) void onUpdateTask(t.id, { title: editingTitle.trim() });
+                                    setEditingTaskId(null);
+                                  }}
+                                  className="bg-transparent border-b border-purple-500 outline-none text-xs font-semibold text-slate-900 px-1 w-full"
+                                />
+                              ) : (
+                                <span
+                                  onDoubleClick={() => {
+                                    setEditingTaskId(t.id);
+                                    setEditingTitle(t.title);
+                                  }}
+                                  title="Double-click to rename"
+                                  className="truncate cursor-text flex-1"
+                                >
+                                  {t.title}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-1 shrink-0">
+                              <button
+                                type="button"
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onFocusTask(t.title, undefined, t.id);
+                                }}
+                                className="p-1 text-slate-500 hover:text-emerald-700 cursor-pointer rounded hover:bg-slate-100"
+                                title="Focus on this"
+                              >
+                                <Play size={11} className="fill-current" />
+                              </button>
+                              <button
+                                type="button"
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  void onUpdateTask(t.id, { scheduledTime: undefined });
+                                }}
+                                className="p-1 text-slate-400 hover:text-amber-700 cursor-pointer text-xs rounded hover:bg-slate-100"
+                                title="Remove time only"
+                              >
+                                ✕
+                              </button>
+                              <button
+                                type="button"
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onDeleteTask(t.id);
+                                  onGubbyMessage("Activity deleted 🗑️", "thoughtful");
+                                }}
+                                className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer rounded hover:bg-slate-100"
+                                title="Delete task permanently"
+                              >
+                                <Trash2 size={11} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+
+                        {/* Inline add task for this hour */}
+                        {addingHour === key ? (
+                          <div className="flex items-center gap-1.5 pt-1">
+                            <input
+                              autoFocus
+                              type="text"
+                              value={hourDraft}
+                              onChange={(e) => setHourDraft(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") commitHourAdd(h);
+                                if (e.key === "Escape") setAddingHour(null);
+                              }}
+                              placeholder="Activity / plan…"
+                              className="flex-1 bg-white border border-purple-400 rounded px-2 py-0.5 outline-none text-xs text-slate-800 shadow-xs focus:ring-1 focus:ring-purple-500"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => commitHourAdd(h)}
+                              className="text-xs font-bold text-white bg-purple-700 hover:bg-purple-800 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                            >
+                              Add
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setAddingHour(null)}
+                              className="text-xs font-semibold text-slate-500 hover:text-slate-700 px-1 cursor-pointer"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          items.length === 0 &&
+                          events.length === 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setAddingHour(key);
+                                setHourDraft("");
+                              }}
+                              className="w-full text-left border-b border-dashed border-purple-300/80 hover:border-purple-500 h-6 transition-colors text-[11px] text-purple-400/60 hover:text-purple-700 px-1 flex items-center cursor-pointer"
+                            >
+                              + Add activity
+                            </button>
+                          )
+                        )}
+                      </div>
                     </div>
-                  ))}
-                  {items.map((t) => (
-                    <div
-                      key={t.id}
-                      draggable
-                      onDragStart={() => setDragId(t.id)}
-                      onDragEnd={() => setDragId(null)}
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-surface border border-edge card-shadow"
-                      style={{ opacity: dragId === t.id ? 0.4 : 1 }}
-                    >
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+
+          {/* COLUMN 2: TO-DO LIST (TIERED PRIORITIES - 2 / 3 / 5 RULE) */}
+          <section className="flex flex-col gap-4">
+            <h2 className="text-xs sm:text-sm font-black text-center tracking-wider uppercase text-slate-800 font-mono">
+              To-Do List
+            </h2>
+
+            {/* TIER 1: 2 GREAT THINGS (Yellow Card) */}
+            <div className="bg-[#fef7cd] border border-[#f5eb9b] rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 font-fredoka flex items-center gap-1.5">
+                  <span>⭐ 2 Great Things</span>
+                </h3>
+                <span className="text-[10px] font-bold text-amber-900 font-mono bg-amber-200/80 px-2 py-0.5 rounded-full">
+                  {greatTasks.length} / 2 High Priority
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                {greatTasks.map((t) => (
+                  <div
+                    key={t.id}
+                    className="flex items-center justify-between gap-2.5 group py-1 border-b border-amber-200/50 last:border-b-0"
+                  >
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <div
+                        draggable
+                        onDragStart={() => setDragId(t.id)}
+                        className="cursor-grab active:cursor-grabbing text-amber-500/60 hover:text-amber-800 shrink-0"
+                        title="Drag to Schedule to assign an hour"
+                      >
+                        <GripVertical size={14} />
+                      </div>
                       <button
                         type="button"
-                        aria-label={t.completed ? "Mark not done" : "Mark done"}
-                        onClick={() => onToggleTask(t.id)}
-                        className={`w-4 h-4 shrink-0 rounded-full border flex items-center justify-center transition-colors ${
-                          t.completed ? "border-brand text-brand" : "border-edge text-transparent hover:border-brand"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleTask(t.id);
+                        }}
+                        className={`w-5 h-5 rounded border-2 border-slate-700 flex items-center justify-center shrink-0 cursor-pointer ${
+                          t.completed ? "bg-slate-800 text-white" : "bg-transparent hover:bg-amber-100"
                         }`}
                       >
-                        <Check size={10} strokeWidth={3} />
+                        {t.completed && <Check size={12} strokeWidth={3} />}
                       </button>
-                      <span
-                        className={`flex-1 min-w-0 truncate text-[13px] font-semibold ${
-                          t.completed ? "line-through text-ink-muted" : "text-ink"
-                        }`}
+
+                      {editingTaskId === t.id ? (
+                        <input
+                          autoFocus
+                          value={editingTitle}
+                          onChange={(e) => setEditingTitle(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              if (editingTitle.trim()) void onUpdateTask(t.id, { title: editingTitle.trim() });
+                              setEditingTaskId(null);
+                            }
+                            if (e.key === "Escape") setEditingTaskId(null);
+                          }}
+                          onBlur={() => {
+                            if (editingTitle.trim()) void onUpdateTask(t.id, { title: editingTitle.trim() });
+                            setEditingTaskId(null);
+                          }}
+                          className="bg-transparent border-b-2 border-amber-600 outline-none text-sm font-bold text-slate-900 px-1 w-full"
+                        />
+                      ) : (
+                        <span
+                          onDoubleClick={() => {
+                            setEditingTaskId(t.id);
+                            setEditingTitle(t.title);
+                          }}
+                          title="Double-click to rename"
+                          className={`text-sm font-bold text-slate-800 truncate cursor-text flex-1 ${
+                            t.completed ? "line-through opacity-60" : ""
+                          }`}
+                        >
+                          {t.title}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      {t.scheduledTime && (
+                        <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded">
+                          {t.scheduledTime}
+                        </span>
+                      )}
+                      <label
+                        className="relative shrink-0"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        {t.title}
-                      </span>
-                      <label className="relative shrink-0" onClick={(e) => e.stopPropagation()}>
-                        <span className="text-[10px] font-bold text-ink-muted hover:text-brand cursor-pointer tabular-nums">
+                        <span className="text-[11px] font-bold text-amber-900 bg-amber-200 hover:bg-amber-300 px-2 py-0.5 rounded cursor-pointer tabular-nums">
                           {t.estimatedMinutes ?? 25}m
                         </span>
                         <select
@@ -583,188 +851,507 @@ export default function DailyPlannerModule({
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         >
                           {DURATIONS.map((d) => (
-                            <option key={d} value={d}>{d}m</option>
+                            <option key={d} value={d}>
+                              {d}m
+                            </option>
                           ))}
                         </select>
                       </label>
                       <button
                         type="button"
-                        aria-label={`Focus on ${t.title}`}
-                        onClick={() => onFocusTask(t.title, undefined, t.id)}
-                        className="p-1 rounded-md text-ink-muted hover:text-brand transition-colors"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onFocusTask(t.title, undefined, t.id);
+                        }}
+                        className="p-1 text-slate-600 hover:text-emerald-700 cursor-pointer rounded hover:bg-amber-100"
+                        title="Focus on this mission"
                       >
-                        <Play size={11} />
+                        <Play size={13} className="fill-current" />
                       </button>
                       <button
                         type="button"
-                        aria-label={`Unschedule ${t.title}`}
-                        onClick={() => onUpdateTask(t.id, { scheduledTime: undefined })}
-                        className="p-1 rounded-md text-ink-muted hover:text-ink transition-colors"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteTask(t.id);
+                          onGubbyMessage("Task deleted from today 🗑️", "thoughtful");
+                        }}
+                        className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer rounded hover:bg-amber-100"
+                        title="Delete task"
                       >
-                        <Inbox size={11} />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={`Delete ${t.title}`}
-                        onClick={() => onDeleteTask(t.id)}
-                        className="p-1 rounded-md text-ink-muted hover:text-rose-400 transition-colors"
-                      >
-                        <Trash2 size={11} />
+                        <Trash2 size={13} />
                       </button>
                     </div>
-                  ))}
-                  {addingHour === key && (
-                    <input
-                      ref={addRef}
-                      value={draft}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => setDraft(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          commitHourAdd(key);
-                        } else if (e.key === "Escape") {
-                          setDraft("");
-                          setAddingHour(null);
-                        }
-                      }}
-                      onBlur={() => commitHourAdd(key)}
-                      placeholder={`What happens at ${hourLabel(h)}?`}
-                      className="w-full text-[13px] bg-transparent outline-none text-ink placeholder:text-ink-muted/60 py-1"
-                    />
-                  )}
-                  {items.length === 0 && events.length === 0 && !paint && addingHour !== key && (
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity text-[11px] text-ink-muted flex items-center gap-1 py-0.5">
-                      <Plus size={11} /> add a block
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-          </div>
-          ))}
-        </div>
-      </section>
+                  </div>
+                ))}
 
-      {/* Unscheduled tray */}
-      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow">
-        <p className={`text-[10px] text-ink-muted ${mono} mb-3`}>// Not yet blocked</p>
-        <div
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault();
-            dropOnHour(undefined);
-          }}
-          className="bg-surface-sunken border border-edge rounded-2xl p-4"
-        >
-          <div className="space-y-1.5 mb-3">
-            {unscheduled.map((t) => (
-              <div
-                key={t.id}
-                draggable
-                onDragStart={() => setDragId(t.id)}
-                onDragEnd={() => setDragId(null)}
-                className="flex items-center gap-2 px-2 py-1.5 rounded-xl bg-surface border border-edge cursor-grab active:cursor-grabbing"
-                style={{ opacity: dragId === t.id ? 0.4 : 1 }}
-              >
-                <span
-                  className={`flex-1 min-w-0 truncate text-[13px] font-semibold ${
-                    t.completed ? "line-through text-ink-muted" : "text-ink"
-                  }`}
-                >
-                  {t.title}
+                <form onSubmit={handleAddGreat} className="flex items-center gap-2 mt-2 pt-2 border-t border-amber-300/60">
+                  <input
+                    type="text"
+                    value={greatDraft}
+                    onChange={(e) => setGreatDraft(e.target.value)}
+                    placeholder="+ Add a high-priority non-negotiable…"
+                    className="flex-1 bg-transparent border-0 border-b border-amber-400 focus:border-amber-600 outline-none text-xs font-semibold text-slate-800 placeholder:text-amber-800/60 py-1"
+                  />
+                  {greatDraft.trim() && (
+                    <button
+                      type="submit"
+                      className="text-xs font-bold text-amber-900 bg-amber-300 hover:bg-amber-400 px-2.5 py-1 rounded cursor-pointer transition-colors"
+                    >
+                      Add
+                    </button>
+                  )}
+                </form>
+              </div>
+            </div>
+
+            {/* TIER 2: 3 SPECIAL THINGS (Mint / Sage Card) */}
+            <div className="bg-[#e4ece9] border border-[#cbd9d4] rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 font-fredoka flex items-center gap-1.5">
+                  <span>🎯 3 Special Things</span>
+                </h3>
+                <span className="text-[10px] font-bold text-teal-900 font-mono bg-teal-200/80 px-2 py-0.5 rounded-full">
+                  {specialTasks.length} / 3 Medium Priority
                 </span>
-                <button
-                  type="button"
-                  aria-label={`Delete ${t.title}`}
-                  onClick={() => onDeleteTask(t.id)}
-                  className="p-1 rounded-md text-ink-muted hover:text-rose-400 transition-colors"
-                >
-                  <Trash2 size={11} />
-                </button>
               </div>
-            ))}
-            {unscheduled.length === 0 && (
-              <p className="text-xs text-ink-muted italic">
-                Everything has a home. Drag a block back here to unschedule it.
-              </p>
-            )}
-          </div>
-          <input
-            value={trayDraft}
-            onChange={(e) => setTrayDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                commitTrayAdd();
-              }
-            }}
-            placeholder="+ quick add for this day"
-            className="w-full text-[13px] bg-surface border border-edge rounded-xl px-3 py-2 outline-none text-ink placeholder:text-ink-muted/60 focus:border-brand transition-colors"
-          />
-        </div>
-      </section>
 
-      {/* Reflection */}
-      <section className="rounded-3xl border border-edge bg-surface p-5 card-shadow grid sm:grid-cols-2 gap-5">
-        <div>
-          <p className={`text-[10px] text-brand ${mono} mb-2`}>Win of the day</p>
-          <input
-            value={meta.win}
-            onChange={(e) => patchMeta({ win: e.target.value })}
-            placeholder="Something that went right…"
-            className="w-full bg-transparent outline-none text-sm font-semibold text-ink placeholder:text-ink-muted/60 border-b border-edge pb-2 focus:border-brand transition-colors"
-          />
-        </div>
-        <div>
-          <p className={`text-[10px] text-ink-muted ${mono} mb-2`}>What dragged</p>
-          <input
-            value={meta.drag}
-            onChange={(e) => patchMeta({ drag: e.target.value })}
-            placeholder="Friction to fix tomorrow…"
-            className="w-full bg-transparent outline-none text-sm font-semibold text-ink placeholder:text-ink-muted/60 border-b border-edge pb-2 focus:border-brand transition-colors"
-          />
-        </div>
-      </section>
+              <div className="space-y-2">
+                {specialTasks.map((t) => (
+                  <div
+                    key={t.id}
+                    className="flex items-center justify-between gap-2.5 group py-1 border-b border-teal-200/50 last:border-b-0"
+                  >
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <div
+                        draggable
+                        onDragStart={() => setDragId(t.id)}
+                        className="cursor-grab active:cursor-grabbing text-teal-600/60 hover:text-teal-800 shrink-0"
+                        title="Drag to Schedule to assign an hour"
+                      >
+                        <GripVertical size={14} />
+                      </div>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleTask(t.id);
+                        }}
+                        className={`w-5 h-5 rounded border-2 border-slate-700 flex items-center justify-center shrink-0 cursor-pointer ${
+                          t.completed ? "bg-slate-800 text-white" : "bg-transparent hover:bg-teal-100"
+                        }`}
+                      >
+                        {t.completed && <Check size={12} strokeWidth={3} />}
+                      </button>
 
-      {/* Day score */}
-      <div
-        className={`mt-6 mb-2 p-5 rounded-2xl border transition-colors ${
-          score === 100 ? "border-brand bg-brand/10" : "border-edge bg-surface-sunken"
-        }`}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <p className={`text-[10px] text-ink-muted ${mono} mb-1`}>Day score</p>
-            <p className="text-4xl font-extrabold font-fredoka text-ink leading-none">
-              {score}
-              <span className="text-base font-normal text-ink-muted">/100</span>
-            </p>
+                      {editingTaskId === t.id ? (
+                        <input
+                          autoFocus
+                          value={editingTitle}
+                          onChange={(e) => setEditingTitle(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              if (editingTitle.trim()) void onUpdateTask(t.id, { title: editingTitle.trim() });
+                              setEditingTaskId(null);
+                            }
+                            if (e.key === "Escape") setEditingTaskId(null);
+                          }}
+                          onBlur={() => {
+                            if (editingTitle.trim()) void onUpdateTask(t.id, { title: editingTitle.trim() });
+                            setEditingTaskId(null);
+                          }}
+                          className="bg-transparent border-b-2 border-teal-600 outline-none text-sm font-semibold text-slate-900 px-1 w-full"
+                        />
+                      ) : (
+                        <span
+                          onDoubleClick={() => {
+                            setEditingTaskId(t.id);
+                            setEditingTitle(t.title);
+                          }}
+                          title="Double-click to rename"
+                          className={`text-sm font-semibold text-slate-800 truncate cursor-text flex-1 ${
+                            t.completed ? "line-through opacity-60" : ""
+                          }`}
+                        >
+                          {t.title}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      {t.scheduledTime && (
+                        <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded">
+                          {t.scheduledTime}
+                        </span>
+                      )}
+                      <label
+                        className="relative shrink-0"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <span className="text-[11px] font-bold text-teal-900 bg-teal-200 hover:bg-teal-300 px-2 py-0.5 rounded cursor-pointer tabular-nums">
+                          {t.estimatedMinutes ?? 25}m
+                        </span>
+                        <select
+                          aria-label={`Set duration for ${t.title}`}
+                          value={t.estimatedMinutes ?? 25}
+                          onChange={(e) => onUpdateTask(t.id, { estimatedMinutes: Number(e.target.value) })}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        >
+                          {DURATIONS.map((d) => (
+                            <option key={d} value={d}>
+                              {d}m
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onFocusTask(t.title, undefined, t.id);
+                        }}
+                        className="p-1 text-slate-600 hover:text-emerald-700 cursor-pointer rounded hover:bg-teal-100"
+                        title="Focus on this mission"
+                      >
+                        <Play size={13} className="fill-current" />
+                      </button>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteTask(t.id);
+                          onGubbyMessage("Task deleted from today 🗑️", "thoughtful");
+                        }}
+                        className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer rounded hover:bg-teal-100"
+                        title="Delete task"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                <form onSubmit={handleAddSpecial} className="flex items-center gap-2 mt-2 pt-2 border-t border-teal-300/60">
+                  <input
+                    type="text"
+                    value={specialDraft}
+                    onChange={(e) => setSpecialDraft(e.target.value)}
+                    placeholder="+ Add a special focus task…"
+                    className="flex-1 bg-transparent border-0 border-b border-teal-400 focus:border-teal-600 outline-none text-xs font-semibold text-slate-800 placeholder:text-teal-800/60 py-1"
+                  />
+                  {specialDraft.trim() && (
+                    <button
+                      type="submit"
+                      className="text-xs font-bold text-teal-950 bg-teal-300 hover:bg-teal-400 px-2.5 py-1 rounded cursor-pointer transition-colors"
+                    >
+                      Add
+                    </button>
+                  )}
+                </form>
+              </div>
+            </div>
+
+            {/* TIER 3: 5 COMMON THINGS (Blush Pink Card) */}
+            <div className="bg-[#fce5eb] border border-[#fad2dc] rounded-2xl p-4 shadow-sm flex-1">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 font-fredoka flex items-center gap-1.5">
+                  <span>🌱 5 Common Things</span>
+                </h3>
+                <span className="text-[10px] font-bold text-pink-900 font-mono bg-pink-200/80 px-2 py-0.5 rounded-full">
+                  {commonTasks.length} / 5 Routines
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                {commonTasks.map((t) => (
+                  <div
+                    key={t.id}
+                    className="flex items-center justify-between gap-2.5 group py-1 border-b border-pink-200/50 last:border-b-0"
+                  >
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <div
+                        draggable
+                        onDragStart={() => setDragId(t.id)}
+                        className="cursor-grab active:cursor-grabbing text-pink-500/60 hover:text-pink-800 shrink-0"
+                        title="Drag to Schedule to assign an hour"
+                      >
+                        <GripVertical size={14} />
+                      </div>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleTask(t.id);
+                        }}
+                        className={`w-5 h-5 rounded border-2 border-slate-700 flex items-center justify-center shrink-0 cursor-pointer ${
+                          t.completed ? "bg-slate-800 text-white" : "bg-transparent hover:bg-pink-100"
+                        }`}
+                      >
+                        {t.completed && <Check size={12} strokeWidth={3} />}
+                      </button>
+
+                      {editingTaskId === t.id ? (
+                        <input
+                          autoFocus
+                          value={editingTitle}
+                          onChange={(e) => setEditingTitle(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              if (editingTitle.trim()) void onUpdateTask(t.id, { title: editingTitle.trim() });
+                              setEditingTaskId(null);
+                            }
+                            if (e.key === "Escape") setEditingTaskId(null);
+                          }}
+                          onBlur={() => {
+                            if (editingTitle.trim()) void onUpdateTask(t.id, { title: editingTitle.trim() });
+                            setEditingTaskId(null);
+                          }}
+                          className="bg-transparent border-b-2 border-pink-600 outline-none text-sm text-slate-900 px-1 w-full"
+                        />
+                      ) : (
+                        <span
+                          onDoubleClick={() => {
+                            setEditingTaskId(t.id);
+                            setEditingTitle(t.title);
+                          }}
+                          title="Double-click to rename"
+                          className={`text-sm text-slate-800 truncate cursor-text flex-1 ${
+                            t.completed ? "line-through opacity-60" : ""
+                          }`}
+                        >
+                          {t.title}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      {t.scheduledTime && (
+                        <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded">
+                          {t.scheduledTime}
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onFocusTask(t.title, undefined, t.id);
+                        }}
+                        className="p-1 text-slate-600 hover:text-emerald-700 cursor-pointer rounded hover:bg-pink-100"
+                        title="Focus on this mission"
+                      >
+                        <Play size={13} className="fill-current" />
+                      </button>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteTask(t.id);
+                          onGubbyMessage("Task deleted from today 🗑️", "thoughtful");
+                        }}
+                        className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer rounded hover:bg-pink-100"
+                        title="Delete task"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                <form onSubmit={handleAddCommon} className="flex items-center gap-2 mt-2 pt-2 border-t border-pink-300/60">
+                  <input
+                    type="text"
+                    value={commonDraft}
+                    onChange={(e) => setCommonDraft(e.target.value)}
+                    placeholder="+ Add a daily maintenance / routine task…"
+                    className="flex-1 bg-transparent border-0 border-b border-pink-400 focus:border-pink-600 outline-none text-xs font-semibold text-slate-800 placeholder:text-pink-800/60 py-1"
+                  />
+                  {commonDraft.trim() && (
+                    <button
+                      type="submit"
+                      className="text-xs font-bold text-pink-950 bg-pink-300 hover:bg-pink-400 px-2.5 py-1 rounded cursor-pointer transition-colors"
+                    >
+                      Add
+                    </button>
+                  )}
+                </form>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* ============================================================ */}
+        {/* BOTTOM SPLIT CARDS: BEDTIME ROUTINE & WHAT I AM THINKING     */}
+        {/* ============================================================ */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+          {/* Bottom Left: Things to do before bedtime (Warm Salmon/Coral) */}
+          <div className="bg-[#ffd7cf] border border-[#fcc0b3] rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 font-fredoka flex items-center gap-1.5">
+                <span>🌙 Things to do before bedtime</span>
+              </h3>
+              <span className="text-[10px] font-bold text-rose-900 font-mono bg-rose-200/80 px-2 py-0.5 rounded-full">
+                {(meta.bedtime || DEFAULT_BEDTIME).filter((b) => b.done).length} / {(meta.bedtime || DEFAULT_BEDTIME).length}
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              {(meta.bedtime || DEFAULT_BEDTIME).map((item) => (
+                <div key={item.id} className="group flex items-center justify-between gap-2.5 py-0.5">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <button
+                      type="button"
+                      onClick={() => toggleBedtime(item.id)}
+                      className={`w-5 h-5 rounded border-2 border-slate-700 flex items-center justify-center shrink-0 cursor-pointer ${
+                        item.done ? "bg-slate-800 text-white" : "bg-transparent hover:bg-rose-100"
+                      }`}
+                    >
+                      {item.done && <Check size={12} strokeWidth={3} />}
+                    </button>
+                    <span
+                      className={`text-xs sm:text-sm font-medium text-slate-800 flex-1 truncate ${
+                        item.done ? "line-through opacity-60" : ""
+                      }`}
+                    >
+                      {item.text}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => deleteBedtimeItem(item.id)}
+                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-700 cursor-pointer rounded transition-opacity"
+                    title="Delete item"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              ))}
+
+              <form onSubmit={addBedtimeItem} className="flex items-center gap-2 mt-2 pt-2 border-t border-rose-300/60">
+                <input
+                  type="text"
+                  value={newBedtimeDraft}
+                  onChange={(e) => setNewBedtimeDraft(e.target.value)}
+                  placeholder="+ Add bedtime routine item…"
+                  className="flex-1 bg-transparent border-0 border-b border-rose-400 focus:border-rose-600 outline-none text-xs text-slate-800 placeholder:text-rose-800/60 py-1"
+                />
+                {newBedtimeDraft.trim() && (
+                  <button
+                    type="submit"
+                    className="text-xs font-bold text-rose-950 bg-rose-200 hover:bg-rose-300 px-2.5 py-1 rounded cursor-pointer transition-colors"
+                  >
+                    Add
+                  </button>
+                )}
+              </form>
+            </div>
           </div>
-          <div className="text-right">
-            <span className="text-3xl" aria-hidden>
-              {score === 100 ? "🏆" : score >= 60 ? "🔥" : score > 0 ? "🌱" : "😴"}
-            </span>
-            <p className={`text-[10px] text-ink-muted ${mono} mt-1`}>
-              {done}/{dayTasks.length} tasks
-            </p>
+
+          {/* Bottom Right: What I am thinking? (Fresh Light Green Brain Dump) */}
+          <div className="bg-[#dcfbda] border border-[#c1f5bf] rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 font-fredoka flex items-center gap-1.5">
+                <span>💭 What I am thinking? (Brain Dump)</span>
+              </h3>
+              <span className="text-[10px] font-bold text-emerald-900 font-mono bg-emerald-200/80 px-2 py-0.5 rounded-full">
+                {(meta.thoughts || DEFAULT_THOUGHTS).filter((t) => t.done).length} / {(meta.thoughts || DEFAULT_THOUGHTS).length}
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              {(meta.thoughts || DEFAULT_THOUGHTS).map((item) => (
+                <div key={item.id} className="group flex items-center justify-between gap-2.5 py-0.5">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <button
+                      type="button"
+                      onClick={() => toggleThought(item.id)}
+                      className={`w-5 h-5 rounded border-2 border-slate-700 flex items-center justify-center shrink-0 cursor-pointer ${
+                        item.done ? "bg-slate-800 text-white" : "bg-transparent hover:bg-emerald-100"
+                      }`}
+                    >
+                      {item.done && <Check size={12} strokeWidth={3} />}
+                    </button>
+                    <span
+                      className={`text-xs sm:text-sm font-medium text-slate-800 flex-1 truncate ${
+                        item.done ? "line-through opacity-60" : ""
+                      }`}
+                    >
+                      {item.text}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => deleteThoughtItem(item.id)}
+                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-emerald-800 cursor-pointer rounded transition-opacity"
+                    title="Delete thought"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              ))}
+
+              <form onSubmit={addThoughtItem} className="flex items-center gap-2 mt-2 pt-2 border-t border-green-300/60">
+                <input
+                  type="text"
+                  value={newThoughtDraft}
+                  onChange={(e) => setNewThoughtDraft(e.target.value)}
+                  placeholder="+ Add wandering thought / brain dump…"
+                  className="flex-1 bg-transparent border-0 border-b border-emerald-400 focus:border-emerald-600 outline-none text-xs text-slate-800 placeholder:text-emerald-800/60 py-1"
+                />
+                {newThoughtDraft.trim() && (
+                  <button
+                    type="submit"
+                    className="text-xs font-bold text-emerald-950 bg-emerald-200 hover:bg-emerald-300 px-2.5 py-1 rounded cursor-pointer transition-colors"
+                  >
+                    Add
+                  </button>
+                )}
+              </form>
+            </div>
           </div>
         </div>
-        <div className="mt-3 h-1 rounded-full bg-edge overflow-hidden">
-          <div className="h-full bg-brand transition-[width] duration-500" style={{ width: `${score}%` }} />
-        </div>
+
+        {/* ============================================================ */}
+        {/* FOOTER CARD: DAILY REFLECTION / GOOD DEED                    */}
+        {/* ============================================================ */}
+        <footer className="mt-5 relative">
+          <div className="bg-[#cbf7fb] border border-[#aaeef4] rounded-2xl p-4 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
+              <label htmlFor="good-deed" className="text-xs sm:text-sm font-extrabold text-slate-900 shrink-0 font-fredoka">
+                ✨ My good deed / win of the day is...
+              </label>
+              <input
+                id="good-deed"
+                type="text"
+                value={meta.goodDeed || meta.win || ""}
+                onChange={(e) => patchMeta({ goodDeed: e.target.value, win: e.target.value })}
+                placeholder="Sent an encouraging text or stayed kind to myself today…"
+                className="flex-1 bg-transparent border-0 border-b-2 border-teal-400 focus:border-teal-700 outline-none text-sm font-bold text-teal-950 placeholder:text-teal-700/50 py-1"
+              />
+            </div>
+          </div>
+
+          <div className="absolute -bottom-2 -right-2 pointer-events-none select-none text-amber-400 opacity-80 animate-pulse">
+            <Sparkles size={20} />
+          </div>
+        </footer>
       </div>
-    </div>
 
-    {/* Focus Bloom - Celebration for completed tasks */}
-    <FocusBloom
-      completedTasks={dayTasks}
-      maxTasks={12}
-      onBloomComplete={() => {
-        onGubbyMessage("Focus bloom achieved! 🌸", "excited");
-      }}
-    />
-    </>
+      {/* Focus Bloom celebration for completed tasks */}
+      <FocusBloom
+        completedTasks={dayTasks}
+        maxTasks={12}
+        onBloomComplete={() => {
+          onGubbyMessage("Focus bloom achieved! 🌸 You did wonderful today!", "excited");
+        }}
+      />
+    </div>
   );
 }

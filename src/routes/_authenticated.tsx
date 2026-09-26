@@ -8,8 +8,8 @@ import { isGuestMode } from "../lib/guestMode";
 import { ToastProvider } from "../components/Toast";
 
 /**
- * Pathless auth-gate layout for the entire signed-in surface (today, todo,
- * calendar, etc.). Extracted from the old single-page shell so every tab is
+ * Pathless auth-gate layout for the entire signed-in surface (today,
+ * calendar, focus, etc.). Extracted from the old single-page shell so every tab is
  * a real, shareable, back-button-friendly URL.
  *
  * Auth check has to run on the client — Firebase auth state lives in

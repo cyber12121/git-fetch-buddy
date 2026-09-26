@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Brain, Play, Calendar, CheckSquare, CalendarDays, Repeat, Sparkles, Home } from "lucide-react";
+import { Play, Calendar, CalendarDays, Repeat, Sparkles, Home } from "lucide-react";
 import SettingsPanel from "./SettingsPanel";
 import { useTheme } from "../lib/themes";
 
@@ -8,7 +8,7 @@ type GubbyMood = "happy" | "thoughtful" | "focused" | "cozy" | "excited";
 interface TabDef {
   id: string;
   label: string;
-  Icon: typeof Brain;
+  Icon: typeof Home;
   msg: string;
   mood: GubbyMood;
   group: "do" | "plan";
@@ -16,8 +16,6 @@ interface TabDef {
 
 const TABS: TabDef[] = [
   { id: "daily", label: "Today", Icon: Home, msg: "One day, one block at a time. Here's your plan.", mood: "focused", group: "do" },
-  { id: "compiler", label: "Compiler", Icon: Brain, msg: "Dump all those messy thoughts here! Sprig will sweep and filter them.", mood: "thoughtful", group: "do" },
-  { id: "todo", label: "To-Do", Icon: CheckSquare, msg: "Here are your active quests! Let's conquer them one micro-step at a time.", mood: "cozy", group: "do" },
   { id: "taskmaster", label: "Focus", Icon: Play, msg: "Welcome to the sensory-friendly Focus Timer! One thing at a time. No clutter.", mood: "focused", group: "do" },
   { id: "calendar", label: "Calendar", Icon: Calendar, msg: "Take a high-level look at your days! Plot tasks easily.", mood: "cozy", group: "plan" },
   { id: "weekly", label: "Weekly", Icon: CalendarDays, msg: "Let's map out your week!", mood: "cozy", group: "plan" },
@@ -82,8 +80,7 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
             </div>
 
             {/* Desktop tab row — always visible on large screens so every
-                workspace (Today, Compiler, To-Do, Focus, Calendar, Weekly,
-                Habits) is reachable from the top. */}
+                workspace (Today, Focus, Calendar, Weekly, Habits) is reachable from the top. */}
             <nav
               aria-label="Primary"
               className="hidden lg:flex items-center gap-1 order-3 lg:order-none w-full lg:w-auto justify-center lg:justify-start mt-2 lg:mt-0"
@@ -157,7 +154,7 @@ export default function AppNav({ activeTab, onTabChange, onGubbyMessage, onPrefe
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
 
-        <ul className="grid grid-cols-7">
+        <ul className="grid grid-cols-5">
           {TABS.map((tab) => {
             const isActive = activeTab === tab.id;
             return (

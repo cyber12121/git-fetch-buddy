@@ -8,6 +8,8 @@ import { logCompletion, unlogCompletion } from "../lib/completionLog";
 import { CONFETTI_COLORS } from "../lib/xpMilestones";
 import type { GubbyMood } from "./useGubbyState";
 
+import type { TabId } from "../components/app/ModuleRouter";
+
 interface Options {
   tasks: Task[];
   syncTasks: (t: Task[]) => void;
@@ -28,7 +30,7 @@ interface Options {
   setGubbyMood: (m: GubbyMood) => void;
   setGubbyMessage: (m: string) => void;
 
-  setActiveTab: (tab: "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits") => void;
+  setActiveTab: (tab: TabId) => void;
   setActiveTaskTitle: (v: string | null) => void;
   setActiveTaskId: (v: string | null) => void;
   setActiveSubtaskId: (v: string | null) => void;
@@ -88,7 +90,8 @@ export function useTaskHandlers(o: Options) {
     priority: "low" | "medium" | "high",
     notes?: string,
     scheduledDate?: string,
-    estimatedMinutes?: number
+    estimatedMinutes?: number,
+    scheduledTime?: string
   ) => {
     let googleEventId: string | undefined;
 
@@ -108,7 +111,7 @@ export function useTaskHandlers(o: Options) {
     }
 
     const newTask: Task = {
-      id: `task-${Date.now()}`,
+      id: `task-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       title,
       priority,
       notes,
@@ -116,6 +119,7 @@ export function useTaskHandlers(o: Options) {
       subtasks: [],
       createdAt: new Date().toISOString(),
       scheduledDate,
+      scheduledTime,
       googleEventId,
       estimatedMinutes: estimatedMinutes ?? estimateTaskDuration(title),
     };
@@ -238,21 +242,6 @@ export function useTaskHandlers(o: Options) {
     syncTasks(updated);
   }, [tasks, syncTasks, accessToken, setIsLoadingGoogle, loadGoogleEvents]);
 
-  const handleTasksCompiled = useCallback((newCompiled: Omit<Task, "id" | "completed" | "subtasks" | "createdAt">[]) => {
-    const formatted: Task[] = newCompiled.map((t, idx) => ({
-      id: `task-compiled-${Date.now()}-${idx}`,
-      title: t.title,
-      priority: t.priority,
-      notes: t.notes || "Compiled from brain dump. Go time!",
-      completed: false,
-      subtasks: [],
-      createdAt: new Date().toISOString(),
-      estimatedMinutes: estimateTaskDuration(t.title),
-    }));
-    syncTasks([...formatted, ...tasks]);
-    setActiveTab("todo");
-  }, [tasks, syncTasks, setActiveTab]);
-
   const handleFocusTask = useCallback((
     taskTitle: string,
     subtaskTitle?: string,
@@ -322,7 +311,7 @@ export function useTaskHandlers(o: Options) {
   return {
     handleAddHabit, handleDeleteHabit, handleToggleHabitDay,
     handleAddTask, handleDeleteTask, handleToggleTask, handleUpdateTask,
-    handleTasksCompiled, handleFocusTask, handleCompleteActiveTask,
+    handleFocusTask, handleCompleteActiveTask,
     handleAddManualEvent, handleDeleteManualEvent,
   };
 }

@@ -10,7 +10,10 @@ vi.mock("../lib/googleCalendar", () => ({
   createGoogleCalendarEvent: vi.fn(),
   deleteGoogleCalendarEvent: vi.fn(),
 }));
-vi.mock("../lib/rewardHistory", () => ({ recordReward: vi.fn() }));
+vi.mock("../lib/rewardHistory", () => ({
+  recordReward: vi.fn(),
+  removeRewardByMessage: vi.fn(),
+}));
 
 interface Harness {
   tasks: Task[];

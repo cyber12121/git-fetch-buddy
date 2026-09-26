@@ -6,15 +6,13 @@ import ErrorBoundary from "../ErrorBoundary";
 
 // Code-split every workspace module so the initial bundle only carries the
 // shell. Each chunk is fetched the first time its tab is opened.
-const CompilerModule = lazy(() => import("../CompilerModule"));
-const MagicTodoModule = lazy(() => import("../MagicTodoModule"));
 const TaskmasterModule = lazy(() => import("../TaskmasterModule"));
 const CalendarModule = lazy(() => import("../CalendarModule"));
 const WeeklyPlannerModule = lazy(() => import("../WeeklyPlannerModule"));
 const HabitTrackerModule = lazy(() => import("../HabitTrackerModule"));
 const DailyPlannerModule = lazy(() => import("../DailyPlannerModule"));
 
-export type TabId = "compiler" | "todo" | "taskmaster" | "calendar" | "weekly" | "habits" | "daily";
+export type TabId = "daily" | "taskmaster" | "calendar" | "weekly" | "habits";
 
 type GubbyMood = "happy" | "thoughtful" | "focused" | "cozy" | "excited";
 
@@ -46,15 +44,13 @@ export interface ModuleRouterProps {
   onGainXp: (n: number) => void;
   onOpenTab: (tab: TabId) => void;
 
-  // Task handlers
-  onAddTask: (title: string, priority: "low" | "medium" | "high", notes?: string, scheduledDate?: string, estimatedMinutes?: number) => Promise<void> | void;
+  onAddTask: (title: string, priority: "low" | "medium" | "high", notes?: string, scheduledDate?: string, estimatedMinutes?: number, scheduledTime?: string) => Promise<void> | void;
   onDeleteTask: (id: string) => void;
   onToggleTask: (id: string) => void;
   onUpdateTask: (id: string, updates: Partial<Task>) => Promise<void> | void;
   onUpdateTasksList: (tasks: Task[]) => void;
   onFocusTask: (taskTitle: string, subtaskTitle?: string, taskId?: string, subtaskId?: string) => void;
   onCompleteActiveTask: (taskId: string, subtaskId?: string) => void;
-  onTasksCompiled: (compiled: Omit<Task, "id" | "completed" | "subtasks" | "createdAt">[]) => void;
 
   onAddManualEvent: (data: Omit<CalendarEvent, "id">) => void;
   onDeleteManualEvent: (id: string) => void;
@@ -74,8 +70,7 @@ export interface ModuleRouterProps {
  */
 function ModuleRouterImpl(p: ModuleRouterProps) {
   // Keying the boundary on the active tab means switching tabs auto-recovers
-  // from a per-module crash — the user can't get trapped on the fallback UI
-  // just because Compiler once threw.
+  // from a per-module crash — the user can't get trapped on the fallback UI.
   return (
     <ErrorBoundary key={p.activeTab} label="This section">
       <Suspense fallback={
@@ -90,27 +85,6 @@ function ModuleRouterImpl(p: ModuleRouterProps) {
             transition={{ duration: 0.15 }}
             className="w-full"
           >
-
-            {p.activeTab === "compiler" && (
-              <CompilerModule onTasksCompiled={p.onTasksCompiled} onGubbyMessage={p.onGubbyMessage} />
-            )}
-
-            {p.activeTab === "todo" && (
-              <MagicTodoModule
-                tasks={p.tasks}
-                onAddTask={p.onAddTask}
-                onDeleteTask={p.onDeleteTask}
-                onToggleTask={p.onToggleTask}
-                onUpdateTask={p.onUpdateTask}
-                onFocusTask={p.onFocusTask}
-                onFocusAndSwitch={(taskTitle, taskId) => p.onFocusTask(taskTitle, undefined, taskId)}
-                onGainXp={p.onGainXp}
-                onGubbyMessage={p.onGubbyMessage}
-                selectedDate={p.selectedDate}
-                onSelectDate={p.onSelectDate}
-              />
-            )}
-
             {p.activeTab === "taskmaster" && (
               <TaskmasterModule
                 activeTaskTitle={p.activeTaskTitle}
@@ -198,11 +172,9 @@ export default ModuleRouter;
 
 /** Map of tab id → dynamic import, used to prefetch a module on hover. */
 export const MODULE_PREFETCH: Record<string, () => Promise<unknown>> = {
-  compiler: () => import("../CompilerModule"),
-  todo: () => import("../MagicTodoModule"),
+  daily: () => import("../DailyPlannerModule"),
   taskmaster: () => import("../TaskmasterModule"),
   calendar: () => import("../CalendarModule"),
-  daily: () => import("../DailyPlannerModule"),
   weekly: () => import("../WeeklyPlannerModule"),
   habits: () => import("../HabitTrackerModule"),
 };

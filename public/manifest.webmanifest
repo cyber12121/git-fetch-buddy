@@ -1,7 +1,7 @@
 {
   "name": "Momentum",
   "short_name": "Momentum",
-  "description": "An ADHD-friendly cozy focus OS: brain-dump compiler, magic to-do, focus timer, calendar, habits, and Gubby.",
+  "description": "An ADHD-friendly cozy focus OS: daily planner, focus timer, calendar, weekly planner, habits, and Gubby.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

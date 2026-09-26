@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&amp;family=Plus+Jakarta+Sans:wght@500;700;750;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "surface-container-lowest": "#ffffff",
+          "on-tertiary-container": "#472200",
+          "on-tertiary-fixed-variant": "#6f3800",
+          "tertiary-container": "#cc8143",
+          "inverse-primary": "#ffb4a2",
+          "surface-variant": "#dee4db",
+          "on-background": "#171d18",
+          "primary-fixed-dim": "#ffb4a2",
+          "on-secondary-fixed-variant": "#284f2a",
+          "primary-fixed": "#ffdad2",
+          "surface-bright": "#f5fbf2",
+          "secondary-container": "#beecb9",
+          "surface-tint": "#a33d23",
+          "on-tertiary": "#ffffff",
+          "inverse-surface": "#2c322c",
+          "surface-dim": "#d6dcd3",
+          "tertiary-fixed-dim": "#ffb780",
+          "tertiary-fixed": "#ffdcc4",
+          "on-primary-fixed-variant": "#83260e",
+          "tertiary": "#8e4e14",
+          "surface-container-low": "#eff5ec",
+          "secondary-fixed-dim": "#a5d2a2",
+          "outline": "#8a716c",
+          "on-primary-container": "#590f00",
+          "background": "#f5fbf2",
+          "error": "#ba1a1a",
+          "on-primary-fixed": "#3c0700",
+          "surface-container-highest": "#dee4db",
+          "on-surface": "#171d18",
+          "on-secondary-fixed": "#002106",
+          "secondary": "#406840",
+          "on-primary": "#ffffff",
+          "error-container": "#ffdad6",
+          "on-surface-variant": "#57423d",
+          "inverse-on-surface": "#edf2e9",
+          "secondary-fixed": "#c1eebc",
+          "on-error": "#ffffff",
+          "on-tertiary-fixed": "#2f1400",
+          "on-error-container": "#93000a",
+          "on-secondary": "#ffffff",
+          "on-secondary-container": "#446c44",
+          "primary": "#a33d23",
+          "outline-variant": "#dec0b9",
+          "surface-container": "#eaf0e7",
+          "surface": "#f5fbf2",
+          "surface-container-high": "#e4eae1",
+          "primary-container": "#e76f51"
+        },
+        "borderRadius": {
+          "DEFAULT": "1rem",
+          "lg": "2rem",
+          "xl": "3rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "gutter": "1.25rem",
+          "space-xl": "2rem",
+          "space-xs": "0.25rem",
+          "space-lg": "1.25rem",
+          "space-sm": "0.5rem",
+          "gutter-mobile": "0.75rem",
+          "margin": "2rem",
+          "margin-mobile": "1rem",
+          "space-md": "0.875rem",
+          "space-2xl": "3rem"
+        },
+        "fontFamily": {
+          "label-caps": [
+            "Inter"
+          ],
+          "display-hero-mobile": [
+            "Plus Jakarta Sans"
+          ],
+          "body-md": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-xl-mobile": [
+            "Plus Jakarta Sans"
+          ],
+          "label-lg": [
+            "Inter"
+          ],
+          "headline-md": [
+            "Plus Jakarta Sans"
+          ],
+          "body-sm": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-xl": [
+            "Plus Jakarta Sans"
+          ],
+          "display-hero": [
+            "Plus Jakarta Sans"
+          ],
+          "body-lg": [
+            "Plus Jakarta Sans"
+          ]
+        },
+        "fontSize": {
+          "label-caps": [
+            "11px",
+            {
+              "lineHeight": "16px",
+              "letterSpacing": "0.12em",
+              "fontWeight": "700"
+            }
+          ],
+          "display-hero-mobile": [
+            "44px",
+            {
+              "lineHeight": "52px",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "800"
+            }
+          ],
+          "body-md": [
+            "14px",
+            {
+              "lineHeight": "20px",
+              "fontWeight": "500"
+            }
+          ],
+          "headline-xl-mobile": [
+            "26px",
+            {
+              "lineHeight": "34px",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "750"
+            }
+          ],
+          "label-lg": [
+            "13px",
+            {
+              "lineHeight": "16px",
+              "letterSpacing": "0.02em",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-md": [
+            "18px",
+            {
+              "lineHeight": "24px",
+              "fontWeight": "700"
+            }
+          ],
+          "body-sm": [
+            "12px",
+            {
+              "lineHeight": "18px",
+              "fontWeight": "500"
+            }
+          ],
+          "headline-lg": [
+            "22px",
+            {
+              "lineHeight": "28px",
+              "fontWeight": "700"
+            }
+          ],
+          "headline-xl": [
+            "32px",
+            {
+              "lineHeight": "40px",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "800"
+            }
+          ],
+          "display-hero": [
+            "64px",
+            {
+              "lineHeight": "72px",
+              "letterSpacing": "-0.03em",
+              "fontWeight": "800"
+            }
+          ],
+          "body-lg": [
+            "16px",
+            {
+              "lineHeight": "24px",
+              "fontWeight": "500"
+            }
+          ]
+        }
+      },
+    },
+  }</script></head><body class="bg-surface text-on-surface antialiased"><header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(45,58,49,0.04)]"><div class="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center"><span class="material-symbols-outlined text-on-secondary-container text-[20px]">spa</span></div><div class="flex flex-col"><span class="font-headline-md text-headline-md text-on-surface tracking-tight leading-none">Momentum</span><span class="font-label-caps text-label-caps text-secondary uppercase tracking-widest mt-0.5">Cozy Focus</span></div></div><nav class="hidden md:flex items-center p-1.5 bg-surface-container rounded-full shadow-[0_2px_8px_-2px_rgba(45,58,49,0.03)]" data-active-classes="bg-primary-container text-on-primary font-bold shadow-[0_4px_16px_-2px_rgba(231,111,81,0.25)]"><a class="px-5 py-2 rounded-full font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="daily-rhythm" href="#">Daily Rhythm</a><a aria-current="page" class="px-5 py-2 rounded-full transition-all bg-primary-container text-on-primary font-bold shadow-[0_4px_16px_-2px_rgba(231,111,81,0.25)]" data-path="timer-sanctuary" href="#">Timer Sanctuary</a></nav><div class="flex items-center gap-4"><div class="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant"><span class="material-symbols-outlined text-secondary text-[18px]">forest</span><span class="font-body-sm text-body-sm">Morning Dew</span><span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span></div><div class="flex items-center gap-2 pl-2"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="w-full pt-20 bg-surface min-h-[calc(100vh-140px)] max-w-7xl mx-auto px-6 lg:px-12 pb-12"><div class="flex flex-col w-full">
+<!-- Soft Ambient Glow Decor (Contained) -->
+<div class="relative w-full overflow-hidden">
+<div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[340px] bg-secondary-container/30 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<div class="absolute top-48 right-12 w-[380px] h-[280px] bg-primary-container/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<!-- Active Focus Intention Hero Bar -->
+<section class="w-full pt-4 pb-8">
+<div class="bg-surface-container-lowest/80 backdrop-blur-md rounded-xl p-6 sm:p-8 shadow-[0_4px_24px_-4px_rgba(45,58,49,0.05)] flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="flex flex-col gap-2 max-w-2xl">
+<div class="flex flex-wrap items-center gap-2.5">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/60 text-on-secondary-container font-label-caps text-label-caps uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+              Current Anchor
+            </span>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-lg text-label-lg">
+<span class="material-symbols-outlined text-[15px] text-tertiary">check_circle</span>
+              Step 1 of 3: Lace up cozy boots &amp; curate field references
+            </span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight mt-1">
+            Gather cozy moss from the forest brook
+          </h1>
+<p class="font-body-md text-body-md text-on-surface-variant">
+            No rush, no urgent finish line. You are simply showing up for this tender slice of time.
+          </p>
+</div>
+<!-- Mode Switcher Pills -->
+<div class="inline-flex p-1.5 bg-surface-container rounded-full self-start md:self-center shadow-inner">
+<button class="mode-pill px-4 py-2 rounded-full font-label-lg text-label-lg transition-all duration-300 bg-primary-container text-on-primary font-bold shadow-[0_4px_16px_-2px_rgba(231,111,81,0.25)] flex items-center gap-1.5" id="mode-focus" onclick="setTimerMode('focus', 25, 0)">
+<span class="material-symbols-outlined text-[16px]">local_florist</span>
+            Deep Focus (25m)
+          </button>
+<button class="mode-pill px-4 py-2 rounded-full font-label-lg text-label-lg transition-all duration-300 text-on-surface-variant hover:text-on-surface flex items-center gap-1.5" id="mode-break" onclick="setTimerMode('break', 5, 0)">
+<span class="material-symbols-outlined text-[16px]">coffee</span>
+            Gentle Break (5m)
+          </button>
+<button class="mode-pill px-4 py-2 rounded-full font-label-lg text-label-lg transition-all duration-300 text-on-surface-variant hover:text-on-surface flex items-center gap-1.5" id="mode-breathe" onclick="setTimerMode('breathe', 2, 0)">
+<span class="material-symbols-outlined text-[16px]">air</span>
+            Reset &amp; Breathe (2m)
+          </button>
+</div>
+</div>
+</section>
+<!-- Hourly Schedule Context Strip (Contextual Anchor) -->
+<section class="w-full pb-8">
+<div class="bg-surface-container-low/70 rounded-lg p-3.5 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-on-surface-variant">
+<div class="flex items-center gap-3">
+<div class="w-7 h-7 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed-variant">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+</div>
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-label-caps text-label-caps text-secondary uppercase tracking-widest">Rhythm Ribbon</span>
+<span class="font-body-sm text-body-sm text-on-surface font-semibold">9:00 AM – 10:00 AM</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Morning Sanctuary Block: Deep Creative</span>
+</div>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant sm:border-l-0">
+<span class="font-body-sm text-body-sm flex items-center gap-1.5 bg-surface-container-lowest/70 px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-[15px] text-tertiary-container">arrow_forward</span>
+<span class="font-medium text-on-surface">Next:</span> 11:00 AM Gentle Tea Break
+          </span>
+</div>
+</div>
+</section>
+<!-- Main Workspace Stage (Timer Dial + Sensory Dock Layout) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-8">
+<!-- Primary Sanctuary Centerpiece (Timer Dial) -->
+<section class="lg:col-span-8 flex flex-col items-center justify-center bg-surface-container-lowest rounded-xl p-8 sm:p-14 shadow-[0_8px_32px_-6px_rgba(45,58,49,0.05)] relative overflow-hidden">
+<!-- Subtle sensory breath ring pulse behind timer -->
+<div class="absolute w-[360px] h-[360px] sm:w-[440px] sm:h-[440px] rounded-full bg-secondary-container/20 transition-transform duration-1000 ease-in-out pointer-events-none scale-95 opacity-70" id="breath-pulse-ring"></div>
+<!-- Timer Circular Dial with Progress Ring -->
+<div class="relative w-[280px] h-[280px] sm:w-[340px] sm:h-[340px] flex items-center justify-center my-4">
+<svg class="w-full h-full -rotate-90 transform" viewbox="0 0 340 340">
+<!-- Background Track -->
+<circle class="text-surface-container" cx="170" cy="170" fill="transparent" r="144" stroke="currentColor" stroke-width="12"></circle>
+<!-- Soft Active Progress Arc -->
+<circle class="text-primary-container transition-all duration-500 ease-out" cx="170" cy="170" fill="transparent" id="timer-progress-arc" r="144" stroke="currentColor" stroke-dasharray="904.78" stroke-dashoffset="0" stroke-linecap="round" stroke-width="12"></circle>
+</svg>
+<!-- Core Dial Counter Content -->
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 select-none">
+<span class="font-label-caps text-label-caps text-secondary uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">spa</span>
+              Gentle Flow
+            </span>
+<div class="font-display-hero text-display-hero text-on-surface tracking-tighter leading-none transition-all" id="timer-digits">
+              25:00
+            </div>
+<div class="flex items-center gap-2 mt-3 px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-body-sm text-body-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed-dim"></span>
+<span id="timer-subtext">Mindful presence · No rush</span>
+</div>
+</div>
+</div>
+<!-- Minimalist Controls Bar -->
+<div class="flex items-center justify-center gap-4 mt-6 w-full max-w-md">
+<!-- Reset Pill Button -->
+<button class="group w-12 h-12 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-all duration-200" onclick="resetTimer()" title="Reset softly">
+<span class="material-symbols-outlined text-[20px] group-hover:-rotate-45 transition-transform duration-300">replay</span>
+</button>
+<!-- Primary Warm Terracotta Start/Pause Pill -->
+<button class="flex-1 max-w-[200px] h-14 rounded-full bg-primary-container hover:bg-primary text-on-primary font-headline-md text-headline-md tracking-normal flex items-center justify-center gap-2 shadow-[0_6px_24px_-2px_rgba(231,111,81,0.32)] hover:shadow-[0_8px_28px_-2px_rgba(231,111,81,0.42)] active:scale-[0.98] transition-all duration-200" id="start-pause-btn" onclick="toggleTimer()">
+<span class="material-symbols-outlined text-[24px]" id="start-pause-icon">play_arrow</span>
+<span id="start-pause-text">Start Session</span>
+</button>
+<!-- Skip / Next Step Button -->
+<button class="group w-12 h-12 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-all duration-200" onclick="skipTimerStep()" title="Complete gently">
+<span class="material-symbols-outlined text-[20px] group-hover:translate-x-0.5 transition-transform">skip_next</span>
+</button>
+</div>
+<!-- Calming Micro-Increment Capsules -->
+<div class="flex items-center gap-2 mt-6">
+<button class="px-3 py-1 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-body-sm text-body-sm transition-colors" onclick="adjustTime(-300)">
+            -5 min
+          </button>
+<span class="text-on-surface-variant/40 font-body-sm">·</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Adjust gentle cadence</span>
+<span class="text-on-surface-variant/40 font-body-sm">·</span>
+<button class="px-3 py-1 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-body-sm text-body-sm transition-colors" onclick="adjustTime(300)">
+            +5 min
+          </button>
+</div>
+</section>
+<!-- Companion Dock (Sensory Support & Plant State) -->
+<aside class="lg:col-span-4 flex flex-col gap-6">
+<!-- Grounding Seedling / Plant Widget -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_24px_-4px_rgba(45,58,49,0.05)] relative overflow-hidden flex flex-col">
+<div class="flex items-center justify-between mb-4">
+<span class="font-label-caps text-label-caps text-secondary uppercase tracking-widest">Quiet Companion</span>
+<span class="px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-body-sm text-body-sm font-semibold">Stage 2: Fern Sprout</span>
+</div>
+<div class="flex items-center gap-4 py-2">
+<!-- Illustrated Seedling Badge -->
+<div class="w-20 h-20 rounded-lg bg-surface-container-low flex items-center justify-center relative flex-shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-[44px] text-secondary">potted_plant</span>
+<span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-secondary-fixed animate-ping"></span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-md text-headline-md text-on-surface leading-snug">Mossy Fern</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                Growing calmly alongside you.
+              </p>
+<span class="font-label-caps text-label-caps text-tertiary mt-2">Zero guilt if paused</span>
+</div>
+</div>
+<!-- Progress track towards next serene leaf -->
+<div class="mt-4 pt-4 border-none bg-surface-container-low/60 rounded-lg p-3">
+<div class="flex justify-between items-center text-on-surface-variant font-body-sm text-body-sm mb-1.5">
+<span>Next sprout leaf</span>
+<span class="font-semibold text-on-surface">18 / 25 min</span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container-highest overflow-hidden">
+<div class="h-full bg-secondary rounded-full w-[72%] transition-all duration-700"></div>
+</div>
+</div>
+</div>
+<!-- Sensory Visual Pause: Cabin Scene Card -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_24px_-4px_rgba(45,58,49,0.05)]">
+<div class="w-full h-36 bg-cover bg-center relative" data-alt="A peaceful misty morning view inside a rustic woodland cabin with a hand-thrown ceramic mug emitting delicate steam onto a wooden windowsill, lush green forest pine outside bathed in soft warm morning mist, tactile sage and warm terracotta aesthetic, natural cozy lighting." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDSUcaFxxiqMlEyM9nTN-27SwFOAqRA47l0CF6gcHXIPl5YYpFJ2tk-hu6p5LQIEZ7CIy_7NYcSFiRsgYLQhu33y32brjP9i_K-c3rWouyMer88MYE6xsIQpEE8WBMifxVCRlQxLPrWd_N1KfNL0mEs1KD6ktKY0zoC7a-Tw_MKiw7rD1WMcyEkVIPlaLFvVCP5A61XqPD917IJvYhchtDa2_O6aUNaJbXcJr_ezXYi6SL1ISlaedd6XA')">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/30 to-transparent"></div>
+<div class="absolute bottom-3 left-4 right-4 flex items-center justify-between">
+<span class="px-3 py-1 rounded-full bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-body-sm text-body-sm font-medium flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-secondary">water_drop</span>
+                Forest Glade Sanctuary
+              </span>
+</div>
+</div>
+<div class="p-4 pt-2">
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              When thoughts tangle, rest your eyes on the trees. Attention is a tide, gently receding and returning.
+            </p>
+</div>
+</div>
+<!-- Sensory Gentle Soundscape Pill Selector -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_24px_-4px_rgba(45,58,49,0.05)] flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">equalizer</span>
+<span class="font-headline-md text-headline-md text-on-surface">Sensory Audio</span>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" id="audio-toggle-btn" onclick="toggleAudioMute()">
+<span class="material-symbols-outlined text-[18px]" id="audio-mute-icon">volume_up</span>
+</button>
+</div>
+<div class="flex flex-col gap-2">
+<!-- Soundscape 1: Rain over Moss (Active) -->
+<button class="sound-card active w-full p-3 rounded-lg bg-surface-container text-left flex items-center justify-between transition-all duration-200" onclick="selectSoundscape(this, 'Rain over Moss')">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined text-[18px]">rainy</span>
+</div>
+<div>
+<div class="font-body-md text-body-md font-bold text-on-surface">Rain over Moss</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Soft drops on velvet lichen</div>
+</div>
+</div>
+<span class="sound-status w-2 h-2 rounded-full bg-secondary"></span>
+</button>
+<!-- Soundscape 2: Cabin Woodstove -->
+<button class="sound-card w-full p-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-left flex items-center justify-between transition-all duration-200" onclick="selectSoundscape(this, 'Cabin Woodstove')">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">fireplace</span>
+</div>
+<div>
+<div class="font-body-md text-body-md font-bold text-on-surface">Cabin Woodstove</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Muffled warm crackle</div>
+</div>
+</div>
+<span class="sound-status w-2 h-2 rounded-full bg-transparent"></span>
+</button>
+<!-- Soundscape 3: Forest Brook Pink Noise -->
+<button class="sound-card w-full p-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-left flex items-center justify-between transition-all duration-200" onclick="selectSoundscape(this, 'Forest Brook Pink Noise')">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">waves</span>
+</div>
+<div>
+<div class="font-body-md text-body-md font-bold text-on-surface">Forest Brook Pink Noise</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Low-frequency soothing stream</div>
+</div>
+</div>
+<span class="sound-status w-2 h-2 rounded-full bg-transparent"></span>
+</button>
+</div>
+<!-- Volume Slider Bar -->
+<div class="pt-2 flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">volume_down</span>
+<input class="w-full h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary-container" id="volume-slider" max="100" min="0" type="range" value="45"/>
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">volume_up</span>
+</div>
+</div>
+</aside>
+</div>
+<!-- Sensory Grounding Bar (Bottom Anchor) -->
+<section class="w-full pt-4 pb-2">
+<div class="bg-surface-container-low rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 text-on-surface-variant">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container/50 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">airware</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-on-surface">3-Second Calming Breath</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Inhale for 4s · Hold for 4s · Exhale for 6s</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-body-sm text-body-sm flex items-center gap-2 transition-colors" onclick="triggerSoftChime()">
+<span class="material-symbols-outlined text-[16px] text-tertiary">notifications_active</span>
+            Test Soft Tibetan Bell
+          </button>
+<div class="font-body-sm text-body-sm text-secondary font-medium opacity-0 transition-opacity" id="bell-feedback">
+            Bell rings gently ∼
+          </div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Sanctuary Interactive Controller -->
+<script>
+  // State management
+  let timerDuration = 25 * 60; // 25 mins in seconds
+  let timeLeft = timerDuration;
+  let timerInterval = null;
+  let isRunning = false;
+  let currentMode = 'focus';
+  let isMuted = false;
+
+  const totalCircumference = 2 * Math.PI * 144; // ~904.78
+
+  function updateDisplay() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    const formatted = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    const digitsEl = document.getElementById('timer-digits');
+    if (digitsEl) digitsEl.textContent = formatted;
+
+    // Update Progress Ring
+    const progressArc = document.getElementById('timer-progress-arc');
+    if (progressArc) {
+      const fraction = timeLeft / timerDuration;
+      const offset = totalCircumference * (1 - fraction);
+      progressArc.style.strokeDashoffset = offset;
+    }
+  }
+
+  function toggleTimer() {
+    const btnText = document.getElementById('start-pause-text');
+    const btnIcon = document.getElementById('start-pause-icon');
+    const breathRing = document.getElementById('breath-pulse-ring');
+
+    if (isRunning) {
+      // Pause
+      clearInterval(timerInterval);
+      isRunning = false;
+      if (btnText) btnText.textContent = 'Resume Session';
+      if (btnIcon) btnIcon.textContent = 'play_arrow';
+      if (breathRing) breathRing.classList.remove('scale-105', 'bg-secondary-container/40');
+    } else {
+      // Start
+      isRunning = true;
+      if (btnText) btnText.textContent = 'Pause Peacefully';
+      if (btnIcon) btnIcon.textContent = 'pause';
+      if (breathRing) breathRing.classList.add('scale-105', 'bg-secondary-container/40');
+
+      timerInterval = setInterval(() => {
+        if (timeLeft > 0) {
+          timeLeft--;
+          updateDisplay();
+        } else {
+          clearInterval(timerInterval);
+          isRunning = false;
+          if (btnText) btnText.textContent = 'Session Complete';
+          if (btnIcon) btnIcon.textContent = 'check';
+          triggerSoftChime();
+        }
+      }, 1000);
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    isRunning = false;
+    timeLeft = timerDuration;
+    updateDisplay();
+    const btnText = document.getElementById('start-pause-text');
+    const btnIcon = document.getElementById('start-pause-icon');
+    const breathRing = document.getElementById('breath-pulse-ring');
+    if (btnText) btnText.textContent = 'Start Session';
+    if (btnIcon) btnIcon.textContent = 'play_arrow';
+    if (breathRing) breathRing.classList.remove('scale-105', 'bg-secondary-container/40');
+  }
+
+  function adjustTime(secondsDelta) {
+    timeLeft = Math.max(60, timeLeft + secondsDelta);
+    timerDuration = Math.max(timeLeft, timerDuration);
+    updateDisplay();
+  }
+
+  function skipTimerStep() {
+    resetTimer();
+    const subtext = document.getElementById('timer-subtext');
+    if (subtext) {
+      subtext.textContent = 'Step honored softly &middot; Next ready';
+      setTimeout(() => {
+        subtext.textContent = 'Mindful presence \u00b7 No rush';
+      }, 3500);
+    }
+  }
+
+  function setTimerMode(mode, mins, secs) {
+    currentMode = mode;
+    timerDuration = mins * 60 + secs;
+    timeLeft = timerDuration;
+    
+    // Switch active style on pill tabs
+    const pills = document.querySelectorAll('.mode-pill');
+    pills.forEach(p => {
+      p.className = 'mode-pill px-4 py-2 rounded-full font-label-lg text-label-lg transition-all duration-300 text-on-surface-variant hover:text-on-surface flex items-center gap-1.5';
+    });
+
+    const activeBtn = document.getElementById(`mode-${mode}`);
+    if (activeBtn) {
+      activeBtn.className = 'mode-pill px-4 py-2 rounded-full font-label-lg text-label-lg transition-all duration-300 bg-primary-container text-on-primary font-bold shadow-[0_4px_16px_-2px_rgba(231,111,81,0.25)] flex items-center gap-1.5';
+    }
+
+    const subtext = document.getElementById('timer-subtext');
+    if (subtext) {
+      if (mode === 'focus') subtext.textContent = 'Mindful presence \u00b7 No rush';
+      else if (mode === 'break') subtext.textContent = 'Sip water \u00b7 Stretch fingers';
+      else if (mode === 'breathe') subtext.textContent = 'Deep belly breaths \u00b7 Unclench jaw';
+    }
+
+    resetTimer();
+  }
+
+  function selectSoundscape(element, title) {
+    const cards = document.querySelectorAll('.sound-card');
+    cards.forEach(card => {
+      card.classList.remove('bg-surface-container');
+      card.classList.add('bg-surface-container-low');
+      const dot = card.querySelector('.sound-status');
+      if (dot) {
+        dot.classList.remove('bg-secondary');
+        dot.classList.add('bg-transparent');
+      }
+    });
+
+    element.classList.remove('bg-surface-container-low');
+    element.classList.add('bg-surface-container');
+    const activeDot = element.querySelector('.sound-status');
+    if (activeDot) {
+      activeDot.classList.remove('bg-transparent');
+      activeDot.classList.add('bg-secondary');
+    }
+  }
+
+  function toggleAudioMute() {
+    isMuted = !isMuted;
+    const icon = document.getElementById('audio-mute-icon');
+    const slider = document.getElementById('volume-slider');
+    if (icon) {
+      icon.textContent = isMuted ? 'volume_off' : 'volume_up';
+    }
+    if (slider) {
+      slider.value = isMuted ? 0 : 45;
+    }
+  }
+
+  function triggerSoftChime() {
+    const feedback = document.getElementById('bell-feedback');
+    if (feedback) {
+      feedback.classList.remove('opacity-0');
+      feedback.classList.add('opacity-100');
+      setTimeout(() => {
+        feedback.classList.remove('opacity-100');
+        feedback.classList.add('opacity-0');
+      }, 2400);
+    }
+  }
+
+  // Initialize display on render
+  updateDisplay();
+</script></main><footer class="w-full bg-surface-container-low"><div class="max-w-7xl mx-auto px-6 lg:px-12 py-10 flex flex-col sm:flex-row items-center justify-between gap-4"><div class="flex items-center gap-2 text-on-surface-variant"><span class="material-symbols-outlined text-secondary text-[20px]">potted_plant</span><span class="font-body-sm text-body-sm text-on-surface-variant">Gentle digital pacing for neurodivergent minds</span></div><div class="flex items-center gap-6 font-body-sm text-body-sm text-on-surface-variant"><span class="text-on-surface-variant hover:text-on-surface cursor-pointer transition-colors">Sensory Notes</span><span class="text-on-surface-variant hover:text-on-surface cursor-pointer transition-colors">Breath Pacer</span><span class="text-on-surface-variant hover:text-on-surface cursor-pointer transition-colors">Peaceful Baseline</span></div></div></footer></body></html>

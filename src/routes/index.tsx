@@ -27,8 +27,6 @@ export const Route = createFileRoute("/")({
 
 const KNOWN_TABS = new Set([
   "daily",
-  "compiler",
-  "todo",
   "taskmaster",
   "calendar",
   "weekly",
@@ -46,7 +44,12 @@ function Index() {
     setGuest(isGuestMode());
     if (typeof window !== "undefined") {
       const hash = window.location.hash.replace(/^#\/?/, "");
-      if (KNOWN_TABS.has(hash)) {
+      if (hash === "compiler" || hash === "todo" || hash === "today") {
+        setLegacyTab("daily");
+        try {
+          window.history.replaceState(null, "", window.location.pathname + window.location.search);
+        } catch { /* ignore */ }
+      } else if (KNOWN_TABS.has(hash)) {
         setLegacyTab(hash);
         // Strip the hash so the redirect target doesn't inherit it.
         try {

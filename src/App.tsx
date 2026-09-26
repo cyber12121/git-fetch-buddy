@@ -18,7 +18,7 @@ import { toLocalDateKey } from "./lib/constants";
 import { applyTheme, readStoredTheme, subscribeTheme, type ThemeId } from "./lib/themes";
 
 interface AppProps {
-  /** Which tab is active — driven by the route (`/today`, `/compiler`, …). */
+  /** Which tab is active — driven by the route (`/daily`, `/taskmaster`, …). */
   activeTab: TabId;
   /** Router-backed navigation. Every tab click is a real URL change now. */
   onNavigate: (tab: TabId) => void;
@@ -28,7 +28,7 @@ interface AppProps {
  * Root application shell.
  *
  * Tab routing used to live in a `useHashRouting` hook that pushed `#today`,
- * `#compiler` etc. onto `window.location.hash`. That worked in a single
+ * `#daily` etc. onto `window.location.hash`. That worked in a single
  * `/` route but broke deep-link SEO, back button, and shareable URLs. The
  * router now owns tab identity via `/$tab` — App just receives `activeTab`
  * and `onNavigate` from the route component.
@@ -142,12 +142,14 @@ export default function App({ activeTab, onNavigate }: AppProps) {
 
   // ── Layout decisions ─────────────────────────────────────────────────
   const isFullWidth = activeTab === "weekly" || activeTab === "calendar" || activeTab === "habits" || activeTab === "daily";
-  const hasRightAside = activeTab === "compiler" || activeTab === "todo" || activeTab === "taskmaster";
+  const hasRightAside = activeTab === "taskmaster";
   const rootBgClass = activeTab === "weekly" || activeTab === "calendar"
     ? "bg-canvas text-ink pb-20 md:pb-0"
     : "bg-canvas text-ink-2 pb-24 md:pb-16";
   const containerClass = activeTab === "weekly"
     ? "p-0"
+    : activeTab === "daily"
+    ? "w-full max-w-[1500px] mx-auto px-2 sm:px-6 mt-4"
     : "max-w-[1400px] mx-auto px-4 mt-6";
   const gridClass = isFullWidth
     ? "block"
@@ -206,7 +208,6 @@ export default function App({ activeTab, onNavigate }: AppProps) {
               onUpdateTasksList={data.syncTasks}
               onFocusTask={handlers.handleFocusTask}
               onCompleteActiveTask={handlers.handleCompleteActiveTask}
-              onTasksCompiled={handlers.handleTasksCompiled}
               onAddManualEvent={handlers.handleAddManualEvent}
               onDeleteManualEvent={handlers.handleDeleteManualEvent}
               onAddHabit={handlers.handleAddHabit}

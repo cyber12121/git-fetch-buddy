@@ -38,7 +38,7 @@ function TodaysQuestsImpl({ tasks, onToggleTask }: TodaysQuestsProps) {
 
       {visible.length === 0 ? (
         <p className="text-xs text-ink-muted leading-relaxed py-4 text-center">
-          No quests yet. Add some in the Quest Log!
+          No quests yet. Add some in Today's planner!
         </p>
       ) : (
         <ul className="flex flex-col gap-2">

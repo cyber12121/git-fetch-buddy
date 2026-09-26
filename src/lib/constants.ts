@@ -28,9 +28,9 @@ const DURATION_KEYWORDS: Array<{ words: string[]; minutes: number }> = [
 
 export const DEFAULT_ESTIMATE_MINUTES = 25; // Default pomodoro estimate
 
-// Shared priority color classes so the To-Do badge, Compiler preview, and
-// Calendar priority picker all use the same hues (emerald = low, amber =
-// medium, orange = high) instead of drifting across modules.
+// Shared priority color classes so the task badge and Calendar priority picker
+// all use the same hues (emerald = low, amber = medium, orange = high)
+// instead of drifting across modules.
 // - PRIORITY_CHIP: soft tinted chips (badges / previews)
 // - PRIORITY_SOLID: filled buttons (e.g. Calendar's priority picker)
 export const PRIORITY_CHIP: Record<"low" | "medium" | "high", string> = {

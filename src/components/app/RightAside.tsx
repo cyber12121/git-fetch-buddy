@@ -27,7 +27,6 @@ interface Props {
 function RightAsideImpl(p: Props) {
   const isFocus = p.activeTab === "taskmaster";
   const isToday = p.activeTab === "daily";
-  const isCompiler = p.activeTab === "compiler";
 
   return (
     <aside className="hidden lg:flex flex-col gap-4 w-80 shrink-0">
@@ -66,14 +65,7 @@ function RightAsideImpl(p: Props) {
               body="Pick a single next action from the list. Doing beats deciding."
             />
           )}
-          {isCompiler && (
-            <FocusTip
-              icon="coffee"
-              title="Dump, don't sort"
-              body="Get it out of your head first. Sprig sorts, prioritizes, and schedules for you after."
-            />
-          )}
-          {!isToday && !isCompiler && (
+          {!isToday && (
             <FocusTip
               title="Micro-momentum"
               body="Tiny wins compound. Two minutes on the smallest task counts."
@@ -92,9 +84,9 @@ function FocusTip({
 }: {
   title: string;
   body: string;
-  icon?: "sparkles" | "zap" | "coffee";
+  icon?: "sparkles" | "zap";
 }) {
-  const Icon = icon === "zap" ? Zap : icon === "coffee" ? Coffee : Sparkles;
+  const Icon = icon === "zap" ? Zap : Sparkles;
   return (
     <article className="relative overflow-hidden rounded-3xl border border-edge bg-surface p-4 card-shadow">
       <div

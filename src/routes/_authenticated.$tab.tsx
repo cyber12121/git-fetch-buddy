@@ -2,7 +2,7 @@ import { createFileRoute, notFound, redirect, useNavigate } from "@tanstack/reac
 import App from "../App";
 import type { TabId } from "../components/app/ModuleRouter";
 
-const TABS = ["daily", "compiler", "todo", "taskmaster", "calendar", "weekly", "habits"] as const;
+const TABS = ["daily", "taskmaster", "calendar", "weekly", "habits"] as const;
 type Tab = (typeof TABS)[number];
 
 /**
@@ -11,13 +11,9 @@ type Tab = (typeof TABS)[number];
  * all inherited the root's "Momentum — Cozy Focus OS" metadata.
  */
 const TAB_META: Record<Tab, { title: string; description: string }> = {
-  compiler: {
-    title: "Brain Dump — Momentum",
-    description: "De-clutter messy thoughts into ordered, actionable quests with Sprig.",
-  },
-  todo: {
-    title: "Quests — Momentum",
-    description: "Manage your todo list with priorities, subtasks, voice input, and gentle nudges.",
+  daily: {
+    title: "Today — Momentum",
+    description: "Plan one day at a time with hour-by-hour ADHD time blocks and an unscheduled tray.",
   },
   taskmaster: {
     title: "Focus — Momentum",
@@ -26,10 +22,6 @@ const TAB_META: Record<Tab, { title: string; description: string }> = {
   calendar: {
     title: "Calendar — Momentum",
     description: "Month view of quests, manual events, and Google Calendar sync.",
-  },
-  daily: {
-    title: "Today — Momentum",
-    description: "Plan one day at a time with hour-by-hour ADHD time blocks and an unscheduled tray.",
   },
   weekly: {
     title: "Weekly Planner — Momentum",
@@ -51,8 +43,10 @@ export const Route = createFileRoute("/_authenticated/$tab")({
   // Reject unknown tab segments at match time so `/gibberish` renders the
   // shared 404 instead of a blank App shell.
   beforeLoad: ({ params }) => {
-    // The old Today dashboard was folded into the Daily planner.
-    if (params.tab === "today") throw redirect({ to: "/$tab", params: { tab: "daily" } });
+    // Legacy tabs redirect to the daily planner.
+    if (params.tab === "today" || params.tab === "compiler" || params.tab === "todo") {
+      throw redirect({ to: "/$tab", params: { tab: "daily" } });
+    }
     if (!isTab(params.tab)) throw notFound();
   },
   head: ({ params }) => {
@@ -81,7 +75,7 @@ export const Route = createFileRoute("/_authenticated/$tab")({
         <div className="text-3xl mb-2" aria-hidden="true">🍄</div>
         <h1 className="text-lg font-bold text-ink mb-1">Unknown workspace</h1>
         <p className="text-sm text-ink-muted">
-          That tab doesn't exist. Try Today, Quests, Focus, Calendar, Daily, Weekly, Habits, or Brain Dump.
+          That tab doesn't exist. Try Today, Focus, Calendar, Weekly, or Habits.
         </p>
       </div>
     </main>
